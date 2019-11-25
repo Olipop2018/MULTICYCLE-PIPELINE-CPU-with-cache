@@ -3,6 +3,48 @@ memory = [0] *4096 #Remember when ever you get an address in hex subtract 8192 f
 registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0, 
                   "$12":0,"$13": 0, "$14":0,"$15": 0, "$16":0,"$17": 0, 
                   "$18":0,"$19": 0, "$20":0,"$21": 0, "$22":0,"$23": 0, "$lo":0,"$hi":0}
+Fecth= {"instr": " ",
+            "reghold": { "rs": " " ,"rd": " ", "rt": " " },
+
+            }
+Decode= {"instr": " ",
+            "reghold": { "rs": " " ,"rd": " ", "rt": " " },
+
+            }
+Execution= {"instr": " ",
+            "reghold": { "rs": " " ,"rd": " ", "rt": " " },
+
+            }
+Memory= {"instr": " ",
+            "reghold": { "rs": " " ,"rd": " ", "rt": " " },
+            "fowarding":{"instr":"", "r2":0, "cycle":" execution", "enable":1}
+
+            }
+Writeback= {"instr": " ",
+            "reghold": { "rs": " " ,"rd": " ", "rt": " " },
+            "fowarding":{"instr":"", "r2":0, "cycle":" execution", "enable":1}
+            }
+
+def CPU(instrs, flag):
+      
+      #wribacktoreg
+      registers["rt"]= Writeback["result"]
+      Writeback["fowarding"]#update forward from reghold
+      #memtowrite
+      Writeback["instr"]= memory["instr"]
+      Memory["fowarding"]# update fowrding from reghold
+      #execution
+      Memory["instr"]=Execution["instr"]
+      #decode
+      Execution["instr"]=Decode["instr"]
+      #fetch
+      Decode["instr"]= fetch["instr"]
+
+     
+   
+     
+   
+
 labelIndex = []
 labelName = []
 pcAssign= []
