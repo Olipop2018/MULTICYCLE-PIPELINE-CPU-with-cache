@@ -3,27 +3,29 @@ memory = [0] *4096 #Remember when ever you get an address in hex subtract 8192 f
 registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0, 
                   "$12":0,"$13": 0, "$14":0,"$15": 0, "$16":0,"$17": 0, 
                   "$18":0,"$19": 0, "$20":0,"$21": 0, "$22":0,"$23": 0, "$lo":0,"$hi":0}
-Fecth= {"instr": " ",
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " },
+Fecth= {"instr": " ","type":" ",
+            "reghold": { "rs": " " ,"rd": " ", "rt": " " }
 
             }
-Decode= {"instr": " ",
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " },
+Decode= {"instr": " ","type":" ",
+            "reghold": { "rs": " " ,"rd": " ", "rt": " " , "scrA":0, "scrB":0}
 
             }
-Execution= {"instr": " ",
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " },
+Execution= {"instr": " ","type":" ",
+            "reghold": { "rs": " " ,"rd": " ", "rt": " " , "scrA":0, "scrB":0 ,"result":0}
 
             }
-Memory= {"instr": " ",
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " },
-            "fowarding":{"instr":"", "r2":0, "cycle":" execution", "enable":1}
+Memory= {"instr": " ","type":" ",
+            "reghold": { "rs": " " ,"rd": " ", "rt": " " , "result":0},
+            "fowarding":{"instr":"", "reg":" ","regval": 0, "stage":" ", "enable":1}
 
             }
-Writeback= {"instr": " ",
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " },
-            "fowarding":{"instr":"", "r2":0, "cycle":" execution", "enable":1}
+Writeback= {"instr": " ","type":" ",
+            "reghold": { "rs": " " ,"rd": " ", "rt": " ", "result":0 },
+            "fowarding":{"instr":"", "reg":" ","regval": 0, "stage":" ", "enable":1}
             }
+def multiCycle(instrs):
+    hfkm=0
 
 def CPU(instrs, flag):
       
