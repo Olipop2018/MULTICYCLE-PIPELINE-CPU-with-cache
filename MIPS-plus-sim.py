@@ -8,24 +8,24 @@ registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0,
 
 
 
-ft = {"instr": "", "type": "", "stall": 0, "flush": 0,
+ft = {"instr": "", "type": "", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " ", "imm": 0}
 
             }
-de = {"instr": " ","type":" ", "stall": 0, "flush": 0,
+de = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": { "rs": " " ,"rd": " ", "rt": " ", "scrA": 0, "scrB": 0, "imm": 0}
 
             }
-ex = {"instr": " ","type":" ", "stall": 0, "flush": 0,
+ex = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": { "rs": " " ,"rd": " ", "rt": " " , "scrA":0, "scrB":0 ,"result":0, "imm": 0}
 
             }
-m = {"instr": " ","type":" ", "stall": 0, "flush": 0,
+m = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " ", "result": 0},
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
-wb = {"instr": " ", "type": " ", "stall": 0, "flush": 0,
+wb = {"instr": " ", "type": " ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": { "rs": " ", "rd": " ", "rt": " ", "result": 0},
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
             }
@@ -40,7 +40,13 @@ def multiCycle(instrs):
     hfkm=0
 
 def pipeline(instrs, flag):
-      
+
+    if wb["cycles"] > 0:
+        if wb["type"] == "Rtype":
+            registers[wb["rd"]] == wb["result"]
+        else:
+            registers[wb["rt"]] == wb["result"]
+
       #wribacktoreg
       registers["rt"]= Writeback["result"]
       Writeback["fowarding"]#update forward from reghold
