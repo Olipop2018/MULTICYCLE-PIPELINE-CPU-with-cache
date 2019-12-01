@@ -12,19 +12,23 @@ ft = {"instr": "", "type": "", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " ", "imm": 0}
 
             }
+
 de = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": { "rs": " " ,"rd": " ", "rt": " ", "scrA": 0, "scrB": 0, "imm": 0}
 
             }
+
 ex = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": { "rs": " " ,"rd": " ", "rt": " " , "scrA":0, "scrB":0 ,"result":0, "imm": 0}
 
             }
+
 m = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " ", "result": 0},
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
+
 wb = {"instr": " ", "type": " ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": { "rs": " ", "rd": " ", "rt": " ", "result": 0},
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
@@ -34,31 +38,40 @@ wb = {"instr": " ", "type": " ", "stall": 0, "flush": 0, "cycles": 0,
 
 
 
-
+def SplitInstrsStore(instrs):
 
 def multiCycle(instrs):
     hfkm=0
 
-def pipeline(instrs, flag):
-
+def pipeline(instr):
+    # execute said instruction inside this cyhcle
     if wb["cycles"] > 0:
         if wb["type"] == "Rtype":
             registers[wb["rd"]] == wb["result"]
         else:
             registers[wb["rt"]] == wb["result"]
 
-      #wribacktoreg
-      registers["rt"]= Writeback["result"]
-      Writeback["fowarding"]#update forward from reghold
-      #memtowrite
-      Writeback["instr"]= memory["instr"]
-      Memory["fowarding"]# update fowrding from reghold
-      #execution
-      Memory["instr"]=Execution["instr"]
-      #decode
-      Execution["instr"]=Decode["instr"]
-      #fetch
-      Decode["instr"]= fetch["instr"]
+    # determines weather or not the instruction moves on to the next cycle
+    if wb["flush"] == 0:
+
+
+
+    #wribacktoreg
+    registers["rt"]= Writeback["result"]
+    Writeback["fowarding"]#update forward from reghold
+    #memtowrite
+    Writeback["instr"]= memory["instr"]
+    Memory["fowarding"]# update fowrding from reghold
+    #execution
+    Memory["instr"]=Execution["instr"]
+    #decode
+    Execution["instr"]=Decode["instr"]
+    #fetch
+    Decode["instr"]= fetch["instr"]
+
+
+
+        SplitInstrsStore(instr)
 
      
    
