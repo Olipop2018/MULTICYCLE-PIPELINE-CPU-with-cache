@@ -24,10 +24,89 @@ Writeback= {"instr": " ","type":" ",
             "reghold": { "rs": " " ,"rd": " ", "rt": " ", "result":0 },
             "fowarding":{"instr":"", "reg":" ","regval": 0, "stage":" ", "enable":1}
             }
-def multiCycle(instrs):
-    hfkm=0
+controlSignals = {"IorD":0,"AluScrA":0,"AluScrB":'01',"AluOp":'00',"PCSrc":0,"IRWrite":0,"PCWrite":0,"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0}
+  
+def multiCycle(instrs, DIC, pc, cycles):
+    cycle1=0
+    cycle2=0
+    cycle3=0
+    cycle4=0
+    cycle5=0
+    while True:
+        cycles= cycle1+ cycle2+ cycle3+ cycle4+ cycle5
+        l = instrs[int(pc/4)]
+        if (int(pc/4) >= len(instrs)):
+            print("Dynamic Instruction Count: ",DIC)
+            return DIC, pc, cycles;
+        DIC+=1
+        #cycle1
+        cycle1+=1
+        controlSignals["IorD"]=0
+        controlSignals["AluScrA"]=0
+        controlSignals["PCSrc"]=0
+        controlSignals["AluScrB"]='01'
+        controlSignals["AluOp"]='00'
+        controlSignals["IRWrite"]=1
+        controlSignals["PCWrite"]=1
+        #pc=pc+4
+   #cycle2  
+        cycle2+=1
+        controlSignals["AluScrA"]=0 
+        controlSignals["AluScrB"]='11'
+        controlSignals["AluOp"]='00'
+        if "w" in l:
+       #cycle3 
+            cycle3+=1
+            controlSignals["AluScrA"]= 1
+            controlSignals["AluScrB"]='10'
+            controlSignals["AluOp"]='00'
+       #cycle4
+            pc= instrExecution(l, pc)
+            controlSignals["IorD"]=0
+            cycle4+=1
+            if "sw" in l:
+                 controlSignals["MemWrite"]=0
+            else:
+                 cycle5+=1
+                 controlSignals["RegDst"]= 0
+                 controlSignals["MemtoReg"]=1
+                 controlSignals["RegWrite"]=1
+        elif "bne" or "beq" in l:
+      #cycle3 
+            cycle3+=1
+            controlSignals["AluScrA"]= 1
+            controlSignals["AluScrB"]='10'
+            controlSignals["AluOp"]='01'
+            controlSignals["PCSrc"]=1
+            controlSignals["Branch"]=1
+            pc= instrExecution(l, pc)
+        else:
+            if "i" in l:    
+           #cycle3
+                cycle3+=1
+                controlSignals["AluScrA"]= 1
+                controlSignals["AluScrB"]='10'
+                controlSignals["AluOp"]='10'
+                #cycle4
+                cycle4+=1
+                pc= instrExecution(l, pc)
+                controlSignals["RegDst"]= 0
+                controlSignals["MemtoReg"]=0
+                controlSignals["RegWrite"]=1
+            else:
+                controlSignals["AluScrA"]=1 
+                controlSignals["AluScrB"]='00'
+                controlSignals["AluOp"]='10'
+                #cycle4
+                cycle4+=1
+                pc= instrExecution(l, pc)
+                controlSignals["RegDst"]= 1
+                controlSignals["MemtoReg"]=0
+                controlSignals["RegWrite"]=1
+           
+              
 
-def CPU(instrs, flag):
+def PipelineCPU(instrs, flag):
       
       #wribacktoreg
       registers["rt"]= Writeback["result"]
@@ -42,55 +121,30 @@ def CPU(instrs, flag):
       #fetch
       Decode["instr"]= fetch["instr"]
 
-     
-   
-     
-   
 
 labelIndex = []
 labelName = []
 pcAssign= []
 
-def HashAndMatch(A,B):
-    for i in range(0, 5):
-        tmp = A * B
-        tmp= format(tmp,'064b')
-        hi2=  int(tmp[:32],2)
-        lo2=  int(tmp[32:],2)   
-        A = hi2 ^ lo2
-    A= format(A,'032b')
-    C= int(A[16:32],2) ^ int(A[:16],2)
-    C= format(C,'016b')
-    C=  int(C[8:16],2) ^ int(C[:8],2)
-   # now does pattern matachin of C
-    C= format(C,'08b')
-    if ('11111' in C):
-        n=1
-    else:
-        n=0
-    registers["$hi"] = n		#Shift high right 32
-    registers["$lo"] = int(C,2)
-    print ("result:" ,"$hi" ,"=", hex(n))
-    print ("result:" ,"$lo" ,"=", hex(int(C,2)))
-    
 
 
-def instrSimulation(instrs, DIC, pc):
+
+def instrExecution(line, pc):
    #pc = int(0)
-   bcount=0
+        #bcount=0
    #DIC = int(0)
-   j= int(0)
-   while True:
-        bcount+=1
+        j= int(0)
+   
+        #bcount+=1
 
        # num= len(instrs)
-        if (int(pc/4) >= len(instrs)):
+        #if (int(pc/4) >= len(instrs)):
            
-            print("Dynamic Instruction Count: ",DIC)
-            return DIC, pc;
-        line = instrs[int(pc/4)]
+         #   print("Dynamic Instruction Count: ",DIC)
+          #  return DIC, pc;
+        #line = instrs[int(pc/4)]
         print("Current instruction PC =",pc)
-        DIC+=1
+        #DIC+=1
         if(line[0:4] == "addi"): # ADDI/U 
             line = line.replace("addi","")
             if(line[0:1] == "u"):
@@ -113,8 +167,6 @@ def instrSimulation(instrs, DIC, pc):
             print ("result:" ,rt ,"=",  hex(result))
             pc += 4# increments pc by 4 
            # pcprint = hex(pc)
-            
-
            # print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)
@@ -253,6 +305,29 @@ def instrSimulation(instrs, DIC, pc):
             instruction = "bne" 
             print (instruction , ("$" + str(line[0])) ,("$" + str(line[1])), str(line[2]))
             if(rs != rt):
+                temp2= temp2-pc
+                pc+=temp2
+                print ("branch to" ,label)
+            else:
+                pc+= 4
+                print ("does not branch, go to next instructions" )
+           # pcprint=  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
+            #print(pc)
+            #print(pcprint)
+        elif(line[0:3] == "beq"): # bne
+            line = line.replace("beq","")
+            line = line.split(",")
+            for i in range(len(labelName)):
+                    if(labelName[i] == line[2]):
+                       lpos = int(labelIndex[i]-1)
+                       label= labelName[i] 
+            temp2= (pcAssign[lpos])+4
+            rs = registers[("$" + str(line[1]))]
+            rt = registers[("$" + str(line[0]))]
+            instruction = "bne" 
+            print (instruction , ("$" + str(line[0])) ,("$" + str(line[1])), str(line[2]))
+            if(rs == rt):
                 temp2= temp2-pc
                 pc+=temp2
                 print ("branch to" ,label)
@@ -515,6 +590,7 @@ def instrSimulation(instrs, DIC, pc):
                 pc= (pcAssign[lpos])+4
                 print ("branch to" ,label)
         print("Next instruction PC =",pc)
+        return pc;
                         #pc= format(int(labelIndex[i]),'026b')
                         #pc = int(pc,2)
                         #hexstr= hex(int(hexstr[0], 2))
