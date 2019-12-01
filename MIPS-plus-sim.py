@@ -3,29 +3,38 @@ memory = [0] *4096 #Remember when ever you get an address in hex subtract 8192 f
 registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0, 
                   "$12":0,"$13": 0, "$14":0,"$15": 0, "$16":0,"$17": 0, 
                   "$18":0,"$19": 0, "$20":0,"$21": 0, "$22":0,"$23": 0, "$lo":0,"$hi":0}
-Fecth= {"instr": " ","type":" ",
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " }
+
+
+
+
+
+ft = {"instr": "", "type": "", "stall": 0, "flush": 0, "cycles": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " ", "imm": 0}
 
             }
-Decode= {"instr": " ","type":" ",
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " , "scrA":0, "scrB":0}
+de = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
+            "reghold": { "rs": " " ,"rd": " ", "rt": " ", "scrA": 0, "scrB": 0, "imm": 0}
 
             }
-Execution= {"instr": " ","type":" ",
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " , "scrA":0, "scrB":0 ,"result":0}
+ex = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
+            "reghold": { "rs": " " ,"rd": " ", "rt": " " , "scrA":0, "scrB":0 ,"result":0, "imm": 0}
 
             }
-Memory= {"instr": " ","type":" ",
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " , "result":0},
-            "fowarding":{"instr":"", "reg":" ","regval": 0, "stage":" ", "enable":1}
+m = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " ", "result": 0},
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
-Writeback= {"instr": " ","type":" ",
-            "reghold": { "rs": " " ,"rd": " ", "rt": " ", "result":0 },
-            "fowarding":{"instr":"", "reg":" ","regval": 0, "stage":" ", "enable":1}
+wb = {"instr": " ", "type": " ", "stall": 0, "flush": 0, "cycles": 0,
+            "reghold": { "rs": " ", "rd": " ", "rt": " ", "result": 0},
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
             }
+
 controlSignals = {"IorD":0,"AluScrA":0,"AluScrB":'01',"AluOp":'00',"PCSrc":0,"IRWrite":0,"PCWrite":0,"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0}
-  
+labelIndex = []
+labelName = []
+pcAssign= []
+
 def multiCycle(instrs, DIC, pc, cycles):
     cycle1=0
     cycle2=0
@@ -104,10 +113,13 @@ def multiCycle(instrs, DIC, pc, cycles):
                 controlSignals["MemtoReg"]=0
                 controlSignals["RegWrite"]=1
            
-              
-
-def PipelineCPU(instrs, flag):
-      
+             
+def pipeline(instrs, flag):
+    if wb["cycles"] > 0:
+           if wb["type"] == "Rtype":
+                registers[wb["rd"]] == wb["result"]
+           else:
+                registers[wb["rt"]] == wb["result"]
       #wribacktoreg
       registers["rt"]= Writeback["result"]
       Writeback["fowarding"]#update forward from reghold
@@ -120,13 +132,6 @@ def PipelineCPU(instrs, flag):
       Execution["instr"]=Decode["instr"]
       #fetch
       Decode["instr"]= fetch["instr"]
-
-
-labelIndex = []
-labelName = []
-pcAssign= []
-
-
 
 
 def instrExecution(line, pc):
