@@ -12,19 +12,23 @@ ft = {"instr": "", "type": "", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " ", "imm": 0}
 
             }
+
 de = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": { "rs": " " ,"rd": " ", "rt": " ", "scrA": 0, "scrB": 0, "imm": 0}
 
             }
+
 ex = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": { "rs": " " ,"rd": " ", "rt": " " , "scrA":0, "scrB":0 ,"result":0, "imm": 0}
 
             }
+
 m = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " ", "result": 0},
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
+
 wb = {"instr": " ", "type": " ", "stall": 0, "flush": 0, "cycles": 0,
             "reghold": { "rs": " ", "rd": " ", "rt": " ", "result": 0},
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
@@ -34,6 +38,7 @@ controlSignals = {"IorD":0,"AluScrA":0,"AluScrB":'01',"AluOp":'00',"PCSrc":0,"IR
 labelIndex = []
 labelName = []
 pcAssign= []
+
 
 def multiCycle(instrs, DIC, pc, cycles):
     cycle1=0
@@ -121,17 +126,55 @@ def pipeline(instrs, flag):
            else:
                 registers[wb["rt"]] == wb["result"]
       #wribacktoreg
-      registers["rt"]= Writeback["result"]
-      Writeback["fowarding"]#update forward from reghold
+    registers["rt"]= Writeback["result"]
+    Writeback["fowarding"]#update forward from reghold
       #memtowrite
-      Writeback["instr"]= memory["instr"]
-      Memory["fowarding"]# update fowrding from reghold
+    Writeback["instr"]= memory["instr"]
+    Memory["fowarding"]# update fowrding from reghold
       #execution
-      Memory["instr"]=Execution["instr"]
+    Memory["instr"]=Execution["instr"]
       #decode
-      Execution["instr"]=Decode["instr"]
+    Execution["instr"]=Decode["instr"]
       #fetch
-      Decode["instr"]= fetch["instr"]
+    Decode["instr"]= fetch["instr"]
+
+
+
+
+def SplitInstrsStore(instrs):
+    gfmg
+def multiCycle(instrs):
+    hfkm=0
+
+def pipeline(instr):
+    # execute said instruction inside this cyhcle
+    if wb["cycles"] > 0:
+        if wb["type"] == "Rtype":
+            registers[wb["rd"]] == wb["result"]
+        else:
+            registers[wb["rt"]] == wb["result"]
+
+    # determines weather or not the instruction moves on to the next cycle
+    if wb["flush"] == 0:
+        fkf
+
+
+    #wribacktoreg
+    registers["rt"]= Writeback["result"]
+    Writeback["fowarding"]#update forward from reghold
+    #memtowrite
+    Writeback["instr"]= memory["instr"]
+    Memory["fowarding"]# update fowrding from reghold
+    #execution
+    Memory["instr"]=Execution["instr"]
+    #decode
+    Execution["instr"]=Decode["instr"]
+    #fetch
+    Decode["instr"]= fetch["instr"]
+
+
+
+    SplitInstrsStore(instr)
 
 
 def instrExecution(line, pc):
