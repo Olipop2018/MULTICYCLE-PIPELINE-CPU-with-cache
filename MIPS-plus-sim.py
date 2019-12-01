@@ -118,13 +118,18 @@ def multiCycle(instrs, DIC, pc, cycles):
                 controlSignals["MemtoReg"]=0
                 controlSignals["RegWrite"]=1
            
-             
+def SplitInstrsStore(instrs):
+    gfmg
+    
 def pipeline(instrs, flag):
     if wb["cycles"] > 0:
            if wb["type"] == "Rtype":
                 registers[wb["rd"]] == wb["result"]
            else:
                 registers[wb["rt"]] == wb["result"]
+    # determines weather or not the instruction moves on to the next cycle
+    if wb["flush"] == 0:
+        fkf
       #wribacktoreg
     registers["rt"]= Writeback["result"]
     Writeback["fowarding"]#update forward from reghold
@@ -137,45 +142,7 @@ def pipeline(instrs, flag):
     Execution["instr"]=Decode["instr"]
       #fetch
     Decode["instr"]= fetch["instr"]
-
-
-
-
-def SplitInstrsStore(instrs):
-    gfmg
-def multiCycle(instrs):
-    hfkm=0
-
-def pipeline(instr):
-    # execute said instruction inside this cyhcle
-    if wb["cycles"] > 0:
-        if wb["type"] == "Rtype":
-            registers[wb["rd"]] == wb["result"]
-        else:
-            registers[wb["rt"]] == wb["result"]
-
-    # determines weather or not the instruction moves on to the next cycle
-    if wb["flush"] == 0:
-        fkf
-
-
-    #wribacktoreg
-    registers["rt"]= Writeback["result"]
-    Writeback["fowarding"]#update forward from reghold
-    #memtowrite
-    Writeback["instr"]= memory["instr"]
-    Memory["fowarding"]# update fowrding from reghold
-    #execution
-    Memory["instr"]=Execution["instr"]
-    #decode
-    Execution["instr"]=Decode["instr"]
-    #fetch
-    Decode["instr"]= fetch["instr"]
-
-
-
     SplitInstrsStore(instr)
-
 
 def instrExecution(line, pc):
    #pc = int(0)
