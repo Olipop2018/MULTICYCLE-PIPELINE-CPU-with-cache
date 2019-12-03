@@ -34,7 +34,7 @@ wb = {"instr": " ", "type": " ", "stall": 0, "flush": 0, "cycles": 0,
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
             }
 
-controlSignals = {"IorD":0,"AluScrA":0,"AluScrB":'01',"AluOp":'00',"PCSrc":0,"IRWrite":0,"PCWrite":0,"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0}
+controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0}
 labelIndex = []
 labelName = []
 pcAssign= []
@@ -55,28 +55,28 @@ def multiCycle(instrs, DIC, pc, cycles):
         DIC+=1
         #cycle1
         cycle1+=1
-        controlSignals["IorD"]=0
         controlSignals["AluScrA"]=0
-        controlSignals["PCSrc"]=0
         controlSignals["AluScrB"]='01'
-        controlSignals["AluOp"]='00'
-        controlSignals["IRWrite"]=1
-        controlSignals["PCWrite"]=1
+        #controlSignals["PCSrc"]=0
+        #controlSignals["IorD"]=0
+       # controlSignals["AluOp"]='00'
+       # controlSignals["IRWrite"]=1
+        #controlSignals["PCWrite"]=1
         #pc=pc+4
    #cycle2  
         cycle2+=1
         controlSignals["AluScrA"]=0 
         controlSignals["AluScrB"]='11'
-        controlSignals["AluOp"]='00'
+       # controlSignals["AluOp"]='00'
         if "w" in l:
        #cycle3 
             cycle3+=1
             controlSignals["AluScrA"]= 1
             controlSignals["AluScrB"]='10'
-            controlSignals["AluOp"]='00'
+           # controlSignals["AluOp"]='00'
        #cycle4
             pc= instrExecution(l, pc)
-            controlSignals["IorD"]=0
+            #controlSignals["IorD"]=0
             cycle4+=1
             if "sw" in l:
                  controlSignals["MemWrite"]=0
@@ -90,8 +90,8 @@ def multiCycle(instrs, DIC, pc, cycles):
             cycle3+=1
             controlSignals["AluScrA"]= 1
             controlSignals["AluScrB"]='10'
-            controlSignals["AluOp"]='01'
-            controlSignals["PCSrc"]=1
+          #  controlSignals["AluOp"]='01'
+           # controlSignals["PCSrc"]=1
             controlSignals["Branch"]=1
             pc= instrExecution(l, pc)
         else:
@@ -100,7 +100,7 @@ def multiCycle(instrs, DIC, pc, cycles):
                 cycle3+=1
                 controlSignals["AluScrA"]= 1
                 controlSignals["AluScrB"]='10'
-                controlSignals["AluOp"]='10'
+              #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
                 pc= instrExecution(l, pc)
@@ -110,7 +110,7 @@ def multiCycle(instrs, DIC, pc, cycles):
             else:
                 controlSignals["AluScrA"]=1 
                 controlSignals["AluScrB"]='00'
-                controlSignals["AluOp"]='10'
+              #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
                 pc= instrExecution(l, pc)
@@ -118,8 +118,7 @@ def multiCycle(instrs, DIC, pc, cycles):
                 controlSignals["MemtoReg"]=0
                 controlSignals["RegWrite"]=1
            
-def SplitInstrsStore(instrs):
-    gfmg
+
     
 def pipeline(instrs, flag):
     if wb["cycles"] > 0:
@@ -142,7 +141,7 @@ def pipeline(instrs, flag):
     Execution["instr"]=Decode["instr"]
       #fetch
     Decode["instr"]= fetch["instr"]
-    SplitInstrsStore(instr)
+    #SplitInstrsStore(instr)
 
 def instrExecution(line, pc):
    #pc = int(0)
