@@ -124,9 +124,9 @@ def SplitInstrsStore(instrs):
 def pipeline(instrs, flag):
     if wb["cycles"] > 0:
            if wb["type"] == "Rtype":
-                registers[wb["rd"]] == wb["result"]
+                registers[wb["rd"]] = wb["result"]
            else:
-                registers[wb["rt"]] == wb["result"]
+                registers[wb["rt"]] = wb["result"]
     # determines weather or not the instruction moves on to the next cycle
     if wb["flush"] == 0:
         fkf
