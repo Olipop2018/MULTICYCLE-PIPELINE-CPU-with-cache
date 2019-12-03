@@ -121,6 +121,10 @@ def multiCycle(instrs, DIC, pc, cycles):
 
     
 def pipeline(instrs, flag):
+
+
+
+
     if wb["cycles"] > 0:
            if wb["type"] == "Rtype":
                 registers[wb["rd"]] = wb["result"]
@@ -141,7 +145,13 @@ def pipeline(instrs, flag):
     Execution["instr"]=Decode["instr"]
       #fetch
     Decode["instr"]= fetch["instr"]
-    #SplitInstrsStore(instr)
+    tmp = instrs[]
+
+
+
+
+
+
 
 def instrExecution(line, pc):
    #pc = int(0)
