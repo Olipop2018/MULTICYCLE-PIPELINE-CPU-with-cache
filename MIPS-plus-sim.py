@@ -641,6 +641,7 @@ def main():
     instrs = []
     FinalDIC= 0
     FinalPC= 0
+    TotalCycles= 0
     
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
@@ -656,7 +657,7 @@ def main():
         instrs.append(line)
        
     print(pcAssign)
-    FinalDIC, FinalPC = instrSimulation(instrs, FinalDIC, FinalPC)
+    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles)
     print("All memory contents:")
     for k in range(0,1024):
         mem= 8192+ (k*4)
@@ -700,17 +701,8 @@ def main():
         word = format(word,"08x")
         print("memory", hex(mem)+": 0x"+ word )
     print("Dynamic Instruction Count: ",FinalDIC)
-    
-   
-        
-    
-    
+
    # print(memory)
-
-    
-   
-   
-
 
     #f.close()
 
