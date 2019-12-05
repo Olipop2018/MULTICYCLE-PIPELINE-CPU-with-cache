@@ -1,3 +1,4 @@
+import math
 memory = [0] *4096 #Remember when ever you get an address in hex subtract 8192 from it then write to it
 				#Dynamic Instruction Count
 registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0, 
@@ -36,9 +37,13 @@ wb = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
             }
 
+<<<<<<< HEAD
 wb = m.copy()
 
 controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite": 0, "Branch": 0}
+=======
+controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, c4:0, "c5":0}
+>>>>>>> cd0aa2893316f9ad2cb64f933a4ebc60598e2732
 labelIndex = []
 labelName = []
 pcAssign= []
@@ -59,7 +64,7 @@ def multiCycle(instrs, DIC, pc, cycles):
         DIC+=1
         #cycle1
         cycle1+=1
-        controlSignals["AluScrA"]=0
+        controlSignals["AluScrA"]+=0
         controlSignals["AluScrB"]='01'
         #controlSignals["PCSrc"]=0
         #controlSignals["IorD"]=0
@@ -69,13 +74,13 @@ def multiCycle(instrs, DIC, pc, cycles):
         #pc=pc+4
    #cycle2  
         cycle2+=1
-        controlSignals["AluScrA"]=0 
+        controlSignals["AluScrA"]+=0 
         controlSignals["AluScrB"]='11'
        # controlSignals["AluOp"]='00'
         if "w" in l:
        #cycle3 
             cycle3+=1
-            controlSignals["AluScrA"]= 1
+            controlSignals["AluScrA"]+=1
             controlSignals["AluScrB"]='10'
            # controlSignals["AluOp"]='00'
        #cycle4
@@ -83,44 +88,48 @@ def multiCycle(instrs, DIC, pc, cycles):
             #controlSignals["IorD"]=0
             cycle4+=1
             if "sw" in l:
-                 controlSignals["MemWrite"]=0
+                controlSignals["c4"]+=1
+                controlSignals["MemWrite"]+=1
             else:
                  cycle5+=1
-                 controlSignals["RegDst"]= 0
-                 controlSignals["MemtoReg"]=1
-                 controlSignals["RegWrite"]=1
+                 controlSignals["c5"]+=1
+                 controlSignals["RegDst"]+= 0
+                 controlSignals["MemtoReg"]+=1
+                 controlSignals["RegWrite"]+=1
         elif "bne" or "beq" in l:
       #cycle3 
             cycle3+=1
-            controlSignals["AluScrA"]= 1
+            controlSignals["c3"]+=1
+            controlSignals["AluScrA"]+= 1
             controlSignals["AluScrB"]='10'
           #  controlSignals["AluOp"]='01'
            # controlSignals["PCSrc"]=1
-            controlSignals["Branch"]=1
+            controlSignals["Branch"]+=1
             pc= instrExecution(l, pc)
         else:
+            controlSignals["c4"]+=1
             if "i" in l:    
            #cycle3
                 cycle3+=1
-                controlSignals["AluScrA"]= 1
+                controlSignals["AluScrA"]+= 1
                 controlSignals["AluScrB"]='10'
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
                 pc= instrExecution(l, pc)
-                controlSignals["RegDst"]= 0
-                controlSignals["MemtoReg"]=0
-                controlSignals["RegWrite"]=1
+                controlSignals["RegDst"]+= 0
+                controlSignals["MemtoReg"]+=0
+                controlSignals["RegWrite"]+=1
             else:
-                controlSignals["AluScrA"]=1 
+                controlSignals["AluScrA"]+=1 
                 controlSignals["AluScrB"]='00'
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
                 pc= instrExecution(l, pc)
-                controlSignals["RegDst"]= 1
-                controlSignals["MemtoReg"]=0
-                controlSignals["RegWrite"]=1
+                controlSignals["RegDst"]+= 1
+                controlSignals["MemtoReg"]+=0
+                controlSignals["RegWrite"]+=1
            
 
     
@@ -1304,11 +1313,12 @@ def saveJumpLabel(asm,labelIndex, labelName):
 
 def main():
    # f = open("mc.txt","w+")
-    h = open("Hash-MIPS-plus.asm","r")
+    h = open("ProgramA_Testcase1.txt","r")
     asm = h.readlines()
     instrs = []
     FinalDIC= 0
     FinalPC= 0
+    TotalCycles= 0
     
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
@@ -1324,7 +1334,7 @@ def main():
         instrs.append(line)
        
     print(pcAssign)
-    FinalDIC, FinalPC = instrSimulation(instrs, FinalDIC, FinalPC)
+    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles)
     print("All memory contents:")
     for k in range(0,1024):
         mem= 8192+ (k*4)
@@ -1368,17 +1378,8 @@ def main():
         word = format(word,"08x")
         print("memory", hex(mem)+": 0x"+ word )
     print("Dynamic Instruction Count: ",FinalDIC)
-    
-   
-        
-    
-    
+
    # print(memory)
-
-    
-   
-   
-
 
     #f.close()
 
