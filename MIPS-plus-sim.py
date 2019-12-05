@@ -8,34 +8,42 @@ registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0,
 
 
 
-
-ft = {"instr": "", "type": "", "stall": 0, "flush": 0, "cycles": 0,
-            "reghold": {"rs": " ", "rd": " ", "rt": " ", "imm": 0}
-
-            }
-
-de = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
-            "reghold": { "rs": " " ,"rd": " ", "rt": " ", "scrA": 0, "scrB": 0, "imm": 0}
-
-            }
-
-ex = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " , "scrA":0, "scrB":0 ,"result":0, "imm": 0}
-
-            }
-
-m = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
-            "reghold": {"rs": " ", "rd": " ", "rt": " ", "result": 0},
+ft = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
 
-wb = {"instr": " ", "type": " ", "stall": 0, "flush": 0, "cycles": 0,
-            "reghold": { "rs": " ", "rd": " ", "rt": " ", "result": 0},
+de = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
+
+            }
+
+ex = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
+
+            }
+
+m = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
+
+            }
+
+wb = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
             }
 
+<<<<<<< HEAD
+wb = m.copy()
+
+controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite": 0, "Branch": 0}
+=======
 controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, c4:0, "c5":0}
+>>>>>>> cd0aa2893316f9ad2cb64f933a4ebc60598e2732
 labelIndex = []
 labelName = []
 pcAssign= []
@@ -125,28 +133,697 @@ def multiCycle(instrs, DIC, pc, cycles):
            
 
     
-def pipeline(instrs, flag):
-    if wb["cycles"] > 0:
-           if wb["type"] == "Rtype":
-                registers[wb["rd"]] = wb["result"]
-           else:
-                registers[wb["rt"]] = wb["result"]
-    # determines weather or not the instruction moves on to the next cycle
-    if wb["flush"] == 0:
-        fkf
-      #wribacktoreg
-    registers["rt"]= Writeback["result"]
-    Writeback["fowarding"]#update forward from reghold
-      #memtowrite
-    Writeback["instr"]= memory["instr"]
-    Memory["fowarding"]# update fowrding from reghold
-      #execution
-    Memory["instr"]=Execution["instr"]
-      #decode
-    Execution["instr"]=Decode["instr"]
-      #fetch
-    Decode["instr"]= fetch["instr"]
-    #SplitInstrsStore(instr)
+def pipeline(instrs, DIC, pc, cycles, diagnostic):
+    while True:
+
+        l = instrs[int(pc / 4)]
+        currentpc = pc
+        if (int(pc / 4) >= len(instrs)):
+            print("Dynamic Instruction Count: ", DIC)
+            return DIC, pc, cycles;
+        DIC += 1
+
+        cycles += 1
+
+        wb = m
+
+        m = ex
+
+        ex = de
+
+        de = ft
+
+        pc = instrExecution(l, pc)
+        ft["instr"] = l
+        ft["nop"] = 0
+        if "w" in l:
+            ft["type"] = "i"
+        elif "i" in l:
+            ft["type"] = "i"
+        else:
+            ft["type"] = "r"
+
+        tmp = l
+        tmp = tmp.replace(",", "")
+        tmp = tmp.split("")
+        i = 0
+
+        while tmp[i].isalpha():
+            inst = inst + tmp[i]
+            i += 1
+
+        ft["name"] = inst
+        while i >= 0:
+            tmp.pop(0)
+            i -= 1
+
+        regs = tmp
+        if ft["name"] == "lw" or "sw":
+            ft["reghold"]["rt"] = regs[0]
+            ft["reghold"]["rs"] = regs[2]
+        elif ft["type"] == "i" and ft["name"] != "bne" or "beq":
+            ft["reghold"]["rt"] = regs[0]
+            ft["reghold"]["rs"] = regs[1]
+        elif ft["type"] == "r":
+            ft["reghold"]["rd"] = regs[0]
+            ft["reghold"]["rs"] = regs[1]
+            ft["reghold"]["rt"] = regs[2]
+        else:
+            ft["reghold"]["rs"] = regs[0]
+            ft["reghold"]["rt"] = regs[1]
+
+        ft["branch"] = 0
+        ft["stall"] = 0
+        if "lw" in l:
+            ft["stall"] = 1
+        elif "beq" in l:
+            if currentpc + 4 != pc:
+                ft["branch"] = 1
+            else:
+                ft["branch"] = 0
+
+            if de["type"] == "i" and de["name"] != "sw":
+                if ft["reghold"]["rs"] == de["reghold"]["rt"]:
+                    if de["name"] == "lw":
+                        de["stall"] = 2
+                    else:
+                        de["stall"] = 1
+                if ft["reghold"]["rt"] == de["reghold"]["rt"]:
+                    if de["name"] == "lw":
+                        de["stall"] = 2
+                    else:
+                        de["stall"] = 1
+            elif de["type"] == "r":
+                if ft["reghold"]["rs"] == de["reghold"]["rd"]:
+                    de["stall"] = 1
+                elif ft["reghold"]["rt"] == de["reghold"]["rd"]:
+                    de["stall"] = 1
+        else:
+            ft["branch"] = 0
+            ft["stall"] = 0
+            ft["nop"] = 0
+
+        if diagnostic == 1:
+
+            print("current instruction's in each cycle")
+            if ft["nop"] == 1:
+                fetch = "bubble stall"
+            elif ft["nop"] == 2:
+                fetch = "empty"
+            elif ft["nop"] == 3:
+                fetch = "bubble flush"
+            else:
+                fetch = ft["instr"]
+
+            if de["nop"] == 1:
+                decode = "bubble"
+            elif de["nop"] == 2:
+                decode = "empty"
+            elif de["nop"] == 3:
+                decode = "bubble flush"
+            else:
+                decode = ft["instr"]
+
+            if ex["nop"] == 1:
+                execution = "bubble"
+            elif ex["nop"] == 2:
+                execution = "empty"
+            elif ex["nop"] == 3:
+                execution = "bubble flush"
+            else:
+                execution = ft["instr"]
+
+            if m["nop"] == 1:
+                mem = "bubble"
+            elif m["nop"] == 2:
+                mem = "empty"
+            elif m["nop"] == 3:
+                mem = "bubble flush"
+            else:
+                mem = ft["instr"]
+
+
+            if wb["nop"] == 1:
+                writeBack = "bubble"
+            elif wb["nop"] == 2:
+                writeBack = "empty"
+            elif wb["nop"] == 3:
+                writeBack = "bubble flush"
+            else:
+                writeBack = ft["instr"]
+
+            print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+            input("press enter to continue")
+
+
+        if ex["stall"] == 2:
+            cycles += 1
+            wb = m
+            m = ex
+            ex["nop"] = 1
+
+            if diagnostic == 1:
+
+                print("current instruction's in each cycle")
+                if ft["nop"] == 1:
+                    fetch = "bubble stall"
+                elif ft["nop"] == 2:
+                    fetch = "empty"
+                elif ft["nop"] == 3:
+                    fetch = "bubble flush"
+                else:
+                    fetch = ft["instr"]
+
+                if de["nop"] == 1:
+                    decode = "bubble"
+                elif de["nop"] == 2:
+                    decode = "empty"
+                elif de["nop"] == 3:
+                    decode = "bubble flush"
+                else:
+                    decode = ft["instr"]
+
+                if ex["nop"] == 1:
+                    execution = "bubble"
+                elif ex["nop"] == 2:
+                    execution = "empty"
+                elif ex["nop"] == 3:
+                    execution = "bubble flush"
+                else:
+                    execution = ft["instr"]
+
+                if m["nop"] == 1:
+                    mem = "bubble"
+                elif m["nop"] == 2:
+                    mem = "empty"
+                elif m["nop"] == 3:
+                    mem = "bubble flush"
+                else:
+                    mem = ft["instr"]
+
+                if wb["nop"] == 1:
+                    writeBack = "bubble"
+                elif wb["nop"] == 2:
+                    writeBack = "empty"
+                elif wb["nop"] == 3:
+                    writeBack = "bubble flush"
+                else:
+                    writeBack = ft["instr"]
+
+                print(
+                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
+            cycles += 1
+            wb = m
+            m["nop"] = 1
+            if diagnostic == 1:
+
+                print("current instruction's in each cycle")
+                if ft["nop"] == 1:
+                    fetch = "bubble stall"
+                elif ft["nop"] == 2:
+                    fetch = "empty"
+                elif ft["nop"] == 3:
+                    fetch = "bubble flush"
+                else:
+                    fetch = ft["instr"]
+
+                if de["nop"] == 1:
+                    decode = "bubble"
+                elif de["nop"] == 2:
+                    decode = "empty"
+                elif de["nop"] == 3:
+                    decode = "bubble flush"
+                else:
+                    decode = ft["instr"]
+
+                if ex["nop"] == 1:
+                    execution = "bubble"
+                elif ex["nop"] == 2:
+                    execution = "empty"
+                elif ex["nop"] == 3:
+                    execution = "bubble flush"
+                else:
+                    execution = ft["instr"]
+
+                if m["nop"] == 1:
+                    mem = "bubble"
+                elif m["nop"] == 2:
+                    mem = "empty"
+                elif m["nop"] == 3:
+                    mem = "bubble flush"
+                else:
+                    mem = ft["instr"]
+
+                if wb["nop"] == 1:
+                    writeBack = "bubble"
+                elif wb["nop"] == 2:
+                    writeBack = "empty"
+                elif wb["nop"] == 3:
+                    writeBack = "bubble flush"
+                else:
+                    writeBack = ft["instr"]
+
+                print(
+                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
+
+        if ex["stall"] == 1:
+            cycles += 1
+            wb = m
+            m = ex
+            ex["nop"] = 1
+            if diagnostic == 1:
+
+                print("current instruction's in each cycle")
+                if ft["nop"] == 1:
+                    fetch = "bubble stall"
+                elif ft["nop"] == 2:
+                    fetch = "empty"
+                elif ft["nop"] == 3:
+                    fetch = "bubble flush"
+                else:
+                    fetch = ft["instr"]
+
+                if de["nop"] == 1:
+                    decode = "bubble"
+                elif de["nop"] == 2:
+                    decode = "empty"
+                elif de["nop"] == 3:
+                    decode = "bubble flush"
+                else:
+                    decode = ft["instr"]
+
+                if ex["nop"] == 1:
+                    execution = "bubble"
+                elif ex["nop"] == 2:
+                    execution = "empty"
+                elif ex["nop"] == 3:
+                    execution = "bubble flush"
+                else:
+                    execution = ft["instr"]
+
+                if m["nop"] == 1:
+                    mem = "bubble"
+                elif m["nop"] == 2:
+                    mem = "empty"
+                elif m["nop"] == 3:
+                    mem = "bubble flush"
+                else:
+                    mem = ft["instr"]
+
+                if wb["nop"] == 1:
+                    writeBack = "bubble"
+                elif wb["nop"] == 2:
+                    writeBack = "empty"
+                elif wb["nop"] == 3:
+                    writeBack = "bubble flush"
+                else:
+                    writeBack = ft["instr"]
+
+                print(
+                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
+
+        if ft["branch"] == 1:
+            cycles += 1
+            wb = m
+            m = ex
+            ex = de
+            de = ft
+
+
+            l = instrs[int(currentpc + 4 / 4)]
+            ft["instr"] = l
+            tmp = l
+            tmp = tmp.replace(",", "")
+            tmp = tmp.split("")
+            i = 0
+
+            while tmp[i].isalpha():
+                inst = inst + tmp[i]
+                i += 1
+
+            ft["name"] = inst
+            while i >= 0:
+                tmp.pop(0)
+                i -= 1
+
+            regs = tmp
+            if ft["name"] == "lw" or "sw":
+                ft["reghold"]["rt"] = regs[0]
+                ft["reghold"]["rs"] = regs[2]
+            elif ft["type"] == "i" and ft["name"] != "bne" or "beq":
+                ft["reghold"]["rt"] = regs[0]
+                ft["reghold"]["rs"] = regs[1]
+            elif ft["type"] == "r":
+                ft["reghold"]["rd"] = regs[0]
+                ft["reghold"]["rs"] = regs[1]
+                ft["reghold"]["rt"] = regs[2]
+            else:
+                ft["reghold"]["rs"] = regs[0]
+                ft["reghold"]["rt"] = regs[1]
+            ft["branch"] = 0
+            ft["stall"] = 0
+            ft["nop"] = 0
+
+            if diagnostic == 1:
+
+                print("current instruction's in each cycle")
+                if ft["nop"] == 1:
+                    fetch = "bubble stall"
+                elif ft["nop"] == 2:
+                    fetch = "empty"
+                elif ft["nop"] == 3:
+                    fetch = "bubble flush"
+                else:
+                    fetch = ft["instr"]
+
+                if de["nop"] == 1:
+                    decode = "bubble"
+                elif de["nop"] == 2:
+                    decode = "empty"
+                elif de["nop"] == 3:
+                    decode = "bubble flush"
+                else:
+                    decode = ft["instr"]
+
+                if ex["nop"] == 1:
+                    execution = "bubble"
+                elif ex["nop"] == 2:
+                    execution = "empty"
+                elif ex["nop"] == 3:
+                    execution = "bubble flush"
+                else:
+                    execution = ft["instr"]
+
+                if m["nop"] == 1:
+                    mem = "bubble"
+                elif m["nop"] == 2:
+                    mem = "empty"
+                elif m["nop"] == 3:
+                    mem = "bubble flush"
+                else:
+                    mem = ft["instr"]
+
+                if wb["nop"] == 1:
+                    writeBack = "bubble"
+                elif wb["nop"] == 2:
+                    writeBack = "empty"
+                elif wb["nop"] == 3:
+                    writeBack = "bubble flush"
+                else:
+                    writeBack = ft["instr"]
+
+                print(
+                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
+
+            ft["nop"] = 3
+        if (int(pc / 4) >= len(instrs)):
+            cycles += 1
+            wb = m
+            m = ex
+            ex = de
+            de = ft
+            ft["nop"] = 2
+
+            if diagnostic == 1:
+
+                print("current instruction's in each cycle")
+                if ft["nop"] == 1:
+                    fetch = "bubble stall"
+                elif ft["nop"] == 2:
+                    fetch = "empty"
+                elif ft["nop"] == 3:
+                    fetch = "bubble flush"
+                else:
+                    fetch = ft["instr"]
+
+                if de["nop"] == 1:
+                    decode = "bubble"
+                elif de["nop"] == 2:
+                    decode = "empty"
+                elif de["nop"] == 3:
+                    decode = "bubble flush"
+                else:
+                    decode = ft["instr"]
+
+                if ex["nop"] == 1:
+                    execution = "bubble"
+                elif ex["nop"] == 2:
+                    execution = "empty"
+                elif ex["nop"] == 3:
+                    execution = "bubble flush"
+                else:
+                    execution = ft["instr"]
+
+                if m["nop"] == 1:
+                    mem = "bubble"
+                elif m["nop"] == 2:
+                    mem = "empty"
+                elif m["nop"] == 3:
+                    mem = "bubble flush"
+                else:
+                    mem = ft["instr"]
+
+                if wb["nop"] == 1:
+                    writeBack = "bubble"
+                elif wb["nop"] == 2:
+                    writeBack = "empty"
+                elif wb["nop"] == 3:
+                    writeBack = "bubble flush"
+                else:
+                    writeBack = ft["instr"]
+
+                print(
+                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
+            cycles += 1
+            wb = m
+            m = ex
+            ex = de
+            de["nop"] = 2
+
+            if diagnostic == 1:
+
+                print("current instruction's in each cycle")
+                if ft["nop"] == 1:
+                    fetch = "bubble stall"
+                elif ft["nop"] == 2:
+                    fetch = "empty"
+                elif ft["nop"] == 3:
+                    fetch = "bubble flush"
+                else:
+                    fetch = ft["instr"]
+
+                if de["nop"] == 1:
+                    decode = "bubble"
+                elif de["nop"] == 2:
+                    decode = "empty"
+                elif de["nop"] == 3:
+                    decode = "bubble flush"
+                else:
+                    decode = ft["instr"]
+
+                if ex["nop"] == 1:
+                    execution = "bubble"
+                elif ex["nop"] == 2:
+                    execution = "empty"
+                elif ex["nop"] == 3:
+                    execution = "bubble flush"
+                else:
+                    execution = ft["instr"]
+
+                if m["nop"] == 1:
+                    mem = "bubble"
+                elif m["nop"] == 2:
+                    mem = "empty"
+                elif m["nop"] == 3:
+                    mem = "bubble flush"
+                else:
+                    mem = ft["instr"]
+
+                if wb["nop"] == 1:
+                    writeBack = "bubble"
+                elif wb["nop"] == 2:
+                    writeBack = "empty"
+                elif wb["nop"] == 3:
+                    writeBack = "bubble flush"
+                else:
+                    writeBack = ft["instr"]
+
+                print(
+                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
+
+            cycles += 1
+            wb = m
+            m = ex
+            ex["nop"] = 2
+
+            if diagnostic == 1:
+
+                print("current instruction's in each cycle")
+                if ft["nop"] == 1:
+                    fetch = "bubble stall"
+                elif ft["nop"] == 2:
+                    fetch = "empty"
+                elif ft["nop"] == 3:
+                    fetch = "bubble flush"
+                else:
+                    fetch = ft["instr"]
+
+                if de["nop"] == 1:
+                    decode = "bubble"
+                elif de["nop"] == 2:
+                    decode = "empty"
+                elif de["nop"] == 3:
+                    decode = "bubble flush"
+                else:
+                    decode = ft["instr"]
+
+                if ex["nop"] == 1:
+                    execution = "bubble"
+                elif ex["nop"] == 2:
+                    execution = "empty"
+                elif ex["nop"] == 3:
+                    execution = "bubble flush"
+                else:
+                    execution = ft["instr"]
+
+                if m["nop"] == 1:
+                    mem = "bubble"
+                elif m["nop"] == 2:
+                    mem = "empty"
+                elif m["nop"] == 3:
+                    mem = "bubble flush"
+                else:
+                    mem = ft["instr"]
+
+                if wb["nop"] == 1:
+                    writeBack = "bubble"
+                elif wb["nop"] == 2:
+                    writeBack = "empty"
+                elif wb["nop"] == 3:
+                    writeBack = "bubble flush"
+                else:
+                    writeBack = ft["instr"]
+
+                print(
+                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
+
+            cycles += 1
+            wb = m
+            m["nop"] = 2
+
+            if diagnostic == 1:
+
+                print("current instruction's in each cycle")
+                if ft["nop"] == 1:
+                    fetch = "bubble stall"
+                elif ft["nop"] == 2:
+                    fetch = "empty"
+                elif ft["nop"] == 3:
+                    fetch = "bubble flush"
+                else:
+                    fetch = ft["instr"]
+
+                if de["nop"] == 1:
+                    decode = "bubble"
+                elif de["nop"] == 2:
+                    decode = "empty"
+                elif de["nop"] == 3:
+                    decode = "bubble flush"
+                else:
+                    decode = ft["instr"]
+
+                if ex["nop"] == 1:
+                    execution = "bubble"
+                elif ex["nop"] == 2:
+                    execution = "empty"
+                elif ex["nop"] == 3:
+                    execution = "bubble flush"
+                else:
+                    execution = ft["instr"]
+
+                if m["nop"] == 1:
+                    mem = "bubble"
+                elif m["nop"] == 2:
+                    mem = "empty"
+                elif m["nop"] == 3:
+                    mem = "bubble flush"
+                else:
+                    mem = ft["instr"]
+
+                if wb["nop"] == 1:
+                    writeBack = "bubble"
+                elif wb["nop"] == 2:
+                    writeBack = "empty"
+                elif wb["nop"] == 3:
+                    writeBack = "bubble flush"
+                else:
+                    writeBack = ft["instr"]
+
+                print(
+                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
+
+            cycles += 1
+            wb["nop"] = 2
+
+            if diagnostic == 1:
+
+                print("current instruction's in each cycle")
+                if ft["nop"] == 1:
+                    fetch = "bubble stall"
+                elif ft["nop"] == 2:
+                    fetch = "empty"
+                elif ft["nop"] == 3:
+                    fetch = "bubble flush"
+                else:
+                    fetch = ft["instr"]
+
+                if de["nop"] == 1:
+                    decode = "bubble"
+                elif de["nop"] == 2:
+                    decode = "empty"
+                elif de["nop"] == 3:
+                    decode = "bubble flush"
+                else:
+                    decode = ft["instr"]
+
+                if ex["nop"] == 1:
+                    execution = "bubble"
+                elif ex["nop"] == 2:
+                    execution = "empty"
+                elif ex["nop"] == 3:
+                    execution = "bubble flush"
+                else:
+                    execution = ft["instr"]
+
+                if m["nop"] == 1:
+                    mem = "bubble"
+                elif m["nop"] == 2:
+                    mem = "empty"
+                elif m["nop"] == 3:
+                    mem = "bubble flush"
+                else:
+                    mem = ft["instr"]
+
+                if wb["nop"] == 1:
+                    writeBack = "bubble"
+                elif wb["nop"] == 2:
+                    writeBack = "empty"
+                elif wb["nop"] == 3:
+                    writeBack = "bubble flush"
+                else:
+                    writeBack = ft["instr"]
+
+                print(
+                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
 
 def instrExecution(line, pc):
    #pc = int(0)
