@@ -41,6 +41,14 @@ wb = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
 
 controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, "c4":0, "c5":0}
 
+cache = {"block_size": 0, "num_ways": 0, "num_sets": 0}
+cache_type = 0
+blk_size = 0    #Block size in Bytes
+num_ways = 0    #Number of ways
+total_s = 0   #Number of blocks/sets
+Misses = 0
+Hits = 0
+
 labelIndex = []
 labelName = []
 pcAssign= []
@@ -1343,12 +1351,50 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 print(
                     "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
-
+				
+def cacheAnalysis(Valid,Cache,mem,rt,Tag,LBU):
+    print("In Progress")
+    updated = 0
+    for o in range(num_ways):
+        if(Valid[setIndex][o] == 0):
+            Misses += 1
+            Cache[setIndex][o] = memory[mem]
+            registers[rt] = Cache[setIndex][o]
+            Valid[setIndex][o] = 1
+            Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
+            updated = 1;
+            LRU[setIndex].append(o)
+        if(updated == 1):
+            break
+        else:
+            if(Tag[setIndex][o] == mem[0:16-set_offset]-word_offset):
+                registers[rt] = Cache[setIndex][o]
+                Hits += 1
+                updated = 1
+                LRU[setIndex].remove(o)
+                LRU[setIndex].append(o)
+        if(updated == 1):
+            break
+   if(updated == 0):
+       Misses += 1
+       remove_way = LRU[setIndex][0]
+       Cache[setIndex][remove_way] = memory[mem]
+       registers[rt] = Cache[setIndex][remove_way]
+       Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
+       LRU[setIndex].remove(remove_way)
+       LRU[setIndex].append(remove_way)
+    return()							
+				
 def instrExecution(line, pc):
    #pc = int(0)
         #bcount=0
    #DIC = int(0)
         j= int(0)
+		
+		#Need to make two dimensional
+		#Valid = [0 for f in range(total_s)]   # valid bits and tag data
+		#Tag = ["0" for g in range(total_s)]		#Tag array
+		#Cache = [[0 for h in range(blk_size)] for f in range(total_s)]# Cache data
    
         #bcount+=1
 
@@ -1925,6 +1971,27 @@ def saveJumpLabel(asm,labelIndex, labelName):
         lineCount += 1
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
+		
+def cache_def(cache_type):
+    if(cache_type == 1):
+        blk_size = 16    #Block size in Bytes
+        num_ways = 1    #Number of ways
+        total_s = 4   #Number of blocks/sets
+    if(cache_type == 2):
+        blk_size = 8    #Block size in Bytes
+        num_ways = 8    #Number of ways
+        total_s = 1   #Number of blocks/sets
+    if(cache_type == 3):
+        blk_size = 8    #Block size in Bytes
+        num_ways = 2    #Number of ways
+        total_s = 4   #Number of blocks/sets
+    if(cache_type == 4):
+        blk_size = 8    #Block size in Bytes
+        num_ways = 4    #Number of ways
+        total_s = 2   #Number of blocks/sets
+    else:
+        print("Invalid cache type, exiting program")
+        quit()
 
 def main():
    # f = open("mc.txt","w+")
@@ -1934,6 +2001,16 @@ def main():
     FinalDIC= 0
     FinalPC= 0
     TotalCycles= 0
+	
+	print("Please enter the type of cache that you want")
+    print("1. a directly-mapped cache, block size of 16 Bytes, a total of 4 blocks (b=16; N=1; S=4)")
+    print("2. a fully-associated cache, block size of 8 Bytes, a total of 8 blocks (b=8; N=8; S=1)")
+    print("3. a 2-way set-associative cache, block size of 8 Bytes, 4 sets (b=8; N=2; S=4)")
+    print("4. a 4-way set-associative cache, block size of 8 Bytes, 2 sets (b=8; N=4; S=2)")
+    cache_type = input("Enter a choice: ")
+    cache_def(cache_type)
+    word_offset = int(math.log(blk_size,2)) 
+    set_offset = int(math.log(total_s,2))
     
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
@@ -1949,7 +2026,7 @@ def main():
         instrs.append(line)
        
     print(pcAssign)
-    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles)
+    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
     print("All memory contents:")
     for k in range(0,1024):
         mem= 8192+ (k*4)
