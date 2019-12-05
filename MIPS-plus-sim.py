@@ -37,13 +37,9 @@ wb = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
             }
 
-<<<<<<< HEAD
-wb = m.copy()
 
-controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite": 0, "Branch": 0}
-=======
-controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, c4:0, "c5":0}
->>>>>>> cd0aa2893316f9ad2cb64f933a4ebc60598e2732
+wb = m.copy()
+controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, "c4":0, "c5":0}
 labelIndex = []
 labelName = []
 pcAssign= []
@@ -57,12 +53,13 @@ def multiCycle(instrs, DIC, pc, cycles):
     cycle5=0
     while True:
         cycles= cycle1+ cycle2+ cycle3+ cycle4+ cycle5
-        l = instrs[int(pc/4)]
+        
         if (int(pc/4) >= len(instrs)):
             print("Dynamic Instruction Count: ",DIC)
             return DIC, pc, cycles;
         DIC+=1
         #cycle1
+        l = instrs[int(pc/4)]
         cycle1+=1
         controlSignals["AluScrA"]+=0
         controlSignals["AluScrB"]='01'
@@ -96,13 +93,13 @@ def multiCycle(instrs, DIC, pc, cycles):
                  controlSignals["RegDst"]+= 0
                  controlSignals["MemtoReg"]+=1
                  controlSignals["RegWrite"]+=1
-        elif "bne" or "beq" in l:
+        elif ("bne" in l) or ("beq" in l):
       #cycle3 
             cycle3+=1
             controlSignals["c3"]+=1
             controlSignals["AluScrA"]+= 1
             controlSignals["AluScrB"]='10'
-          #  controlSignals["AluOp"]='01'
+          # controlSignals["AluOp"]='01'
            # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
             pc= instrExecution(l, pc)
@@ -883,7 +880,43 @@ def instrExecution(line, pc):
             print ("result:",rd ,"=", hex(imm))
             pc += 4# increments pc by 4 
             
-            
+        elif(line[0:2] == "lw"): # lw
+            line = line.replace("lw","")
+            line = line.replace(")","")
+            line = line.replace("(",",")
+            line = line.split(",")
+            if(line[1][0:2]== "0x"):
+                n=16
+            else:
+                n=10
+            imm = int(line[1],n) if (int(line[1],n) >= 0) else (65536 + int(line[1],n))
+            rs = int(registers[("$" + str(line[2]))])
+            instruction = "lw"
+            print (instruction , ("$" + str(line[0])) , (str(imm) if(n== 10) else hex(imm))  + "("+("$" + str(line[2]))+")" )
+            mem = imm + rs
+            memo= mem
+            mem = mem - int('0x2000', 16)
+            rt= format(memory[mem],'08b') 
+            mem+=1
+            third= format(memory[mem],'08b')
+            mem+=1
+            sec = format(memory[mem],'08b') 
+            mem+=1
+            first= format(memory[mem],'08b')
+            word=  first +sec+ third+ rt
+            if word[0] == '1':
+                word= int(word,2)
+                word = word - 4294967296
+            else:
+                word= int(word,2)
+            registers[("$" + str(line[0]))] = word
+            print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
+            pc+= 4# increments pc by 4 
+             
+           # pcprint=  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
+            #print(pc)
+            #print(pcprint)  
 
         elif(line[0:2] == "sw"): # sw
             line = line.replace("sw","")
@@ -896,7 +929,12 @@ def instrExecution(line, pc):
                 n=10
             imm = int(line[1],n) if (int(line[1],n) >= 0) else (65536 + int(line[1],n))
             rs = int(registers[("$" + str(line[2]))])
-            rt = registers[("$" + str(line[0]))]
+            rt = int(registers[("$" + str(line[0]))])# need int convert here
+            if rt < 0:
+                maxnu= 4294967296
+                 #convert to binary
+                rt+= maxnu
+                #rt= int("{0:b}".format(rt))
             instruction = "sw"
             print (instruction , ("$" + str(line[0])) , (str(imm) if(n== 10) else hex(imm))  + "("+("$" + str(line[2]))+")" )
             mem = imm + rs
@@ -1058,34 +1096,28 @@ def instrExecution(line, pc):
             line = line.split(",")
             rd = "$" + str(line[0])
             rt = registers[("$" + str(line[1]))]
+            if rt < 0:
+                u=1
+            else:
+                u=0
+            rt= int(rt) if (int(rt) >= 0) else (4294967296 + int(rt))
             shamt = int(line[2])
             instruction = "sll" 
             print (instruction , rd ,("$" + str(line[1])), shamt)
             result = rt << shamt # does the addition operation
             result = format(result,'064b')
-            result = int(result[32:],2)
-            registers[rd]= result
+            result = int(result[32:],2) 
             print ("result:" ,rd ,"=", hex(result))
+            result = result if( u !=1) else (result-4294967296)
+            registers[rd]= result
+           
             pc += 4 # increments pc by 4 
            # pcprint =  hex(pc)
            # print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)     
             
-        elif(line[0:5] == "cfold"): # CFOLD
-            line = line.replace("cfold","")
-            line = line.split(",")
-            rs = registers[("$" + str(line[1]))]	#First register
-            rt = registers[("$" + str(line[2]))]	#Second register
-            instruction = "cfold" 
-            print (instruction , ("$" + str(line[0])) ,("$" + str(line[1])), ("$" + str(line[2])))
-            HashAndMatch(rt, rs)
-            
-            pc += 4# increments pc by 4 
-           # pcprint =  hex(pc)
-           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
-           # print(pc)
-            #print(pcprint)
+        
 
         elif(line[0:4] == "mult"): # MULT/U
             line = line.replace("mult","")
@@ -1162,7 +1194,6 @@ def instrExecution(line, pc):
                 n=16
             else:
                 n=10
-            
             imm = int(line[2],n) if (int(line[2],n) > 0 or op == '001010') else (65536 + int(line[2],n)) # will get the negative or positive inter value. if unsigned and negative will get the unsigned value of th negative integer.
             rs = registers[("$" + str(line[1]))] # reads the value from specified register
             rt = "$" + str(line[0]) # locate the register in which to write to
@@ -1175,7 +1206,33 @@ def instrExecution(line, pc):
             registers[rt]= result # writes the value to the register specified
             print ("result:" ,rt ,"=", hex(result))
             pc += 4 # increments pc by 4 
-             
+
+        elif(line[0:3] == "slt"): # SLT/U
+            line = line.replace("slt","")
+            if(line[0:1] == "u"):
+               line = line.replace("u","")
+               op = '101011'
+            else:
+                op= '101010'
+            line = line.split(",")
+            if(line[2][0:2]== "0x"):
+                n=16
+            else:
+                n=10
+            rd = "$" + str(line[0])
+            rs = registers[("$" + str(line[1]))]
+            rt = registers[("$" + str(line[2]))]
+            rs= int(rs) if (int(rs) >= 0 or op == '101010') else (4294967296+ int(rs))
+            rt= int(rt) if (int(rt) >= 0 or op == '101010') else (4294967296 + int(rt))
+            instruction = "slt" if(op == '101010') else "sltu"
+            #print (instruction , rt ,("$" + str(line[1])), imm if(n== 10) else hex(imm))
+            if(rs < rt):
+                result = 1
+            else:
+                result = 0
+            registers[rd]= result # writes the value to the register specified
+            print ("result:" ,rt ,"=", hex(result))
+            pc += 4 # increments pc by 4  
             #pcprint = hex(pc)
             #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
@@ -1187,11 +1244,20 @@ def instrExecution(line, pc):
             rd = "$" + str(line[0])
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[2]))]
+            if ((rt < 0) or (rs < 0)):
+                u=1
+            else:
+                u=0
+            rs= int(rs) if (int(rs) >= 0 ) else (4294967296 + int(rs))
+            rt= int(rt) if (int(rt) >= 0 ) else (4294967296 + int(rt))
             instruction = "xor"
             print (instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
             result = rs ^ rt # does the addition operation
-            registers[rd]= result
+            result = format(result,'064b')
+            result = int(result[32:],2)
             print ("result:" ,rd ,"=", hex(result))
+            result = result if( u !=1) else (result-4294967296)
+            registers[rd]= result
             
             pc+= 4 # increments pc by 4 
              
@@ -1200,19 +1266,46 @@ def instrExecution(line, pc):
            # print(pc)
            # print(pcprint)
        
-        elif(line[0:3] == "add"): # ADD
+        elif(line[0:3] == "add"): # ADD/U
             line = line.replace("add","")
+            if(line[0:1] == "u"):
+               line = line.replace("u","")
+               op = '100001'
+            else:
+                op = '100000'
             line = line.split(",")
             rd = "$" + str(line[0])
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[2]))]
+            rs= int(rs) if (int(rs) >= 0 or op == '100000') else (4294967296 + int(rs))
+            rt= int(rt) if (int(rt) >= 0 or op == '100000') else (4294967296 + int(rt))
             instruction = "add"
             print (instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
             result = rs + rt # does the addition operation
+            result = format(result,'064b')
+            if result[32]== '1':
+                result = int(result[32:],2)
+                print ("result:" ,rd ,"=", hex(result))
+                result = result if( op =='100000') else (result-4294967296)
+            else :
+                result = int(result[32:],2)
+                print ("result:" ,rd ,"=", hex(result))
+            registers[rd]= result
+            
+            pc+= 4 # increments pc by 4 
+
+        elif(line[0:3] == "sub"): # SUB
+            line = line.replace("sub","")
+            line = line.split(",")
+            rd = "$" + str(line[0])
+            rs = registers[("$" + str(line[1]))]
+            rt = registers[("$" + str(line[2]))]
+            instruction = "sub"
+            print (instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
+            result = rs - rt # does the addition operation
             registers[rd]= result
             print ("result:" ,rd ,"=", hex(result))
-            pc+= 4 # increments pc by 4 
-             
+            pc+= 4 # increments pc by 4  
            # pcprint =  hex(pc)
            # print(registers)# print all the registers and their values (testing purposes to see what is happening)
            # print(pc)
