@@ -231,7 +231,11 @@ def instrExecution(line, pc):
             mem+=1
             first= format(memory[mem],'08b')
             word=  first +sec+ third+ rt
-            word= int(word,2)
+            if word[0] == '1':
+                word= int(word,2)
+                word = word - 4294967296
+            else:
+                word= int(word,2)
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -419,20 +423,21 @@ def instrExecution(line, pc):
             line = line.split(",")
             rd = "$" + str(line[0])
             rt = registers[("$" + str(line[1]))]
-        #    if rt < 0:
-         #       u=1
-          #  else:
-           #     u=0
+            if rt < 0:
+                u=1
+            else:
+                u=0
             rt= int(rt) if (int(rt) >= 0) else (4294967296 + int(rt))
             shamt = int(line[2])
             instruction = "sll" 
             print (instruction , rd ,("$" + str(line[1])), shamt)
             result = rt << shamt # does the addition operation
             result = format(result,'064b')
-            result = int(result[32:],2)
-    #        result = result if( u !=1) else (result-4294967296)
-            registers[rd]= result
+            result = int(result[32:],2) 
             print ("result:" ,rd ,"=", hex(result))
+            result = result if( u !=1) else (result-4294967296)
+            registers[rd]= result
+           
             pc += 4 # increments pc by 4 
            # pcprint =  hex(pc)
            # print(registers)# print all the registers and their values (testing purposes to see what is happening)
@@ -566,6 +571,10 @@ def instrExecution(line, pc):
             rd = "$" + str(line[0])
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[2]))]
+            if ((rt < 0) or (rs < 0)):
+                u=1
+            else:
+                u=0
             rs= int(rs) if (int(rs) >= 0 ) else (4294967296 + int(rs))
             rt= int(rt) if (int(rt) >= 0 ) else (4294967296 + int(rt))
             instruction = "xor"
@@ -573,8 +582,9 @@ def instrExecution(line, pc):
             result = rs ^ rt # does the addition operation
             result = format(result,'064b')
             result = int(result[32:],2)
-            registers[rd]= result
             print ("result:" ,rd ,"=", hex(result))
+            result = result if( u !=1) else (result-4294967296)
+            registers[rd]= result
             
             pc+= 4 # increments pc by 4 
              
@@ -600,9 +610,15 @@ def instrExecution(line, pc):
             print (instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
             result = rs + rt # does the addition operation
             result = format(result,'064b')
-            result = int(result[32:],2)
+            if result[32]== '1':
+                result = int(result[32:],2)
+                print ("result:" ,rd ,"=", hex(result))
+                result = result if( op =='100000') else (result-4294967296)
+            else :
+                result = int(result[32:],2)
+                print ("result:" ,rd ,"=", hex(result))
             registers[rd]= result
-            print ("result:" ,rd ,"=", hex(result))
+            
             pc+= 4 # increments pc by 4 
 
         elif(line[0:3] == "sub"): # SUB
