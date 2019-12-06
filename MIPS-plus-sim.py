@@ -50,7 +50,12 @@ stats = {"delay" : 0,
 
 
 controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, "c4":0, "c5":0}
-
+global cache_type
+global blk_size   #Block size in Bytes
+global num_ways   #Number of ways
+global total_s 
+global Misses 
+global Hits
 cache_type = 0
 blk_size = 0    #Block size in Bytes
 num_ways = 0    #Number of ways
@@ -1710,6 +1715,12 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 input("press enter to continue")
 
 def cacheAnalysis(Valid,Cache,mem,rt,Tag, LRU, lworsw):
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global Misses 
+    global Hits 
     print("In Progress")
     updated = 0
     for o in range(num_ways):
