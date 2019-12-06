@@ -2358,6 +2358,13 @@ def saveJumpLabel(asm,labelIndex, labelName):
         asm.remove('\n')
 
 def cache_def(cache_type):
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global Misses 
+    global Hits    
+    
     if(cache_type == '1'):
         blk_size = 16    #Block size in Bytes
         num_ways = 1    #Number of ways
@@ -2381,6 +2388,13 @@ def cache_def(cache_type):
     return(blk_size, num_ways, total_s)
 
 def main():
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global Misses 
+    global Hits
+    
    # f = open("mc.txt","w+")
     h = open("ProgramB_Testcase2","r")
     asm = h.readlines()
