@@ -124,7 +124,7 @@ def multiCycle(instrs, DIC, pc, cycles,set_offset, word_offset):
           # controlSignals["AluOp"]='01'
            # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
-            pc= instrExecution(l, pc)
+            pc= instrExecution(l, pc,set_offset, word_offset)
         elif "beq" in l:
       #cycle3 
             cycle3+=1
@@ -1865,7 +1865,7 @@ def instrExecution(line, pc,set_offset, word_offset):
                 word = word - 4294967296
             else:
                 word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
+      #      cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -1908,7 +1908,7 @@ def instrExecution(line, pc,set_offset, word_offset):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
+           # cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
             memory[mem] = rt
             mem+=1
             memory[mem] = third
