@@ -1714,7 +1714,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
 
-def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw):
+def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -1763,11 +1763,17 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw):
     return(Valid, Cache, mem, rt, Tag)	
 
 def instrExecution(line, pc):
-
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global Misses 
+    global Hits 
    #pc = int(0)
         #bcount=0
    #DIC = int(0)
         j= int(0)
+        LRU = [0 for f in range(total_s)],[0 for g in range(num_ways)]
         Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
         Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
         Cache = [[0 for h in range(blk_size)] for f in range(total_s)]# Cache data
