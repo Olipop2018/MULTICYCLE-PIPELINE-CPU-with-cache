@@ -1733,10 +1733,10 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_offset):
             elif(lworsw == 1):
                 temp = Cache[setIndex][o]
                 temp = format(temp,'064b')
-                first= temp[32:40]
-                sec= temp[40:48]
-                third= temp[48:56]
-                rt= temp[56:64]
+                first = temp[32:40]
+                sec = temp[40:48]
+                third = temp[48:56]
+                fourth = temp[56:64]
                 
                 memory[mem] = Cache[setIndex][o]
             Valid[setIndex][o] = 1
@@ -1869,7 +1869,7 @@ def instrExecution(line, pc,set_offset, word_offset):
                 word = word - 4294967296
             else:
                 word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
+            cacheAnalysis(Valid, Cache, memo, word, Tag, 1, set_offset, word_offset)
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -1912,7 +1912,7 @@ def instrExecution(line, pc,set_offset, word_offset):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
+            cacheAnalysis(Valid, Cache, memo, word, Tag, 1, set_offset, word_offset)
             memory[mem] = rt
             mem+=1
             memory[mem] = third
