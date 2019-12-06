@@ -8,47 +8,61 @@ registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0,
 
 
 
-
-ft = {"instr": "", "type": "", "stall": 0, "flush": 0, "cycles": 0,
-            "reghold": {"rs": " ", "rd": " ", "rt": " ", "imm": 0}
-
-            }
-
-de = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
-            "reghold": { "rs": " " ,"rd": " ", "rt": " ", "scrA": 0, "scrB": 0, "imm": 0}
-
-            }
-
-ex = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
-            "reghold": { "rs": " " ,"rd": " ", "rt": " " , "scrA":0, "scrB":0 ,"result":0, "imm": 0}
-
-            }
-
-m = {"instr": " ","type":" ", "stall": 0, "flush": 0, "cycles": 0,
-            "reghold": {"rs": " ", "rd": " ", "rt": " ", "result": 0},
+ft = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
 
-wb = {"instr": " ", "type": " ", "stall": 0, "flush": 0, "cycles": 0,
-            "reghold": { "rs": " ", "rd": " ", "rt": " ", "result": 0},
+de = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
+
+            }
+
+ex = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
+
+            }
+
+m = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
+
+            }
+
+wb = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
             "fowarding": {"instr": "", "reg": " ", "regval": 0}
             }
+
+stats = {"delay" : 0,
+        "flush" : 0,
+        "ALUOutM -> srcAE" : 0,
+        "ALUOutM ‐> SrcBE" : 0,
+        "ALUOutM ‐> WriteDataE" : 0,
+        "ALUOutM ‐> EqualD" : 0,
+        "ResultW ‐> SrcAE" : 0,
+        "ResultW ‐> SrcBE" : 0,
+        "ResultW ‐> WriteDataE" : 0,
+        "ResultW ‐> EqualD" : 0}
+
 
 controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, "c4":0, "c5":0}
-
 global cache_type
 global blk_size   #Block size in Bytes
 global num_ways   #Number of ways
 global total_s 
 global Misses 
-global Hits 
+global Hits
 cache_type = 0
 blk_size = 0    #Block size in Bytes
 num_ways = 0    #Number of ways
 total_s = 0   #Number of blocks/sets
 Misses = 0
 Hits = 0
+
 labelIndex = []
 labelName = []
 pcAssign= []
@@ -89,7 +103,7 @@ def multiCycle(instrs, DIC, pc, cycles):
             controlSignals["AluScrB"]='10'
            # controlSignals["AluOp"]='00'
        #cycle4
-            pc= instrExecution(l, pc)
+            pc= instrExecution(l, pc, set_offset, word_offset)
             #controlSignals["IorD"]=0
             cycle4+=1
             if "sw" in l:
@@ -120,7 +134,7 @@ def multiCycle(instrs, DIC, pc, cycles):
           # controlSignals["AluOp"]='01'
            # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
-            pc= instrExecution(l, pc)
+            pc= instrExecution(l, pc, set_offset, word_offset)
         else:
             controlSignals["c4"]+=1
             if "i" in l:    
@@ -131,7 +145,7 @@ def multiCycle(instrs, DIC, pc, cycles):
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
-                pc= instrExecution(l, pc)
+                pc= instrExecution(l, pc, set_offset, word_offset)
                 controlSignals["RegDst"]+= 0
                 controlSignals["MemtoReg"]+=0
                 controlSignals["RegWrite"]+=1
@@ -141,7 +155,7 @@ def multiCycle(instrs, DIC, pc, cycles):
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
-                pc= instrExecution(l, pc)
+                pc= instrExecution(l, pc, set_offset, word_offset)
                 controlSignals["RegDst"]+= 1
                 controlSignals["MemtoReg"]+=0
                 controlSignals["RegWrite"]+=1
@@ -168,7 +182,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
 
         de = ft
 
-        pc = instrExecution(l, pc)
+        pc = instrExecution(l, pc, set_offset, word_offset)
         ft["instr"] = l
         ft["nop"] = 0
         if "w" in l:
@@ -2315,7 +2329,6 @@ def instrExecution(line, pc):
                         #pc = int(pc,2)
                         #hexstr= hex(int(hexstr[0], 2))
                        # f.write(hexstr+ '\n')#str('000010') + str(format(int(labelIndex[i]),'026b')) + '\n'+ hexstr+ '\n')
-  
 
 def saveJumpLabel(asm,labelIndex, labelName):
     lineCount = 0
@@ -2335,7 +2348,44 @@ def saveJumpLabel(asm,labelIndex, labelName):
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
 
+def cache_def(cache_type):
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global Misses 
+    global Hits    
+    
+    if(cache_type == '1'):
+        blk_size = 16    #Block size in Bytes
+        num_ways = 1    #Number of ways
+        total_s = 4   #Number of blocks/sets
+    if(cache_type == '2'):
+        blk_size = 8    #Block size in Bytes
+        num_ways = 8    #Number of ways
+        total_s = 1   #Number of blocks/sets
+    if(cache_type == '3'):
+        blk_size = 8    #Block size in Bytes
+        num_ways = 2    #Number of ways
+        total_s = 4   #Number of blocks/sets
+    if(cache_type == '4'):
+        blk_size = 8    #Block size in Bytes
+        num_ways = 4    #Number of ways
+        total_s = 2   #Number of blocks/sets
+    else:
+        print("Invalid cache type, exiting program")
+        quit()
+        
+    return(blk_size, num_ways, total_s)
+
 def main():
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global Misses 
+    global Hits
+    
    # f = open("mc.txt","w+")
     h = open("ProgramB_Testcase2","r")
     asm = h.readlines()
@@ -2346,7 +2396,17 @@ def main():
     
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
-       
+
+    print("Please enter the type of cache that you want")
+    print("1. a directly-mapped cache, block size of 16 Bytes, a total of 4 blocks (b=16; N=1; S=4)")
+    print("2. a fully-associated cache, block size of 8 Bytes, a total of 8 blocks (b=8; N=8; S=1)")
+    print("3. a 2-way set-associative cache, block size of 8 Bytes, 4 sets (b=8; N=2; S=4)")
+    print("4. a 4-way set-associative cache, block size of 8 Bytes, 2 sets (b=8; N=4; S=2)")
+    cache_type = input("Enter a choice: ")
+    cache_def(cache_type)
+    word_offset = int(math.log(blk_size,2)) 
+    set_offset = int(math.log(total_s,2))
+
     saveJumpLabel(asm,labelIndex,labelName) # Save all jump's destinations
     for line in asm:
         #line = line.replace("\t","")
@@ -2358,7 +2418,7 @@ def main():
         instrs.append(line)
        
     print(pcAssign)
-    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles)
+    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
 
     print("All memory contents:")
     for k in range(0,1024):
@@ -2428,7 +2488,7 @@ def main():
     print("ALUSrc: {}% was 1".format(per2))
     print("RegDst: {}% was 1".format(per1))
     print("RegWrite: {}% was 1".format(per0))
-    
+    print("Hit Rate = ", Hits/(Hits/Misses))
     #print("Instruction Count: ",FinalDIC)
 
    # print(memory)
@@ -2437,3 +2497,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    
+    
+
+
+
