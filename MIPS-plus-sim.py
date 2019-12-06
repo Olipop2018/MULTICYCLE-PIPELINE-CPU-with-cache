@@ -1709,13 +1709,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
 
-def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw):
-    global cache_type
-    global blk_size   #Block size in Bytes
-    global num_ways   #Number of ways
-    global total_s 
-    global Misses 
-    global Hits 
+def cacheAnalysis(Valid,Cache,mem,rt,Tag, LRU, lworsw):
     print("In Progress")
     updated = 0
     for o in range(num_ways):
@@ -1755,7 +1749,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw):
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
         LRU[setIndex].append(remove_way)
-    return(Valid, Cache, mem, rt, Tag, LBU)							
+    return(Valid, Cache, mem, rt, Tag, LRU)							
 
 def instrExecution(line, pc):
 
@@ -1765,6 +1759,7 @@ def instrExecution(line, pc):
         j= int(0)
         Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
         Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
+        LRU = [0 for f in range(total_s)],[0 for g in range(num_ways)]
         Cache = [[0 for h in range(blk_size)] for f in range(total_s)]# Cache data
         #bcount+=1
 
@@ -1847,7 +1842,7 @@ def instrExecution(line, pc):
                 word = word - 4294967296
             else:
                 word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
+            cacheAnalysis(Valid, Cache, mem, word, Tag, LRU, 1)
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -1890,7 +1885,7 @@ def instrExecution(line, pc):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
+            cacheAnalysis(Valid, Cache, mem, word, Tag, LRU, 1)
             memory[mem] = rt
             mem+=1
             memory[mem] = third
