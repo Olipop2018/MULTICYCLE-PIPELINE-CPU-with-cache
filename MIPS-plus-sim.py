@@ -2348,7 +2348,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
         lineCount += 1
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
-		
+
 def cache_def(cache_type):
     if(cache_type == 1):
         blk_size = 16    #Block size in Bytes
