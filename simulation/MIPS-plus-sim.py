@@ -2354,7 +2354,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
 
-def cache_def(cache_type):
+def cache_def():
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -2379,7 +2379,7 @@ def cache_def(cache_type):
         total_s = 2   #Number of blocks/sets
     else:
         print("Invalid cache type, exiting program")
-        quit()
+        #quit()
         
     return(blk_size, num_ways, total_s)
 
@@ -2408,7 +2408,7 @@ def main():
     print("3. a 2-way set-associative cache, block size of 8 Bytes, 4 sets (b=8; N=2; S=4)")
     print("4. a 4-way set-associative cache, block size of 8 Bytes, 2 sets (b=8; N=4; S=2)")
     cache_type = input("Enter a choice: ")
-    cache_def(cache_type)
+    cache_def()
     word_offset = int(math.log(blk_size,2)) 
     set_offset = int(math.log(total_s,2))
 
