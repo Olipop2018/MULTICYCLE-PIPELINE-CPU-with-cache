@@ -68,7 +68,7 @@ labelName = []
 pcAssign= []
 
 
-def multiCycle(instrs, DIC, pc, cycles):
+def multiCycle(instrs, DIC, pc, cycles,set_offset, word_offset):
     cycle1=0
     cycle2=0
     cycle3=0
@@ -1769,7 +1769,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_offset):
         LRU[setIndex].append(remove_way)
     return(Valid, Cache, mem, rt, Tag)	
 
-def instrExecution(line, pc):
+def instrExecution(line, pc,set_offset, word_offset):
         global cache_type
         global blk_size   #Block size in Bytes
         global num_ways   #Number of ways
