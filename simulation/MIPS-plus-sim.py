@@ -48,8 +48,7 @@ def multiCycle(instrs, DIC, pc, cycles):
     cycle4=0
     cycle5=0
     while True:
-        cycles= cycle1+ cycle2+ cycle3+ cycle4+ cycle5
-        
+        cycles= cycle1+ cycle2+ cycle3+ cycle4+ cycle5        
         if (int(pc/4) >= len(instrs)):
             print("Dynamic Instruction Count: ",DIC)
             return DIC, pc, cycles;
@@ -70,7 +69,7 @@ def multiCycle(instrs, DIC, pc, cycles):
         controlSignals["AluScrA"]+=0 
         controlSignals["AluScrB"]='11'
        # controlSignals["AluOp"]='00'
-        if "w" in l:
+        if "w" in l[0:2]:
        #cycle3 
             cycle3+=1
             controlSignals["AluScrA"]+=1
@@ -89,7 +88,17 @@ def multiCycle(instrs, DIC, pc, cycles):
                  controlSignals["RegDst"]+= 0
                  controlSignals["MemtoReg"]+=1
                  controlSignals["RegWrite"]+=1
-        elif ("bne" in l) or ("beq" in l):
+        elif "bne" in l:
+      #cycle3 
+            cycle3+=1
+            controlSignals["c3"]+=1
+            controlSignals["AluScrA"]+= 1
+            controlSignals["AluScrB"]='10'
+          # controlSignals["AluOp"]='01'
+           # controlSignals["PCSrc"]=1
+            controlSignals["Branch"]+=1
+            pc= instrExecution(l, pc)
+        elif "beq" in l:
       #cycle3 
             cycle3+=1
             controlSignals["c3"]+=1
@@ -733,7 +742,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
 
 def main():
    # f = open("mc.txt","w+")
-    h = open("ProgramA_Testcase1","r")
+    h = open("ProgramB_Testcase2","r")
     asm = h.readlines()
     instrs = []
     FinalDIC= 0
@@ -755,6 +764,7 @@ def main():
        
     print(pcAssign)
     FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles)
+
     print("All memory contents:")
     for k in range(0,1024):
         mem= 8192+ (k*4)
@@ -770,7 +780,10 @@ def main():
         word =  fourth+ third + second+first
         word= int(word,2)
         word = format(word,"08x")
-        print("memory", hex(mem)+": 0x"+ word )
+        print("memory","{}: {}".format(hex(mem),word), end='| ')
+        if(k%7 == 0 and k > 0):
+            print("\n")
+        #print("memory", hex(mem)+": 0x"+ word )
     
     print("all register values:")
     proregister= str(registers)
@@ -797,7 +810,31 @@ def main():
         word= int(word,2)
         word = format(word,"08x")
         print("memory", hex(mem)+": 0x"+ word )
+    print("Final Multicycle Statistics ")
+    per5 = (controlSignals["c5"]/FinalDIC)*100
+    per4 = (controlSignals["c4"]/FinalDIC)*100
+    per3 = (controlSignals["c3"]/FinalDIC)*100
     print("Dynamic Instruction Count: ",FinalDIC)
+    print("Total Cycle Count: ",TotalCycles)
+    print("Instruction Count with 3 Cycles: \n{} was executed\n {}%".format(controlSignals["c3"], per3))
+    print("Instruction Count with 4 Cycles:  \n{} was executed\n {}%".format(controlSignals["c4"], per4))
+    print("Instruction Count with 5 Cycles: \n{} was executed\n {}%".format(controlSignals["c5"], per5))
+    cpi= (controlSignals["c5"]*5+controlSignals["c4"]*4+controlSignals["c3"]*3)/FinalDIC
+    print("CPI: ({}*5+{}*4+{}*3)/{} = {}".format(controlSignals["c5"],controlSignals["c4"],controlSignals["c3"], FinalDIC, cpi))
+    per5 = (controlSignals["MemtoReg"]/TotalCycles)*100
+    per4 = (controlSignals["MemWrite"]/TotalCycles)*100
+    per3 = (controlSignals["Branch"]/TotalCycles)*100
+    per2 = (controlSignals["AluScrA"]/TotalCycles)*100
+    per1 = (controlSignals["RegDst"]/TotalCycles)*100
+    per0 = (controlSignals["RegWrite"]/TotalCycles)*100
+    print("MemtoReg:{}% was 1".format(per5))
+    print("MemWrite: {}% was 1".format(per4))
+    print("Branch: {}% was 1".format(per3))
+    print("ALUSrc: {}% was 1".format(per2))
+    print("RegDst: {}% was 1".format(per1))
+    print("RegWrite: {}% was 1".format(per0))
+    
+    #print("Instruction Count: ",FinalDIC)
 
    # print(memory)
 
