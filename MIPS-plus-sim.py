@@ -41,7 +41,6 @@ wb = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
 
 controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, "c4":0, "c5":0}
 
-cache = {"block_size": 0, "num_ways": 0, "num_sets": 0}
 cache_type = 0
 blk_size = 0    #Block size in Bytes
 num_ways = 0    #Number of ways
@@ -1352,14 +1351,17 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                     "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
 				
-def cacheAnalysis(Valid,Cache,mem,rt,Tag,LBU):
+def cacheAnalysis(Valid,Cache,mem,rt,Tag,LBU,lworsw):
     print("In Progress")
     updated = 0
     for o in range(num_ways):
         if(Valid[setIndex][o] == 0):
             Misses += 1
             Cache[setIndex][o] = memory[mem]
-            registers[rt] = Cache[setIndex][o]
+            if(lworsw == 0):
+                registers[rt] = Cache[setIndex][o]
+            if(lwosw == 1):
+                memory[mem] = Cache[setIndex][o]
             Valid[setIndex][o] = 1
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
             updated = 1;
@@ -1368,42 +1370,37 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,LBU):
             break
         else:
             if(Tag[setIndex][o] == mem[0:16-set_offset]-word_offset):
-                registers[rt] = Cache[setIndex][o]
+                if(lworsw == 0):
+                    registers[rt] = Cache[setIndex][o]
+                if(lwosw == 1):
+                    memory[mem] = Cache[setIndex][o]
                 Hits += 1
                 updated = 1
                 LRU[setIndex].remove(o)
                 LRU[setIndex].append(o)
         if(updated == 1):
             break
-   if(updated == 0):
-       Misses += 1
-       remove_way = LRU[setIndex][0]
-       Cache[setIndex][remove_way] = memory[mem]
-       registers[rt] = Cache[setIndex][remove_way]
-       Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
-       LRU[setIndex].remove(remove_way)
-       LRU[setIndex].append(remove_way)
-    return()							
+    if(updated == 0):
+        Misses += 1
+        remove_way = LRU[setIndex][0]
+        Cache[setIndex][remove_way] = memory[mem]
+        if(lworsw == 0):
+            registers[rt] = Cache[setIndex][remove_way]
+        if(lwosw == 1):
+            memory[mem] = Cache[setIndex][remove_way]
+        Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
+        LRU[setIndex].remove(remove_way)
+        LRU[setIndex].append(remove_way)
+    return(Valid, Cache, mem, rt, Tag, LBU)							
 				
 def instrExecution(line, pc):
-   #pc = int(0)
-        #bcount=0
-   #DIC = int(0)
         j= int(0)
 		
 		#Need to make two dimensional
-		#Valid = [0 for f in range(total_s)]   # valid bits and tag data
-		#Tag = ["0" for g in range(total_s)]		#Tag array
-		#Cache = [[0 for h in range(blk_size)] for f in range(total_s)]# Cache data
-   
-        #bcount+=1
-
-       # num= len(instrs)
-        #if (int(pc/4) >= len(instrs)):
-           
-         #   print("Dynamic Instruction Count: ",DIC)
-          #  return DIC, pc;
-        #line = instrs[int(pc/4)]
+		Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
+		Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
+		Cache = [[0 for h in range(blk_size)] for f in range(total_s)]# Cache data
+        
         print("Current instruction PC =",pc)
         #DIC+=1
         if(line[0:4] == "addi"): # ADDI/U 
@@ -1462,8 +1459,9 @@ def instrExecution(line, pc):
             instruction = "lw"
             print (instruction , ("$" + str(line[0])) , (str(imm) if(n== 10) else hex(imm))  + "("+("$" + str(line[2]))+")" )
             mem = imm + rs
-            memo= mem
+            memo = mem
             mem = mem - int('0x2000', 16)
+            
             rt= format(memory[mem],'08b') 
             mem+=1
             third= format(memory[mem],'08b')
@@ -1472,11 +1470,15 @@ def instrExecution(line, pc):
             mem+=1
             first= format(memory[mem],'08b')
             word=  first +sec+ third+ rt
+            
             if word[0] == '1':
                 word= int(word,2)
                 word = word - 4294967296
             else:
                 word= int(word,2)
+            
+            cacheAnalysis(Valid, Cache, mem, word, Tag, LBU, 1)   #Cache analysis
+            
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -1508,6 +1510,7 @@ def instrExecution(line, pc):
             mem = imm + rs
             memo= mem
             mem = mem - int('0x2000', 16)
+            
             rt= format(rt,'064b')
             first= rt[32:40]
             sec= rt[40:48]
@@ -1519,6 +1522,9 @@ def instrExecution(line, pc):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
+            
+            cacheAnalysis(Valid, Cache, mem, word, Tag, LBU, 1)   #Cache analysis
+            
             memory[mem] = rt
             mem+=1
             memory[mem] = third
@@ -2070,10 +2076,8 @@ def main():
         word = format(word,"08x")
         print("memory", hex(mem)+": 0x"+ word )
     print("Dynamic Instruction Count: ",FinalDIC)
-
-   # print(memory)
-
-    #f.close()
+    
+    print("Hit Rate = ", Hits/(Hits/Misses))
 
 if __name__ == "__main__":
     main()
