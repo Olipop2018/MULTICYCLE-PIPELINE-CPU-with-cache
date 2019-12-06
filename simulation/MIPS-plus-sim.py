@@ -1763,12 +1763,12 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
     return(Valid, Cache, mem, rt, Tag)	
 
 def instrExecution(line, pc):
-    global cache_type
-    global blk_size   #Block size in Bytes
-    global num_ways   #Number of ways
-    global total_s 
-    global Misses 
-    global Hits 
+        global cache_type
+        global blk_size   #Block size in Bytes
+        global num_ways   #Number of ways
+        global total_s 
+        global Misses 
+        global Hits 
    #pc = int(0)
         #bcount=0
    #DIC = int(0)
@@ -2360,8 +2360,8 @@ def cache_def(cache_type):
     global num_ways   #Number of ways
     global total_s 
     global Misses 
-    global Hits    
-    
+    global Hits
+
     if(cache_type == '1'):
         blk_size = 16    #Block size in Bytes
         num_ways = 1    #Number of ways
