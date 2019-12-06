@@ -1722,6 +1722,9 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
     global Misses 
     global Hits 
     print("In Progress")
+    
+    setIndex = mem[16-word_offset-set_offset:16-word_offset]
+    setIndex = int(setIndex,2)
     updated = 0
     for o in range(num_ways):
         if(Valid[setIndex][o] == 0):
@@ -1858,7 +1861,7 @@ def instrExecution(line, pc):
                 word = word - 4294967296
             else:
                 word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
+            cacheAnalysis(Valid, Cache, mem, word, Tag, 1, set_offset, word_offset)
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -1901,7 +1904,7 @@ def instrExecution(line, pc):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
+            cacheAnalysis(Valid, Cache, mem, word, Tag, 1, set_offset, word_offset)
             memory[mem] = rt
             mem+=1
             memory[mem] = third
