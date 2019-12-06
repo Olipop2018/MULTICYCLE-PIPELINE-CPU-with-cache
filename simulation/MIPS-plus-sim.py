@@ -68,7 +68,7 @@ labelName = []
 pcAssign= []
 
 
-def multiCycle(instrs, DIC, pc, cycles):
+def multiCycle(instrs, DIC, pc, cycles,set_offset, word_offset):
     cycle1=0
     cycle2=0
     cycle3=0
@@ -1773,7 +1773,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_offset):
         LRU[setIndex].append(remove_way)
     return(Valid, Cache, mem, rt, Tag)	
 
-def instrExecution(line, pc):
+def instrExecution(line, pc,set_offset, word_offset):
         global cache_type
         global blk_size   #Block size in Bytes
         global num_ways   #Number of ways
@@ -2390,7 +2390,7 @@ def cache_def():
         total_s = 2   #Number of blocks/sets
     else:
         print("Invalid cache type, exiting program")
-        quit()
+        #quit()
         
     return(blk_size, num_ways, total_s)
 
@@ -2419,7 +2419,7 @@ def main():
     print("3. a 2-way set-associative cache, block size of 8 Bytes, 4 sets (b=8; N=2; S=4)")
     print("4. a 4-way set-associative cache, block size of 8 Bytes, 2 sets (b=8; N=4; S=2)")
     cache_type = input("Enter a choice: ")
-    cache_def(cache_type)
+    cache_def()
     word_offset = int(math.log(blk_size,2)) 
     set_offset = int(math.log(total_s,2))
 
