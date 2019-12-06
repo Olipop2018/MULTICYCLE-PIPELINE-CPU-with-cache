@@ -1723,13 +1723,14 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_offset):
     global Hits 
     print("In Progress")
     updated = 0
+    setIndex = mem[16-word_offset-set_offset:16-word_offset]
     for o in range(num_ways):
         if(Valid[setIndex][o] == 0):
             Misses += 1
             Cache[setIndex][o] = memory[mem]
             if(lworsw == 0):
                 registers[rt] = Cache[setIndex][o]
-            if(lworsw == 1):
+            elif(lworsw == 1):
                 temp = Cache[setIndex][o]
                 temp = format(temp,'064b')
                 first= temp[32:40]
@@ -1741,9 +1742,11 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_offset):
             Valid[setIndex][o] = 1
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
             updated = 1;
-            LRU[setIndex].append(o)
+            LRU[setIndex].append(o)   
+            
         if(updated == 1):
             break
+        
         else:
             if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lworsw == 0):
@@ -1756,6 +1759,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_offset):
                 LRU[setIndex].append(o)
         if(updated == 1):
             break
+        
     if(updated == 0):
         Misses += 1
         remove_way = LRU[setIndex][0]
