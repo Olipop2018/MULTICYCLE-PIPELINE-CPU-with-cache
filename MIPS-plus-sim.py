@@ -103,7 +103,7 @@ def multiCycle(instrs, DIC, pc, cycles):
             controlSignals["AluScrB"]='10'
            # controlSignals["AluOp"]='00'
        #cycle4
-            pc= instrExecution(l, pc)
+            pc= instrExecution(l, pc, set_offset, word_offset)
             #controlSignals["IorD"]=0
             cycle4+=1
             if "sw" in l:
@@ -134,7 +134,7 @@ def multiCycle(instrs, DIC, pc, cycles):
           # controlSignals["AluOp"]='01'
            # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
-            pc= instrExecution(l, pc)
+            pc= instrExecution(l, pc, set_offset, word_offset)
         else:
             controlSignals["c4"]+=1
             if "i" in l:    
@@ -145,7 +145,7 @@ def multiCycle(instrs, DIC, pc, cycles):
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
-                pc= instrExecution(l, pc)
+                pc= instrExecution(l, pc, set_offset, word_offset)
                 controlSignals["RegDst"]+= 0
                 controlSignals["MemtoReg"]+=0
                 controlSignals["RegWrite"]+=1
@@ -155,7 +155,7 @@ def multiCycle(instrs, DIC, pc, cycles):
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
-                pc= instrExecution(l, pc)
+                pc= instrExecution(l, pc, set_offset, word_offset)
                 controlSignals["RegDst"]+= 1
                 controlSignals["MemtoReg"]+=0
                 controlSignals["RegWrite"]+=1
@@ -182,7 +182,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
 
         de = ft
 
-        pc = instrExecution(l, pc)
+        pc = instrExecution(l, pc, set_offset, word_offset)
         ft["instr"] = l
         ft["nop"] = 0
         if "w" in l:
