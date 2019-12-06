@@ -1714,7 +1714,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
 
-def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
+def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_offset):
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -1729,7 +1729,14 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
             Cache[setIndex][o] = memory[mem]
             if(lworsw == 0):
                 registers[rt] = Cache[setIndex][o]
-            if(lwosw == 1):
+            if(lworsw == 1):
+                temp = Cache[setIndex][o]
+                temp = format(temp,'064b')
+                first= temp[32:40]
+                sec= temp[40:48]
+                third= temp[48:56]
+                rt= temp[56:64]
+                
                 memory[mem] = Cache[setIndex][o]
             Valid[setIndex][o] = 1
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
@@ -1738,10 +1745,10 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
         if(updated == 1):
             break
         else:
-            if(Tag[setIndex][o] == mem[0:16-set_offset]-word_offset):
+            if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lworsw == 0):
                     registers[rt] = Cache[setIndex][o]
-                if(lwosw == 1):
+                if(lworsw == 1):
                     memory[mem] = Cache[setIndex][o]
                 Hits += 1
                 updated = 1
@@ -1755,7 +1762,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
         Cache[setIndex][remove_way] = memory[mem]
         if(lworsw == 0):
             registers[rt] = Cache[setIndex][remove_way]
-        if(lwosw == 1):
+        if(lworsw == 1):
             memory[mem] = Cache[setIndex][remove_way]
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
@@ -2354,7 +2361,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
 
-def cache_def(cache_type):
+def cache_def():
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -2379,7 +2386,7 @@ def cache_def(cache_type):
         total_s = 2   #Number of blocks/sets
     else:
         print("Invalid cache type, exiting program")
-        quit()
+        #quit()
         
     return(blk_size, num_ways, total_s)
 
@@ -2408,7 +2415,7 @@ def main():
     print("3. a 2-way set-associative cache, block size of 8 Bytes, 4 sets (b=8; N=2; S=4)")
     print("4. a 4-way set-associative cache, block size of 8 Bytes, 2 sets (b=8; N=4; S=2)")
     cache_type = input("Enter a choice: ")
-    cache_def(cache_type)
+    cache_def()
     word_offset = int(math.log(blk_size,2)) 
     set_offset = int(math.log(total_s,2))
 
