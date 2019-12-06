@@ -1730,7 +1730,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,LRU, lworsw,set_offset, word_offset):
             Cache[setIndex][o] = memory[mem]
             if(lworsw == 0):
                 registers[rt] = Cache[setIndex][o]
-            if(lworsw == 1):
+            elif(lworsw == 1):
                 temp = Cache[setIndex][o]
                 temp = format(temp,'064b')
                 first = temp[32:40]
@@ -1765,7 +1765,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,LRU, lworsw,set_offset, word_offset):
             if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lworsw == 0):
                     registers[rt] = Cache[setIndex][o]
-                if(lworsw == 1):
+                elif(lworsw == 1):
                     temp = Cache[setIndex][o]
                     temp = format(temp,'064b')
                     first = temp[32:40]
@@ -1797,7 +1797,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,LRU, lworsw,set_offset, word_offset):
         Cache[setIndex][remove_way] = memory[mem]
         if(lworsw == 0):
             registers[rt] = Cache[setIndex][remove_way]
-        if(lworsw == 1):
+        elif(lworsw == 1):
             temp = Cache[setIndex][remove_way]
             temp = format(temp,'064b')
             first = temp[32:40]
