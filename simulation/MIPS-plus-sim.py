@@ -1700,7 +1700,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
 
-def cacheAnalysis(Valid,Cache,mem,rt,Tag, LRU, lworsw):
+def cacheAnalysis(Valid,Cache,mem,rt,Tag, LRU, lworsw,set_offset, word_offset):
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -1709,13 +1709,16 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag, LRU, lworsw):
     global Hits 
     print("In Progress")
     updated = 0
+    
+    setIndex = mem[16-word_offset-set_offset:16-word_offset]   # how many bits needed for set indexing
+    
     for o in range(num_ways):
         if(Valid[setIndex][o] == 0):
             Misses += 1
             Cache[setIndex][o] = memory[mem]
             if(lworsw == 0):
                 registers[rt] = Cache[setIndex][o]
-            if(lwosw == 1):
+            if(lworsw == 1):
                 memory[mem] = Cache[setIndex][o]
             Valid[setIndex][o] = 1
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
@@ -1727,7 +1730,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag, LRU, lworsw):
             if(Tag[setIndex][o] == mem[0:16-set_offset]-word_offset):
                 if(lworsw == 0):
                     registers[rt] = Cache[setIndex][o]
-                if(lwosw == 1):
+                if(lworsw == 1):
                     memory[mem] = Cache[setIndex][o]
                 Hits += 1
                 updated = 1
@@ -1741,7 +1744,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag, LRU, lworsw):
         Cache[setIndex][remove_way] = memory[mem]
         if(lworsw == 0):
             registers[rt] = Cache[setIndex][remove_way]
-        if(lwosw == 1):
+        if(lworsw == 1):
             memory[mem] = Cache[setIndex][remove_way]
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
@@ -1749,7 +1752,12 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag, LRU, lworsw):
     return(Valid, Cache, mem, rt, Tag, LRU)							
 
 def instrExecution(line, pc):
-
+        global cache_type
+        global blk_size   #Block size in Bytes
+        global num_ways   #Number of ways
+        global total_s 
+        global Misses 
+        global Hits 
    #pc = int(0)
         #bcount=0
    #DIC = int(0)
@@ -1839,7 +1847,7 @@ def instrExecution(line, pc):
                 word = word - 4294967296
             else:
                 word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, LRU, 1)
+            cacheAnalysis(Valid, Cache, mem, word, Tag, LRU, 1, set_offset, word_offset)
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -1882,7 +1890,7 @@ def instrExecution(line, pc):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, LRU, 1)
+            cacheAnalysis(Valid, Cache, mem, word, Tag, LRU, 1, set_offset, word_offset)
             memory[mem] = rt
             mem+=1
             memory[mem] = third
