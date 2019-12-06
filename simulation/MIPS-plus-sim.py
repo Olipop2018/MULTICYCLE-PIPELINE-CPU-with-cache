@@ -1817,6 +1817,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,LRU, lworsw,set_offset, word_offset):
             mem+=1
             memory[mem] = first
             mem+=1
+            
         Hits += 1
         updated = 1
         LRU[setIndex].remove(o)
@@ -1965,11 +1966,8 @@ def instrExecution(line, pc,set_offset, word_offset):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
-<<<<<<< HEAD
+            
             cacheAnalysis(Valid, Cache, memo, word, Tag, LRU, 1, set_offset, word_offset)
-=======
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
->>>>>>> d2614491917efb675d27d2b8b371efd68cdc0ec9
             memory[mem] = rt
             mem+=1
             memory[mem] = third
