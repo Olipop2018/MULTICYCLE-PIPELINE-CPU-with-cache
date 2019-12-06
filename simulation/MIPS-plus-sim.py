@@ -479,7 +479,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
@@ -528,7 +528,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
@@ -621,7 +621,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
@@ -670,7 +670,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
@@ -765,7 +765,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
@@ -814,7 +814,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
@@ -939,7 +939,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
@@ -988,7 +988,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
@@ -1086,7 +1086,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
@@ -1135,7 +1135,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
@@ -1228,7 +1228,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
@@ -1277,7 +1277,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
@@ -1370,7 +1370,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
@@ -1419,7 +1419,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
@@ -1511,7 +1511,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
@@ -1560,7 +1560,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
@@ -1651,7 +1651,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ALUOutM -> EqualD")
@@ -1700,7 +1700,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
-                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or  \
                         de["reghold"]["rt"]:
                     if diagnostic == 1:
                         print("ResultW -> EqualD")
