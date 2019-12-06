@@ -103,6 +103,7 @@ def multiCycle(instrs, DIC, pc, cycles,set_offset, word_offset):
             controlSignals["AluScrB"]='10'
            # controlSignals["AluOp"]='00'
        #cycle4
+            print("word_offset", word_offset)
             pc= instrExecution(l, pc, set_offset, word_offset)
             #controlSignals["IorD"]=0
             cycle4+=1
@@ -1715,6 +1716,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 input("press enter to continue")
 
 def cacheAnalysis(Valid,Cache,mem,rt,Tag,LRU, lworsw,set_offset, word_offset):
+    print("you are in cache analysis")
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -1779,7 +1781,8 @@ def instrExecution(line, pc,set_offset, word_offset):
         global num_ways   #Number of ways
         global total_s 
         global Misses 
-        global Hits 
+        global Hits
+        print
    #pc = int(0)
         #bcount=0
    #DIC = int(0)
@@ -1869,7 +1872,7 @@ def instrExecution(line, pc,set_offset, word_offset):
                 word = word - 4294967296
             else:
                 word= int(word,2)
-            cacheAnalysis(Valid, Cache, memo, word, Tag, 1, set_offset, word_offset)
+            #cacheAnalysis(Valid, Cache, memo, word, Tag, 1, set_offset, word_offset)
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -1912,6 +1915,7 @@ def instrExecution(line, pc,set_offset, word_offset):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
+            print(" word_offset", word_offset)
             cacheAnalysis(Valid, Cache, memo, word, Tag, 1, set_offset, word_offset)
             memory[mem] = rt
             mem+=1
