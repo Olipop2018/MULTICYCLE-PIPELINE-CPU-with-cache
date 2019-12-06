@@ -37,13 +37,18 @@ wb = {"instr": " ", "type": " ", "stall": 0, "flush": 0, "cycles": 0,
 
 controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, "c4":0, "c5":0}
 
+global cache_type
+global blk_size   #Block size in Bytes
+global num_ways   #Number of ways
+global total_s 
+global Misses 
+global Hits 
 cache_type = 0
 blk_size = 0    #Block size in Bytes
 num_ways = 0    #Number of ways
 total_s = 0   #Number of blocks/sets
 Misses = 0
 Hits = 0
-
 labelIndex = []
 labelName = []
 pcAssign= []
@@ -1696,6 +1701,12 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 input("press enter to continue")
 
 def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw):
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global Misses 
+    global Hits 
     print("In Progress")
     updated = 0
     for o in range(num_ways):
@@ -1735,7 +1746,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw):
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
         LRU[setIndex].append(remove_way)
-    return(Valid, Cache, mem, rt, Tag, LBU)	
+    return(Valid, Cache, mem, rt, Tag)	
 
 def instrExecution(line, pc):
 

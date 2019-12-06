@@ -1710,6 +1710,12 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 input("press enter to continue")
 
 def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw):
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global Misses 
+    global Hits 
     print("In Progress")
     updated = 0
     for o in range(num_ways):
