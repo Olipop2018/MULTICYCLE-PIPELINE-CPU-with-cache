@@ -2365,15 +2365,15 @@ def cache_def(cache_type):
         blk_size = 16    #Block size in Bytes
         num_ways = 1    #Number of ways
         total_s = 4   #Number of blocks/sets
-    if(cache_type == '2'):
+    elif(cache_type == '2'):
         blk_size = 8    #Block size in Bytes
         num_ways = 8    #Number of ways
         total_s = 1   #Number of blocks/sets
-    if(cache_type == '3'):
+    elif(cache_type == '3'):
         blk_size = 8    #Block size in Bytes
         num_ways = 2    #Number of ways
         total_s = 4   #Number of blocks/sets
-    if(cache_type == '4'):
+    elif(cache_type == '4'):
         blk_size = 8    #Block size in Bytes
         num_ways = 4    #Number of ways
         total_s = 2   #Number of blocks/sets
