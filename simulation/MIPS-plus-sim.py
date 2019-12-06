@@ -1364,6 +1364,13 @@ def cache_def():
         blk_size = 8    #Block size in Bytes
         num_ways = 4    #Number of ways
         total_s = 2   #Number of blocks/sets
+    elif(cache_type == '5'):
+        blk_size = input("Please insert a block size that is a power of 2 :)
+        blk_size = int(blk_size)
+        num_ways = input("Please insert how many ways:)
+        num_ways = int(num_ways)
+        total_s = input("Please insert total sets that is a power of 2 :)
+        total_s = int(total_s)
     else:
         print("Invalid cache type, exiting program")
         #quit()
@@ -1394,6 +1401,7 @@ def main():
     print("2. a fully-associated cache, block size of 8 Bytes, a total of 8 blocks (b=8; N=8; S=1)")
     print("3. a 2-way set-associative cache, block size of 8 Bytes, 4 sets (b=8; N=2; S=4)")
     print("4. a 4-way set-associative cache, block size of 8 Bytes, 2 sets (b=8; N=4; S=2)")
+    print("5. a custom cache b = ?, N = ?, S = ?)
     cache_type = input("Enter a choice: ")
     cache_def()
     word_offset = int(math.log(blk_size,2)) 
