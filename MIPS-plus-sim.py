@@ -70,8 +70,7 @@ def multiCycle(instrs, DIC, pc, cycles):
     cycle4=0
     cycle5=0
     while True:
-        cycles= cycle1+ cycle2+ cycle3+ cycle4+ cycle5
-        
+        cycles= cycle1+ cycle2+ cycle3+ cycle4+ cycle5        
         if (int(pc/4) >= len(instrs)):
             print("Dynamic Instruction Count: ",DIC)
             return DIC, pc, cycles;
@@ -92,7 +91,7 @@ def multiCycle(instrs, DIC, pc, cycles):
         controlSignals["AluScrA"]+=0 
         controlSignals["AluScrB"]='11'
        # controlSignals["AluOp"]='00'
-        if "w" in l:
+        if "w" in l[0:2]:
        #cycle3 
             cycle3+=1
             controlSignals["AluScrA"]+=1
@@ -111,7 +110,17 @@ def multiCycle(instrs, DIC, pc, cycles):
                  controlSignals["RegDst"]+= 0
                  controlSignals["MemtoReg"]+=1
                  controlSignals["RegWrite"]+=1
-        elif ("bne" in l) or ("beq" in l):
+        elif "bne" in l:
+      #cycle3 
+            cycle3+=1
+            controlSignals["c3"]+=1
+            controlSignals["AluScrA"]+= 1
+            controlSignals["AluScrB"]='10'
+          # controlSignals["AluOp"]='01'
+           # controlSignals["PCSrc"]=1
+            controlSignals["Branch"]+=1
+            pc= instrExecution(l, pc)
+        elif "beq" in l:
       #cycle3 
             cycle3+=1
             controlSignals["c3"]+=1
@@ -1699,7 +1708,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 print("current instruction's in each cycle and forwarding paths")
                 print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
-				
+
 def cacheAnalysis(Valid,Cache,mem,rt,Tag,LBU,lworsw):
     print("In Progress")
     updated = 0
@@ -1741,15 +1750,24 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,LBU,lworsw):
         LRU[setIndex].remove(remove_way)
         LRU[setIndex].append(remove_way)
     return(Valid, Cache, mem, rt, Tag, LBU)							
-				
+
 def instrExecution(line, pc):
+
+   #pc = int(0)
+        #bcount=0
+   #DIC = int(0)
         j= int(0)
-		
-		#Need to make two dimensional
-		Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
-		Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
-		Cache = [[0 for h in range(blk_size)] for f in range(total_s)]# Cache data
-        
+        Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
+        Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
+        Cache = [[0 for h in range(blk_size)] for f in range(total_s)]# Cache data
+        #bcount+=1
+
+       # num= len(instrs)
+        #if (int(pc/4) >= len(instrs)):
+           
+         #   print("Dynamic Instruction Count: ",DIC)
+          #  return DIC, pc;
+        #line = instrs[int(pc/4)]
         print("Current instruction PC =",pc)
         #DIC+=1
         if(line[0:4] == "addi"): # ADDI/U 
@@ -1808,9 +1826,8 @@ def instrExecution(line, pc):
             instruction = "lw"
             print (instruction , ("$" + str(line[0])) , (str(imm) if(n== 10) else hex(imm))  + "("+("$" + str(line[2]))+")" )
             mem = imm + rs
-            memo = mem
+            memo= mem
             mem = mem - int('0x2000', 16)
-            
             rt= format(memory[mem],'08b') 
             mem+=1
             third= format(memory[mem],'08b')
@@ -1819,15 +1836,12 @@ def instrExecution(line, pc):
             mem+=1
             first= format(memory[mem],'08b')
             word=  first +sec+ third+ rt
-            
             if word[0] == '1':
                 word= int(word,2)
                 word = word - 4294967296
             else:
                 word= int(word,2)
-            
-            cacheAnalysis(Valid, Cache, mem, word, Tag, LBU, 1)   #Cache analysis
-            
+            cacheAnalysis(Valid, Cache, mem, word, Tag, LBU, 1)
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -1859,7 +1873,6 @@ def instrExecution(line, pc):
             mem = imm + rs
             memo= mem
             mem = mem - int('0x2000', 16)
-            
             rt= format(rt,'064b')
             first= rt[32:40]
             sec= rt[40:48]
@@ -1871,9 +1884,7 @@ def instrExecution(line, pc):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
-            
-            cacheAnalysis(Valid, Cache, mem, word, Tag, LBU, 1)   #Cache analysis
-            
+            cacheAnalysis(Valid, Cache, mem, word, Tag, LBU, 1)
             memory[mem] = rt
             mem+=1
             memory[mem] = third
@@ -2307,7 +2318,6 @@ def instrExecution(line, pc):
                         #pc = int(pc,2)
                         #hexstr= hex(int(hexstr[0], 2))
                        # f.write(hexstr+ '\n')#str('000010') + str(format(int(labelIndex[i]),'026b')) + '\n'+ hexstr+ '\n')
-  
 
 def saveJumpLabel(asm,labelIndex, labelName):
     lineCount = 0
@@ -2350,14 +2360,17 @@ def cache_def(cache_type):
 
 def main():
    # f = open("mc.txt","w+")
-    h = open("ProgramA_Testcase1.txt","r")
+    h = open("ProgramB_Testcase2","r")
     asm = h.readlines()
     instrs = []
     FinalDIC= 0
     FinalPC= 0
     TotalCycles= 0
-	
-	print("Please enter the type of cache that you want")
+    
+    for item in range(asm.count('\n')): # Remove all empty lines '\n'
+        asm.remove('\n')
+
+    print("Please enter the type of cache that you want")
     print("1. a directly-mapped cache, block size of 16 Bytes, a total of 4 blocks (b=16; N=1; S=4)")
     print("2. a fully-associated cache, block size of 8 Bytes, a total of 8 blocks (b=8; N=8; S=1)")
     print("3. a 2-way set-associative cache, block size of 8 Bytes, 4 sets (b=8; N=2; S=4)")
@@ -2366,10 +2379,7 @@ def main():
     cache_def(cache_type)
     word_offset = int(math.log(blk_size,2)) 
     set_offset = int(math.log(total_s,2))
-    
-    for item in range(asm.count('\n')): # Remove all empty lines '\n'
-        asm.remove('\n')
-       
+
     saveJumpLabel(asm,labelIndex,labelName) # Save all jump's destinations
     for line in asm:
         #line = line.replace("\t","")
@@ -2381,7 +2391,8 @@ def main():
         instrs.append(line)
        
     print(pcAssign)
-    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles)
+
     print("All memory contents:")
     for k in range(0,1024):
         mem= 8192+ (k*4)
@@ -2397,7 +2408,10 @@ def main():
         word =  fourth+ third + second+first
         word= int(word,2)
         word = format(word,"08x")
-        print("memory", hex(mem)+": 0x"+ word )
+        print("memory","{}: {}".format(hex(mem),word), end='| ')
+        if(k%7 == 0 and k > 0):
+            print("\n")
+        #print("memory", hex(mem)+": 0x"+ word )
     
     print("all register values:")
     proregister= str(registers)
@@ -2424,9 +2438,42 @@ def main():
         word= int(word,2)
         word = format(word,"08x")
         print("memory", hex(mem)+": 0x"+ word )
+    print("Final Multicycle Statistics ")
+    per5 = (controlSignals["c5"]/FinalDIC)*100
+    per4 = (controlSignals["c4"]/FinalDIC)*100
+    per3 = (controlSignals["c3"]/FinalDIC)*100
     print("Dynamic Instruction Count: ",FinalDIC)
-    
+    print("Total Cycle Count: ",TotalCycles)
+    print("Instruction Count with 3 Cycles: \n{} was executed\n {}%".format(controlSignals["c3"], per3))
+    print("Instruction Count with 4 Cycles:  \n{} was executed\n {}%".format(controlSignals["c4"], per4))
+    print("Instruction Count with 5 Cycles: \n{} was executed\n {}%".format(controlSignals["c5"], per5))
+    cpi= (controlSignals["c5"]*5+controlSignals["c4"]*4+controlSignals["c3"]*3)/FinalDIC
+    print("CPI: ({}*5+{}*4+{}*3)/{} = {}".format(controlSignals["c5"],controlSignals["c4"],controlSignals["c3"], FinalDIC, cpi))
+    per5 = (controlSignals["MemtoReg"]/TotalCycles)*100
+    per4 = (controlSignals["MemWrite"]/TotalCycles)*100
+    per3 = (controlSignals["Branch"]/TotalCycles)*100
+    per2 = (controlSignals["AluScrA"]/TotalCycles)*100
+    per1 = (controlSignals["RegDst"]/TotalCycles)*100
+    per0 = (controlSignals["RegWrite"]/TotalCycles)*100
+    print("MemtoReg:{}% was 1".format(per5))
+    print("MemWrite: {}% was 1".format(per4))
+    print("Branch: {}% was 1".format(per3))
+    print("ALUSrc: {}% was 1".format(per2))
+    print("RegDst: {}% was 1".format(per1))
+    print("RegWrite: {}% was 1".format(per0))
     print("Hit Rate = ", Hits/(Hits/Misses))
+    #print("Instruction Count: ",FinalDIC)
+
+   # print(memory)
+
+    #f.close()
 
 if __name__ == "__main__":
     main()
+
+    
+    
+
+if __name__ == "__main__":
+    main()
+
