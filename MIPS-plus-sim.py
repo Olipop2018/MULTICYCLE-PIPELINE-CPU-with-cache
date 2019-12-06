@@ -1709,7 +1709,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
 
-def cacheAnalysis(Valid,Cache,mem,rt,Tag,LBU,lworsw):
+def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw):
     print("In Progress")
     updated = 0
     for o in range(num_ways):
@@ -1841,7 +1841,7 @@ def instrExecution(line, pc):
                 word = word - 4294967296
             else:
                 word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, LBU, 1)
+            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -1884,7 +1884,7 @@ def instrExecution(line, pc):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, LBU, 1)
+            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
             memory[mem] = rt
             mem+=1
             memory[mem] = third
