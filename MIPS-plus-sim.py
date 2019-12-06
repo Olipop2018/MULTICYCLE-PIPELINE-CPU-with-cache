@@ -1896,7 +1896,7 @@ def instrExecution(line, pc):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, LRU, 1)
+            #cacheAnalysis(Valid, Cache, mem, word, Tag, LRU, 1)
             memory[mem] = rt
             mem+=1
             memory[mem] = third
