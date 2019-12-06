@@ -103,7 +103,7 @@ def multiCycle(instrs, DIC, pc, cycles):
             controlSignals["AluScrB"]='10'
            # controlSignals["AluOp"]='00'
        #cycle4
-            pc= instrExecution(l, pc, set_offset, word_offset)
+            pc= instrExecution(l, pc)
             #controlSignals["IorD"]=0
             cycle4+=1
             if "sw" in l:
@@ -134,7 +134,7 @@ def multiCycle(instrs, DIC, pc, cycles):
           # controlSignals["AluOp"]='01'
            # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
-            pc= instrExecution(l, pc, set_offset, word_offset)
+            pc= instrExecution(l, pc)
         else:
             controlSignals["c4"]+=1
             if "i" in l:    
@@ -145,7 +145,7 @@ def multiCycle(instrs, DIC, pc, cycles):
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
-                pc= instrExecution(l, pc, set_offset, word_offset)
+                pc= instrExecution(l, pc)
                 controlSignals["RegDst"]+= 0
                 controlSignals["MemtoReg"]+=0
                 controlSignals["RegWrite"]+=1
@@ -155,7 +155,7 @@ def multiCycle(instrs, DIC, pc, cycles):
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
-                pc= instrExecution(l, pc, set_offset, word_offset)
+                pc= instrExecution(l, pc)
                 controlSignals["RegDst"]+= 1
                 controlSignals["MemtoReg"]+=0
                 controlSignals["RegWrite"]+=1
@@ -182,7 +182,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
 
         de = ft
 
-        pc = instrExecution(l, pc, set_offset, word_offset)
+        pc = instrExecution(l, pc)
         ft["instr"] = l
         ft["nop"] = 0
         if "w" in l:
@@ -1714,7 +1714,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
 
-def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw):
+def cacheAnalysis(Valid,Cache,mem,rt,Tag, LRU, lworsw):
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -1760,7 +1760,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw):
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
         LRU[setIndex].append(remove_way)
-    return(Valid, Cache, mem, rt, Tag)	
+    return(Valid, Cache, mem, rt, Tag, LRU)							
 
 def instrExecution(line, pc):
 
@@ -1770,6 +1770,7 @@ def instrExecution(line, pc):
         j= int(0)
         Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
         Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
+        LRU = [0 for f in range(total_s)],[0 for g in range(num_ways)]
         Cache = [[0 for h in range(blk_size)] for f in range(total_s)]# Cache data
         #bcount+=1
 
@@ -1852,7 +1853,7 @@ def instrExecution(line, pc):
                 word = word - 4294967296
             else:
                 word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
+            cacheAnalysis(Valid, Cache, mem, word, Tag, LRU, 1)
             registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
@@ -1895,7 +1896,7 @@ def instrExecution(line, pc):
             third= int(third,2)
             rt= int(rt,2)
             word= int(word,2)
-            cacheAnalysis(Valid, Cache, mem, word, Tag, 1)
+            cacheAnalysis(Valid, Cache, mem, word, Tag, LRU, 1)
             memory[mem] = rt
             mem+=1
             memory[mem] = third
@@ -2347,47 +2348,36 @@ def saveJumpLabel(asm,labelIndex, labelName):
         lineCount += 1
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
-
+		
 def cache_def(cache_type):
-    global cache_type
-    global blk_size   #Block size in Bytes
-    global num_ways   #Number of ways
-    global total_s 
-    global Misses 
-    global Hits    
-    
-    if(cache_type == '1'):
+
+    if(cache_type == "1"):
         blk_size = 16    #Block size in Bytes
         num_ways = 1    #Number of ways
         total_s = 4   #Number of blocks/sets
-    if(cache_type == '2'):
+        return blk_size, num_ways, total_s
+    elif(cache_type == "2"):
         blk_size = 8    #Block size in Bytes
         num_ways = 8    #Number of ways
         total_s = 1   #Number of blocks/sets
-    if(cache_type == '3'):
+        return blk_size, num_ways, total_s
+    elif(cache_type == "3"):
         blk_size = 8    #Block size in Bytes
         num_ways = 2    #Number of ways
         total_s = 4   #Number of blocks/sets
-    if(cache_type == '4'):
+        return blk_size, num_ways, total_s
+    elif(cache_type == "4"):
         blk_size = 8    #Block size in Bytes
         num_ways = 4    #Number of ways
         total_s = 2   #Number of blocks/sets
+        return blk_size, num_ways, total_s
     else:
         print("Invalid cache type, exiting program")
         quit()
-        
-    return(blk_size, num_ways, total_s)
 
 def main():
-    global cache_type
-    global blk_size   #Block size in Bytes
-    global num_ways   #Number of ways
-    global total_s 
-    global Misses 
-    global Hits
-    
    # f = open("mc.txt","w+")
-    h = open("ProgramB_Testcase2","r")
+    h = open("test1.asm","r")
     asm = h.readlines()
     instrs = []
     FinalDIC= 0
@@ -2403,7 +2393,11 @@ def main():
     print("3. a 2-way set-associative cache, block size of 8 Bytes, 4 sets (b=8; N=2; S=4)")
     print("4. a 4-way set-associative cache, block size of 8 Bytes, 2 sets (b=8; N=4; S=2)")
     cache_type = input("Enter a choice: ")
-    cache_def(cache_type)
+    print(cache_type)
+
+
+    blk_size, num_ways, total_s = cache_def(cache_type)
+
     word_offset = int(math.log(blk_size,2)) 
     set_offset = int(math.log(total_s,2))
 
@@ -2418,7 +2412,7 @@ def main():
         instrs.append(line)
        
     print(pcAssign)
-    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles)
 
     print("All memory contents:")
     for k in range(0,1024):
@@ -2501,5 +2495,6 @@ if __name__ == "__main__":
     
     
 
-
+if __name__ == "__main__":
+    main()
 
