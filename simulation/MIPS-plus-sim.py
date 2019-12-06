@@ -560,7 +560,6 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 second = temp[40:48]
                 third = temp[48:56]
                 fourth = temp[56:64]
-                
                 memory[mem] = fourth
                 memory[mem+1] = third
                 memory[mem+2] = second
@@ -585,7 +584,6 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     second = temp[40:48]
                     third = temp[48:56]
                     fourth = temp[56:64]
-                
                     memory[mem] = fourth
                     memory[mem+1] = third
                     memory[mem+2] = second
@@ -625,7 +623,6 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             second = temp[40:48]
             third = temp[48:56]
             fourth = temp[56:64]
-            
             memory[mem] = fourth
             memory[mem+1] = third
             memory[mem+2] = second
@@ -652,37 +649,27 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_
         if(Valid[setIndex][o] == 0):
             Misses += 1
             
-            #Grab word
-            fourth = format(memory[mem], '08b')
-            third = format(memory[mem+1], '08b')
-            second = format(memory[mem+2], '08b')
-            first = format(memory[mem+3], '08b')
-            word = first + second + third + fourth
+            #Grab byte
+            byte = format(memory[mem], '08b')
+            byte = byte[:8]
             
             #Determine if negative
-            if(word[0] == '1'):
-                word = int(word,2)
-                word = word - (2^32)
+            if(byte[0] == '1'):
+                byte = int(byte,2)
+                byte = byte - (2^8)
             else:
-                word = int(word,2)
+                byte = int(byte,2)
                 
-            Cache[setIndex][o] = word
+            Cache[setIndex][o] = byte
             
             #Load word or store word
             if(lworsw == 0):
                 registers[rt] = Cache[setIndex][o]
             elif(lworsw == 1):
                 temp = Cache[setIndex][o]
-                temp = format(temp,'064b')
-                first = temp[32:40]
-                second = temp[40:48]
-                third = temp[48:56]
-                fourth = temp[56:64]
-                
-                memory[mem] = fourth
-                memory[mem+1] = third
-                memory[mem+2] = second
-                memory[mem+3] = first
+                temp = format(temp,'016b')
+                byte = temp[8:16]
+                memory[mem] = byte
                 
             Valid[setIndex][o] = 1
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
@@ -698,16 +685,9 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_
                     registers[rt] = Cache[setIndex][o]
                 elif(lworsw == 1):
                     temp = Cache[setIndex][o]
-                    temp = format(temp,'064b')
-                    first = temp[32:40]
-                    second = temp[40:48]
-                    third = temp[48:56]
-                    fourth = temp[56:64]
-                
-                    memory[mem] = fourth
-                    memory[mem+1] = third
-                    memory[mem+2] = second
-                    memory[mem+3] = first
+                    temp = format(temp,'016b')
+                    byte = temp[8:16]
+                    memory[mem] = byte
                     
                 Hits += 1
                 updated = 1
@@ -720,34 +700,24 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_
         Misses += 1
         remove_way = LRU[setIndex][0]
         
-        fourth = format(memory[mem], '08b')
-        third = format(memory[mem+1], '08b')
-        second = format(memory[mem+2], '08b')
-        first = format(memory[mem+3], '08b')
-        word = first + second + third + fourth
+        byte = format(memory[mem], '08b')
+        byte = byte[:8]
             
         #Determine if negative
-        if(word[0] == '1'):
-            word = int(word,2)
-            word = word - (2^32)
+        if(byte[0] == '1'):
+            byte = int(byte,2)
+            byte = byte - (2^32)
         else:
-            word = int(word,2)
+            byte = int(byte,2)
         
         Cache[setIndex][remove_way] = word
         if(lworsw == 0):
             registers[rt] = Cache[setIndex][remove_way]
         elif(lworsw == 1):
             temp = Cache[setIndex][o]
-            temp = format(temp,'064b')
-            first = temp[32:40]
-            second = temp[40:48]
-            third = temp[48:56]
-            fourth = temp[56:64]
-            
-            memory[mem] = fourth
-            memory[mem+1] = third
-            memory[mem+2] = second
-            memory[mem+3] = first
+            temp = format(temp,'016b')
+            byte = temp[8:16]
+            memory[mem] = byte
             
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
