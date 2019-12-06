@@ -519,7 +519,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
             aluoutm2 = 0
             pathsandprint(aluoutm1, aluoutm2, diagnostic)
 
-def cacheAnalysis(Valid,Cache,mem,rt,Tag,LRU, lworsw,set_offset, word_offset):
+def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
     print("you are in cache analysis")
     global cache_type
     global blk_size   #Block size in Bytes
@@ -533,18 +533,39 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,LRU, lworsw,set_offset, word_offset):
     for o in range(num_ways):
         if(Valid[setIndex][o] == 0):
             Misses += 1
-            Cache[setIndex][o] = memory[mem]
+            
+            #Grab word
+            fourth = format(memory[mem], '08b')
+            third = format(memory[mem+1], '08b')
+            second = format(memory[mem+2], '08b')
+            first = format(memory[mem+3], '08b')
+            word = first + second + third + fourth
+            
+            #Determine if negative
+            if(word[0] == '1'):
+                word = int(word,2)
+                word = word - 2^32
+            else:
+                word = int(word,2)
+                
+            Cache[setIndex][o] = word
+            
+            #Load word or store word
             if(lworsw == 0):
                 registers[rt] = Cache[setIndex][o]
             elif(lworsw == 1):
                 temp = Cache[setIndex][o]
                 temp = format(temp,'064b')
                 first = temp[32:40]
-                sec = temp[40:48]
+                second = temp[40:48]
                 third = temp[48:56]
                 fourth = temp[56:64]
                 
-                memory[mem] = Cache[setIndex][o]
+                memory[mem] = fourth
+                memory[mem+1] = third
+                memory[mem+2] = second
+                memory[mem+3] = first
+                
             Valid[setIndex][o] = 1
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
             updated = 1;
@@ -557,8 +578,19 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,LRU, lworsw,set_offset, word_offset):
             if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lworsw == 0):
                     registers[rt] = Cache[setIndex][o]
-                if(lworsw == 1):
-                    memory[mem] = Cache[setIndex][o]
+                elif(lworsw == 1):
+                    temp = Cache[setIndex][o]
+                    temp = format(temp,'064b')
+                    first = temp[32:40]
+                    second = temp[40:48]
+                    third = temp[48:56]
+                    fourth = temp[56:64]
+                
+                    memory[mem] = fourth
+                    memory[mem+1] = third
+                    memory[mem+2] = second
+                    memory[mem+3] = first
+                    
                 Hits += 1
                 updated = 1
                 LRU[setIndex].remove(o)
@@ -577,7 +609,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,LRU, lworsw,set_offset, word_offset):
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
         LRU[setIndex].append(remove_way)
-    return(Valid, Cache, mem, rt, Tag)	
+    return(Valid, Cache, mem, rt, Tag, LRU)	
 
 def instrExecution(line, pc,set_offset, word_offset):
         global cache_type
@@ -663,14 +695,14 @@ def instrExecution(line, pc,set_offset, word_offset):
             mem = imm + rs
             memo= mem
             mem = mem - int('0x2000', 16)
-            rt= format(memory[mem],'08b') 
+            fourth = format(memory[mem],'08b') 
             mem+=1
             third= format(memory[mem],'08b')
             mem+=1
             sec = format(memory[mem],'08b') 
             mem+=1
             first= format(memory[mem],'08b')
-            word=  first +sec+ third+ rt
+            word=  first +sec+ third+ fourth
             if word[0] == '1':
                 word= int(word,2)
                 word = word - 4294967296
