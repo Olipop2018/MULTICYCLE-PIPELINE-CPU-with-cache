@@ -2350,29 +2350,34 @@ def saveJumpLabel(asm,labelIndex, labelName):
         asm.remove('\n')
 		
 def cache_def(cache_type):
-    if(cache_type == 1):
+
+    if(cache_type == "1"):
         blk_size = 16    #Block size in Bytes
         num_ways = 1    #Number of ways
         total_s = 4   #Number of blocks/sets
-    if(cache_type == 2):
+        return blk_size, num_ways, total_s
+    elif(cache_type == "2"):
         blk_size = 8    #Block size in Bytes
         num_ways = 8    #Number of ways
         total_s = 1   #Number of blocks/sets
-    if(cache_type == 3):
+        return blk_size, num_ways, total_s
+    elif(cache_type == "3"):
         blk_size = 8    #Block size in Bytes
         num_ways = 2    #Number of ways
         total_s = 4   #Number of blocks/sets
-    if(cache_type == 4):
+        return blk_size, num_ways, total_s
+    elif(cache_type == "4"):
         blk_size = 8    #Block size in Bytes
         num_ways = 4    #Number of ways
         total_s = 2   #Number of blocks/sets
+        return blk_size, num_ways, total_s
     else:
         print("Invalid cache type, exiting program")
         quit()
 
 def main():
    # f = open("mc.txt","w+")
-    h = open("ProgramB_Testcase2","r")
+    h = open("test1.asm","r")
     asm = h.readlines()
     instrs = []
     FinalDIC= 0
@@ -2388,7 +2393,11 @@ def main():
     print("3. a 2-way set-associative cache, block size of 8 Bytes, 4 sets (b=8; N=2; S=4)")
     print("4. a 4-way set-associative cache, block size of 8 Bytes, 2 sets (b=8; N=4; S=2)")
     cache_type = input("Enter a choice: ")
-    cache_def(cache_type)
+    print(cache_type)
+
+
+    blk_size, num_ways, total_s = cache_def(cache_type)
+
     word_offset = int(math.log(blk_size,2)) 
     set_offset = int(math.log(total_s,2))
 
