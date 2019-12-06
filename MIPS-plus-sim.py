@@ -283,16 +283,19 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
         if m["type"] == "i" and m["name"] != "sw" or "lw":
             if ex["reghold"]["rs"] == m["reghold"]["rt"]:
                 aluoutm1 = 1
-                print("ALUOutM -> srcAE")
+                if diagnostic == 1:
+                    print("ALUOutM -> srcAE")
                 stats["ALUOutM -> srcAE"] += 1
             if ft["reghold"]["rt"] == de["reghold"]["rt"]:
                 if ex["name"] == "sw":
                     aluoutm2 = 1
-                    print("ALUOutM ‐> WriteDataE")
+                    if diagnostic == 1:
+                        print("ALUOutM ‐> WriteDataE")
                     stats["ALUOutM ‐> WriteDataE"] += 1
                 else:
                     aluoutm2 = 1
-                    print("ALUOutM -> srcBE")
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcBE")
                     stats["ALUOutM -> srcBE"] += 1
         if m["type"] == "r":
             if ex["reghold"]["rs"] == m["reghold"]["rd"]:
@@ -382,7 +385,6 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
             ex["nop"] = 1
             stats["delay"] += 1
 
-
             if ft["nop"] == 1:
                 fetch = "bubble stall"
             elif ft["nop"] == 2:
@@ -424,39 +426,47 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
             if m["type"] == "i" and m["name"] != "sw" or "lw":
                 if ex["reghold"]["rs"] == m["reghold"]["rt"]:
                     aluoutm1 = 1
-                    print("ALUOutM -> srcAE")
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
                     stats["ALUOutM -> srcAE"] += 1
                 if ft["reghold"]["rt"] == de["reghold"]["rt"]:
                     if ex["name"] == "sw":
                         aluoutm2 = 1
-                        print("ALUOutM ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
                         stats["ALUOutM ‐> WriteDataE"] += 1
                     else:
                         aluoutm2 = 1
-                        print("ALUOutM -> srcBE")
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
                         stats["ALUOutM -> srcBE"] += 1
             if m["type"] == "r":
                 if ex["reghold"]["rs"] == m["reghold"]["rd"]:
                     aluoutm1 = 1
-                    print("ALUOutM -> srcAE")
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
                     stats["ALUOutM -> srcAE"] += 1
                 if ex["reghold"]["rt"] == m["reghold"]["rd"]:
                     if ex["name"] == "sw":
                         aluoutm2 = 1
-                        print("ALUOutM ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
                         stats["ALUOutM ‐> WriteDataE"] += 1
                     else:
                         aluoutm2 = 1
-                        print("ALUOutM -> srcBE")
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
                         stats["ALUOutM -> srcBE"] += 1
 
             if de["name"] == "beq" or "bne":
                 if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                    print("ALUOutM -> EqualD")
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
                 if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
                         de["reghold"]["rt"]:
-                    print("ALUOutM -> EqualD")
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
 
             if wb["nop"] == 1:
@@ -470,34 +480,42 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
 
             if wb["type"] == "i" and wb["name"] != "sw":
                 if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
-                    print("ResultW -> srcAE")
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
                     stats["ResultW -> srcAE"] += 1
                 if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
                     if ex["name"] == "sw":
-                        print("ResultW ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
                         stats["ResultW ‐> WriteDataE"] += 1
                     else:
-                        print("ResultW -> srcBE")
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
                         stats["ResultW -> srcBE"] += 1
 
             if m["type"] == "r":
                 if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
-                    print("ResultW -> srcAE")
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
                     stats["ResultW -> srcAE"] += 1
                 if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
                     if ex["name"] == "sw":
-                        print("ResultW ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
                         stats["ResultW ‐> WriteDataE"] += 1
                     else:
-                        print("ResultW -> srcBE")
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
                         stats["ResultW -> srcBE"] += 1
             if de["name"] == "beq" or "bne":
                 if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                    print("ResultW -> EqualD")
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
                 if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
                         de["reghold"]["rt"]:
-                    print("ResultW -> EqualD")
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
             if diagnostic == 1:
                 print("current instruction's in each cycle and forwarding paths")
@@ -509,7 +527,6 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
             m["nop"] = 1
             stats["delay"] += 1
 
-
             if ft["nop"] == 1:
                 fetch = "bubble stall"
             elif ft["nop"] == 2:
@@ -551,39 +568,47 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
             if m["type"] == "i" and m["name"] != "sw" or "lw":
                 if ex["reghold"]["rs"] == m["reghold"]["rt"]:
                     aluoutm1 = 1
-                    print("ALUOutM -> srcAE")
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
                     stats["ALUOutM -> srcAE"] += 1
                 if ft["reghold"]["rt"] == de["reghold"]["rt"]:
                     if ex["name"] == "sw":
                         aluoutm2 = 1
-                        print("ALUOutM ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
                         stats["ALUOutM ‐> WriteDataE"] += 1
                     else:
                         aluoutm2 = 1
-                        print("ALUOutM -> srcBE")
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
                         stats["ALUOutM -> srcBE"] += 1
             if m["type"] == "r":
                 if ex["reghold"]["rs"] == m["reghold"]["rd"]:
                     aluoutm1 = 1
-                    print("ALUOutM -> srcAE")
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
                     stats["ALUOutM -> srcAE"] += 1
                 if ex["reghold"]["rt"] == m["reghold"]["rd"]:
                     if ex["name"] == "sw":
                         aluoutm2 = 1
-                        print("ALUOutM ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
                         stats["ALUOutM ‐> WriteDataE"] += 1
                     else:
                         aluoutm2 = 1
-                        print("ALUOutM -> srcBE")
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
                         stats["ALUOutM -> srcBE"] += 1
 
             if de["name"] == "beq" or "bne":
                 if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                    print("ALUOutM -> EqualD")
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
                 if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
                         de["reghold"]["rt"]:
-                    print("ALUOutM -> EqualD")
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
 
             if wb["nop"] == 1:
@@ -597,34 +622,42 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
 
             if wb["type"] == "i" and wb["name"] != "sw":
                 if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
-                    print("ResultW -> srcAE")
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
                     stats["ResultW -> srcAE"] += 1
                 if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
                     if ex["name"] == "sw":
-                        print("ResultW ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
                         stats["ResultW ‐> WriteDataE"] += 1
                     else:
-                        print("ResultW -> srcBE")
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
                         stats["ResultW -> srcBE"] += 1
 
             if m["type"] == "r":
                 if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
-                    print("ResultW -> srcAE")
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
                     stats["ResultW -> srcAE"] += 1
                 if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
                     if ex["name"] == "sw":
-                        print("ResultW ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
                         stats["ResultW ‐> WriteDataE"] += 1
                     else:
-                        print("ResultW -> srcBE")
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
                         stats["ResultW -> srcBE"] += 1
             if de["name"] == "beq" or "bne":
                 if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                    print("ResultW -> EqualD")
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
                 if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
                         de["reghold"]["rt"]:
-                    print("ResultW -> EqualD")
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
             if diagnostic == 1:
                 print("current instruction's in each cycle and forwarding paths")
@@ -679,39 +712,47 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
             if m["type"] == "i" and m["name"] != "sw" or "lw":
                 if ex["reghold"]["rs"] == m["reghold"]["rt"]:
                     aluoutm1 = 1
-                    print("ALUOutM -> srcAE")
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
                     stats["ALUOutM -> srcAE"] += 1
                 if ft["reghold"]["rt"] == de["reghold"]["rt"]:
                     if ex["name"] == "sw":
                         aluoutm2 = 1
-                        print("ALUOutM ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
                         stats["ALUOutM ‐> WriteDataE"] += 1
                     else:
                         aluoutm2 = 1
-                        print("ALUOutM -> srcBE")
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
                         stats["ALUOutM -> srcBE"] += 1
             if m["type"] == "r":
                 if ex["reghold"]["rs"] == m["reghold"]["rd"]:
                     aluoutm1 = 1
-                    print("ALUOutM -> srcAE")
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
                     stats["ALUOutM -> srcAE"] += 1
                 if ex["reghold"]["rt"] == m["reghold"]["rd"]:
                     if ex["name"] == "sw":
                         aluoutm2 = 1
-                        print("ALUOutM ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
                         stats["ALUOutM ‐> WriteDataE"] += 1
                     else:
                         aluoutm2 = 1
-                        print("ALUOutM -> srcBE")
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
                         stats["ALUOutM -> srcBE"] += 1
 
             if de["name"] == "beq" or "bne":
                 if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                    print("ALUOutM -> EqualD")
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
                 if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
                         de["reghold"]["rt"]:
-                    print("ALUOutM -> EqualD")
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
 
             if wb["nop"] == 1:
@@ -725,34 +766,42 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
 
             if wb["type"] == "i" and wb["name"] != "sw":
                 if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
-                    print("ResultW -> srcAE")
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
                     stats["ResultW -> srcAE"] += 1
                 if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
                     if ex["name"] == "sw":
-                        print("ResultW ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
                         stats["ResultW ‐> WriteDataE"] += 1
                     else:
-                        print("ResultW -> srcBE")
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
                         stats["ResultW -> srcBE"] += 1
 
             if m["type"] == "r":
                 if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
-                    print("ResultW -> srcAE")
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
                     stats["ResultW -> srcAE"] += 1
                 if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
                     if ex["name"] == "sw":
-                        print("ResultW ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
                         stats["ResultW ‐> WriteDataE"] += 1
                     else:
-                        print("ResultW -> srcBE")
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
                         stats["ResultW -> srcBE"] += 1
             if de["name"] == "beq" or "bne":
                 if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                    print("ResultW -> EqualD")
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
                 if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
                         de["reghold"]["rt"]:
-                    print("ResultW -> EqualD")
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
             if diagnostic == 1:
                 print("current instruction's in each cycle and forwarding paths")
@@ -802,7 +851,152 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
             ft["stall"] = 0
             ft["nop"] = 0
 
+            if ft["nop"] == 1:
+                fetch = "bubble stall"
+            elif ft["nop"] == 2:
+                fetch = "empty"
+            elif ft["nop"] == 3:
+                fetch = "bubble flush"
+            else:
+                fetch = ft["instr"]
 
+            if de["nop"] == 1:
+                decode = "bubble stall"
+            elif de["nop"] == 2:
+                decode = "empty"
+            elif de["nop"] == 3:
+                decode = "bubble flush"
+            else:
+                decode = ft["instr"]
+
+            if ex["nop"] == 1:
+                execution = "bubble stall"
+            elif ex["nop"] == 2:
+                execution = "empty"
+            elif ex["nop"] == 3:
+                execution = "bubble flush"
+            else:
+                execution = ft["instr"]
+
+            if m["nop"] == 1:
+                mem = "bubble stall"
+            elif m["nop"] == 2:
+                mem = "empty"
+            elif m["nop"] == 3:
+                mem = "bubble flush"
+            else:
+                mem = ft["instr"]
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            if m["type"] == "i" and m["name"] != "sw" or "lw":
+                if ex["reghold"]["rs"] == m["reghold"]["rt"]:
+                    aluoutm1 = 1
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
+                    stats["ALUOutM -> srcAE"] += 1
+                if ft["reghold"]["rt"] == de["reghold"]["rt"]:
+                    if ex["name"] == "sw":
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
+                        stats["ALUOutM ‐> WriteDataE"] += 1
+                    else:
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
+                        stats["ALUOutM -> srcBE"] += 1
+            if m["type"] == "r":
+                if ex["reghold"]["rs"] == m["reghold"]["rd"]:
+                    aluoutm1 = 1
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
+                    stats["ALUOutM -> srcAE"] += 1
+                if ex["reghold"]["rt"] == m["reghold"]["rd"]:
+                    if ex["name"] == "sw":
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
+                        stats["ALUOutM ‐> WriteDataE"] += 1
+                    else:
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
+                        stats["ALUOutM -> srcBE"] += 1
+
+            if de["name"] == "beq" or "bne":
+                if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
+                    stats["ALUOutM -> EqualD"] += 1
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
+                        de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
+                    stats["ALUOutM -> EqualD"] += 1
+
+            if wb["nop"] == 1:
+                writeBack = "bubble stall"
+            elif wb["nop"] == 2:
+                writeBack = "empty"
+            elif wb["nop"] == 3:
+                writeBack = "bubble flush"
+            else:
+                writeBack = ft["instr"]
+
+            if wb["type"] == "i" and wb["name"] != "sw":
+                if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
+                    stats["ResultW -> srcAE"] += 1
+                if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
+                    if ex["name"] == "sw":
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
+                        stats["ResultW ‐> WriteDataE"] += 1
+                    else:
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
+                        stats["ResultW -> srcBE"] += 1
+
+            if m["type"] == "r":
+                if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
+                    stats["ResultW -> srcAE"] += 1
+                if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
+                    if ex["name"] == "sw":
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
+                        stats["ResultW ‐> WriteDataE"] += 1
+                    else:
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
+                        stats["ResultW -> srcBE"] += 1
+            if de["name"] == "beq" or "bne":
+                if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
+                    stats["ResultW -> EqualD"] += 1
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
+                        de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
+                    stats["ResultW -> EqualD"] += 1
+            if diagnostic == 1:
+                print("current instruction's in each cycle and forwarding paths")
+                print(
+                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
+
+            ft["nop"] = 3
+        if (int(pc / 4) >= len(instrs)):
+            cycles += 1
+            wb = m
+            m = ex
+            ex = de
+            de = ft
+            ft["nop"] = 2
 
             if ft["nop"] == 1:
                 fetch = "bubble stall"
@@ -845,39 +1039,47 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
             if m["type"] == "i" and m["name"] != "sw" or "lw":
                 if ex["reghold"]["rs"] == m["reghold"]["rt"]:
                     aluoutm1 = 1
-                    print("ALUOutM -> srcAE")
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
                     stats["ALUOutM -> srcAE"] += 1
                 if ft["reghold"]["rt"] == de["reghold"]["rt"]:
                     if ex["name"] == "sw":
                         aluoutm2 = 1
-                        print("ALUOutM ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
                         stats["ALUOutM ‐> WriteDataE"] += 1
                     else:
                         aluoutm2 = 1
-                        print("ALUOutM -> srcBE")
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
                         stats["ALUOutM -> srcBE"] += 1
             if m["type"] == "r":
                 if ex["reghold"]["rs"] == m["reghold"]["rd"]:
                     aluoutm1 = 1
-                    print("ALUOutM -> srcAE")
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
                     stats["ALUOutM -> srcAE"] += 1
                 if ex["reghold"]["rt"] == m["reghold"]["rd"]:
                     if ex["name"] == "sw":
                         aluoutm2 = 1
-                        print("ALUOutM ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
                         stats["ALUOutM ‐> WriteDataE"] += 1
                     else:
                         aluoutm2 = 1
-                        print("ALUOutM -> srcBE")
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
                         stats["ALUOutM -> srcBE"] += 1
 
             if de["name"] == "beq" or "bne":
                 if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                    print("ALUOutM -> EqualD")
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
                 if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
                         de["reghold"]["rt"]:
-                    print("ALUOutM -> EqualD")
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
                     stats["ALUOutM -> EqualD"] += 1
 
             if wb["nop"] == 1:
@@ -891,699 +1093,612 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
 
             if wb["type"] == "i" and wb["name"] != "sw":
                 if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
-                    print("ResultW -> srcAE")
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
                     stats["ResultW -> srcAE"] += 1
                 if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
                     if ex["name"] == "sw":
-                        print("ResultW ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
                         stats["ResultW ‐> WriteDataE"] += 1
                     else:
-                        print("ResultW -> srcBE")
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
                         stats["ResultW -> srcBE"] += 1
 
             if m["type"] == "r":
                 if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
-                    print("ResultW -> srcAE")
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
                     stats["ResultW -> srcAE"] += 1
                 if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
                     if ex["name"] == "sw":
-                        print("ResultW ‐> WriteDataE")
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
                         stats["ResultW ‐> WriteDataE"] += 1
                     else:
-                        print("ResultW -> srcBE")
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
                         stats["ResultW -> srcBE"] += 1
             if de["name"] == "beq" or "bne":
                 if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                    print("ResultW -> EqualD")
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
                 if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
                         de["reghold"]["rt"]:
-                    print("ResultW -> EqualD")
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
                     stats["ResultW -> EqualD"] += 1
             if diagnostic == 1:
                 print("current instruction's in each cycle and forwarding paths")
-                print(
-                    "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
-
-            ft["nop"] = 3
-        if (int(pc / 4) >= len(instrs)):
-            cycles += 1
-            wb = m
-            m = ex
-            ex = de
-            de = ft
-            ft["nop"] = 2
-
-            if diagnostic == 1:
-
-                if ft["nop"] == 1:
-                    fetch = "bubble stall"
-                elif ft["nop"] == 2:
-                    fetch = "empty"
-                elif ft["nop"] == 3:
-                    fetch = "bubble flush"
-                else:
-                    fetch = ft["instr"]
-
-                if de["nop"] == 1:
-                    decode = "bubble stall"
-                elif de["nop"] == 2:
-                    decode = "empty"
-                elif de["nop"] == 3:
-                    decode = "bubble flush"
-                else:
-                    decode = ft["instr"]
-
-                if ex["nop"] == 1:
-                    execution = "bubble stall"
-                elif ex["nop"] == 2:
-                    execution = "empty"
-                elif ex["nop"] == 3:
-                    execution = "bubble flush"
-                else:
-                    execution = ft["instr"]
-
-                if m["nop"] == 1:
-                    mem = "bubble stall"
-                elif m["nop"] == 2:
-                    mem = "empty"
-                elif m["nop"] == 3:
-                    mem = "bubble flush"
-                else:
-                    mem = ft["instr"]
-
-                aluoutm1 = 0
-                aluoutm2 = 0
-                if m["type"] == "i" and m["name"] != "sw" or "lw":
-                    if ex["reghold"]["rs"] == m["reghold"]["rt"]:
-                        aluoutm1 = 1
-                        if diagnostic == 1:
-                            print("ALUOutM -> srcAE")
-                        stats["ALUOutM -> srcAE"] += 1
-                    if ft["reghold"]["rt"] == de["reghold"]["rt"]:
-                        if ex["name"] == "sw":
-                            aluoutm2 = 1
-                            if diagnostic == 1:
-                                print("ALUOutM ‐> WriteDataE")
-                            stats["ALUOutM ‐> WriteDataE"] += 1
-                        else:
-                            aluoutm2 = 1
-                            if diagnostic == 1:
-                                print("ALUOutM -> srcBE")
-                            stats["ALUOutM -> srcBE"] += 1
-                if m["type"] == "r":
-                    if ex["reghold"]["rs"] == m["reghold"]["rd"]:
-                        aluoutm1 = 1
-                        if diagnostic == 1:
-                            print("ALUOutM -> srcAE")
-                        stats["ALUOutM -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == m["reghold"]["rd"]:
-                        if ex["name"] == "sw":
-                            aluoutm2 = 1
-                            if diagnostic == 1:
-                                print("ALUOutM ‐> WriteDataE")
-                            stats["ALUOutM ‐> WriteDataE"] += 1
-                        else:
-                            aluoutm2 = 1
-                            if diagnostic == 1:
-                                print("ALUOutM -> srcBE")
-                            stats["ALUOutM -> srcBE"] += 1
-
-                if de["name"] == "beq" or "bne":
-                    if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        if diagnostic == 1:
-                            print("ALUOutM -> EqualD")
-                        stats["ALUOutM -> EqualD"] += 1
-                    if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        if diagnostic == 1:
-                            print("ALUOutM -> EqualD")
-                        stats["ALUOutM -> EqualD"] += 1
-
-                if wb["nop"] == 1:
-                    writeBack = "bubble stall"
-                elif wb["nop"] == 2:
-                    writeBack = "empty"
-                elif wb["nop"] == 3:
-                    writeBack = "bubble flush"
-                else:
-                    writeBack = ft["instr"]
-
-                if wb["type"] == "i" and wb["name"] != "sw":
-                    if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
-                        if diagnostic == 1:
-                            print("ResultW -> srcAE")
-                        stats["ResultW -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
-                        if ex["name"] == "sw":
-                            if diagnostic == 1:
-                                print("ResultW ‐> WriteDataE")
-                            stats["ResultW ‐> WriteDataE"] += 1
-                        else:
-                            if diagnostic == 1:
-                                print("ResultW -> srcBE")
-                            stats["ResultW -> srcBE"] += 1
-
-                if m["type"] == "r":
-                    if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
-                        if diagnostic == 1:
-                            print("ResultW -> srcAE")
-                        stats["ResultW -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
-                        if ex["name"] == "sw":
-                            if diagnostic == 1:
-                                print("ResultW ‐> WriteDataE")
-                            stats["ResultW ‐> WriteDataE"] += 1
-                        else:
-                            if diagnostic == 1:
-                                print("ResultW -> srcBE")
-                            stats["ResultW -> srcBE"] += 1
-                if de["name"] == "beq" or "bne":
-                    if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        if diagnostic == 1:
-                            print("ResultW -> EqualD")
-                        stats["ResultW -> EqualD"] += 1
-                    if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        if diagnostic == 1:
-                            print("ResultW -> EqualD")
-                        stats["ResultW -> EqualD"] += 1
-                if diagnostic == 1:
-                    print("current instruction's in each cycle and forwarding paths")
-                    print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
-                    input("press enter to continue")
             cycles += 1
             wb = m
             m = ex
             ex = de
             de["nop"] = 2
 
+            if ft["nop"] == 1:
+                fetch = "bubble stall"
+            elif ft["nop"] == 2:
+                fetch = "empty"
+            elif ft["nop"] == 3:
+                fetch = "bubble flush"
+            else:
+                fetch = ft["instr"]
+
+            if de["nop"] == 1:
+                decode = "bubble stall"
+            elif de["nop"] == 2:
+                decode = "empty"
+            elif de["nop"] == 3:
+                decode = "bubble flush"
+            else:
+                decode = ft["instr"]
+
+            if ex["nop"] == 1:
+                execution = "bubble stall"
+            elif ex["nop"] == 2:
+                execution = "empty"
+            elif ex["nop"] == 3:
+                execution = "bubble flush"
+            else:
+                execution = ft["instr"]
+
+            if m["nop"] == 1:
+                mem = "bubble stall"
+            elif m["nop"] == 2:
+                mem = "empty"
+            elif m["nop"] == 3:
+                mem = "bubble flush"
+            else:
+                mem = ft["instr"]
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            if m["type"] == "i" and m["name"] != "sw" or "lw":
+                if ex["reghold"]["rs"] == m["reghold"]["rt"]:
+                    aluoutm1 = 1
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
+                    stats["ALUOutM -> srcAE"] += 1
+                if ft["reghold"]["rt"] == de["reghold"]["rt"]:
+                    if ex["name"] == "sw":
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
+                        stats["ALUOutM ‐> WriteDataE"] += 1
+                    else:
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
+                        stats["ALUOutM -> srcBE"] += 1
+            if m["type"] == "r":
+                if ex["reghold"]["rs"] == m["reghold"]["rd"]:
+                    aluoutm1 = 1
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
+                    stats["ALUOutM -> srcAE"] += 1
+                if ex["reghold"]["rt"] == m["reghold"]["rd"]:
+                    if ex["name"] == "sw":
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
+                        stats["ALUOutM ‐> WriteDataE"] += 1
+                    else:
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
+                        stats["ALUOutM -> srcBE"] += 1
+
+            if de["name"] == "beq" or "bne":
+                if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
+                    stats["ALUOutM -> EqualD"] += 1
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
+                        de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
+                    stats["ALUOutM -> EqualD"] += 1
+
+            if wb["nop"] == 1:
+                writeBack = "bubble stall"
+            elif wb["nop"] == 2:
+                writeBack = "empty"
+            elif wb["nop"] == 3:
+                writeBack = "bubble flush"
+            else:
+                writeBack = ft["instr"]
+
+            if wb["type"] == "i" and wb["name"] != "sw":
+                if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
+                    stats["ResultW -> srcAE"] += 1
+                if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
+                    if ex["name"] == "sw":
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
+                        stats["ResultW ‐> WriteDataE"] += 1
+                    else:
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
+                        stats["ResultW -> srcBE"] += 1
+
+            if m["type"] == "r":
+                if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
+                    stats["ResultW -> srcAE"] += 1
+                if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
+                    if ex["name"] == "sw":
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
+                        stats["ResultW ‐> WriteDataE"] += 1
+                    else:
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
+                        stats["ResultW -> srcBE"] += 1
+            if de["name"] == "beq" or "bne":
+                if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
+                    stats["ResultW -> EqualD"] += 1
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
+                        de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
+                    stats["ResultW -> EqualD"] += 1
             if diagnostic == 1:
-
-                if ft["nop"] == 1:
-                    fetch = "bubble stall"
-                elif ft["nop"] == 2:
-                    fetch = "empty"
-                elif ft["nop"] == 3:
-                    fetch = "bubble flush"
-                else:
-                    fetch = ft["instr"]
-
-                if de["nop"] == 1:
-                    decode = "bubble stall"
-                elif de["nop"] == 2:
-                    decode = "empty"
-                elif de["nop"] == 3:
-                    decode = "bubble flush"
-                else:
-                    decode = ft["instr"]
-
-                if ex["nop"] == 1:
-                    execution = "bubble stall"
-                elif ex["nop"] == 2:
-                    execution = "empty"
-                elif ex["nop"] == 3:
-                    execution = "bubble flush"
-                else:
-                    execution = ft["instr"]
-
-                if m["nop"] == 1:
-                    mem = "bubble stall"
-                elif m["nop"] == 2:
-                    mem = "empty"
-                elif m["nop"] == 3:
-                    mem = "bubble flush"
-                else:
-                    mem = ft["instr"]
-
-                aluoutm1 = 0
-                aluoutm2 = 0
-                if m["type"] == "i" and m["name"] != "sw" or "lw":
-                    if ex["reghold"]["rs"] == m["reghold"]["rt"]:
-                        aluoutm1 = 1
-                        print("ALUOutM -> srcAE")
-                        stats["ALUOutM -> srcAE"] += 1
-                    if ft["reghold"]["rt"] == de["reghold"]["rt"]:
-                        if ex["name"] == "sw":
-                            aluoutm2 = 1
-                            print("ALUOutM ‐> WriteDataE")
-                            stats["ALUOutM ‐> WriteDataE"] += 1
-                        else:
-                            aluoutm2 = 1
-                            print("ALUOutM -> srcBE")
-                            stats["ALUOutM -> srcBE"] += 1
-                if m["type"] == "r":
-                    if ex["reghold"]["rs"] == m["reghold"]["rd"]:
-                        aluoutm1 = 1
-                        print("ALUOutM -> srcAE")
-                        stats["ALUOutM -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == m["reghold"]["rd"]:
-                        if ex["name"] == "sw":
-                            aluoutm2 = 1
-                            print("ALUOutM ‐> WriteDataE")
-                            stats["ALUOutM ‐> WriteDataE"] += 1
-                        else:
-                            aluoutm2 = 1
-                            print("ALUOutM -> srcBE")
-                            stats["ALUOutM -> srcBE"] += 1
-
-                if de["name"] == "beq" or "bne":
-                    if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        print("ALUOutM -> EqualD")
-                        stats["ALUOutM -> EqualD"] += 1
-                    if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
-                            de["reghold"]["rt"]:
-                        print("ALUOutM -> EqualD")
-                        stats["ALUOutM -> EqualD"] += 1
-
-                if wb["nop"] == 1:
-                    writeBack = "bubble stall"
-                elif wb["nop"] == 2:
-                    writeBack = "empty"
-                elif wb["nop"] == 3:
-                    writeBack = "bubble flush"
-                else:
-                    writeBack = ft["instr"]
-
-                if wb["type"] == "i" and wb["name"] != "sw":
-                    if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
-                        print("ResultW -> srcAE")
-                        stats["ResultW -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
-                        if ex["name"] == "sw":
-                            print("ResultW ‐> WriteDataE")
-                            stats["ResultW ‐> WriteDataE"] += 1
-                        else:
-                            print("ResultW -> srcBE")
-                            stats["ResultW -> srcBE"] += 1
-
-                if m["type"] == "r":
-                    if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
-                        print("ResultW -> srcAE")
-                        stats["ResultW -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
-                        if ex["name"] == "sw":
-                            print("ResultW ‐> WriteDataE")
-                            stats["ResultW ‐> WriteDataE"] += 1
-                        else:
-                            print("ResultW -> srcBE")
-                            stats["ResultW -> srcBE"] += 1
-                if de["name"] == "beq" or "bne":
-                    if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        print("ResultW -> EqualD")
-                        stats["ResultW -> EqualD"] += 1
-                    if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
-                            de["reghold"]["rt"]:
-                        print("ResultW -> EqualD")
-                        stats["ResultW -> EqualD"] += 1
-                if diagnostic == 1:
-                    print("current instruction's in each cycle and forwarding paths")
-                    print(
-                        "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
-                    input("press enter to continue")
+                print("current instruction's in each cycle and forwarding paths")
+                print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
 
             cycles += 1
             wb = m
             m = ex
             ex["nop"] = 2
 
+            if ft["nop"] == 1:
+                fetch = "bubble stall"
+            elif ft["nop"] == 2:
+                fetch = "empty"
+            elif ft["nop"] == 3:
+                fetch = "bubble flush"
+            else:
+                fetch = ft["instr"]
+
+            if de["nop"] == 1:
+                decode = "bubble stall"
+            elif de["nop"] == 2:
+                decode = "empty"
+            elif de["nop"] == 3:
+                decode = "bubble flush"
+            else:
+                decode = ft["instr"]
+
+            if ex["nop"] == 1:
+                execution = "bubble stall"
+            elif ex["nop"] == 2:
+                execution = "empty"
+            elif ex["nop"] == 3:
+                execution = "bubble flush"
+            else:
+                execution = ft["instr"]
+
+            if m["nop"] == 1:
+                mem = "bubble stall"
+            elif m["nop"] == 2:
+                mem = "empty"
+            elif m["nop"] == 3:
+                mem = "bubble flush"
+            else:
+                mem = ft["instr"]
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            if m["type"] == "i" and m["name"] != "sw" or "lw":
+                if ex["reghold"]["rs"] == m["reghold"]["rt"]:
+                    aluoutm1 = 1
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
+                    stats["ALUOutM -> srcAE"] += 1
+                if ft["reghold"]["rt"] == de["reghold"]["rt"]:
+                    if ex["name"] == "sw":
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
+                        stats["ALUOutM ‐> WriteDataE"] += 1
+                    else:
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
+                        stats["ALUOutM -> srcBE"] += 1
+            if m["type"] == "r":
+                if ex["reghold"]["rs"] == m["reghold"]["rd"]:
+                    aluoutm1 = 1
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
+                    stats["ALUOutM -> srcAE"] += 1
+                if ex["reghold"]["rt"] == m["reghold"]["rd"]:
+                    if ex["name"] == "sw":
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
+                        stats["ALUOutM ‐> WriteDataE"] += 1
+                    else:
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
+                        stats["ALUOutM -> srcBE"] += 1
+
+            if de["name"] == "beq" or "bne":
+                if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
+                    stats["ALUOutM -> EqualD"] += 1
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
+                        de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
+                    stats["ALUOutM -> EqualD"] += 1
+
+            if wb["nop"] == 1:
+                writeBack = "bubble stall"
+            elif wb["nop"] == 2:
+                writeBack = "empty"
+            elif wb["nop"] == 3:
+                writeBack = "bubble flush"
+            else:
+                writeBack = ft["instr"]
+
+            if wb["type"] == "i" and wb["name"] != "sw":
+                if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
+                    stats["ResultW -> srcAE"] += 1
+                if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
+                    if ex["name"] == "sw":
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
+                        stats["ResultW ‐> WriteDataE"] += 1
+                    else:
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
+                        stats["ResultW -> srcBE"] += 1
+
+            if m["type"] == "r":
+                if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
+                    stats["ResultW -> srcAE"] += 1
+                if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
+                    if ex["name"] == "sw":
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
+                        stats["ResultW ‐> WriteDataE"] += 1
+                    else:
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
+                        stats["ResultW -> srcBE"] += 1
+            if de["name"] == "beq" or "bne":
+                if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
+                    stats["ResultW -> EqualD"] += 1
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
+                        de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
+                    stats["ResultW -> EqualD"] += 1
             if diagnostic == 1:
-
-                if ft["nop"] == 1:
-                    fetch = "bubble stall"
-                elif ft["nop"] == 2:
-                    fetch = "empty"
-                elif ft["nop"] == 3:
-                    fetch = "bubble flush"
-                else:
-                    fetch = ft["instr"]
-
-                if de["nop"] == 1:
-                    decode = "bubble stall"
-                elif de["nop"] == 2:
-                    decode = "empty"
-                elif de["nop"] == 3:
-                    decode = "bubble flush"
-                else:
-                    decode = ft["instr"]
-
-                if ex["nop"] == 1:
-                    execution = "bubble stall"
-                elif ex["nop"] == 2:
-                    execution = "empty"
-                elif ex["nop"] == 3:
-                    execution = "bubble flush"
-                else:
-                    execution = ft["instr"]
-
-                if m["nop"] == 1:
-                    mem = "bubble stall"
-                elif m["nop"] == 2:
-                    mem = "empty"
-                elif m["nop"] == 3:
-                    mem = "bubble flush"
-                else:
-                    mem = ft["instr"]
-
-                aluoutm1 = 0
-                aluoutm2 = 0
-                if m["type"] == "i" and m["name"] != "sw" or "lw":
-                    if ex["reghold"]["rs"] == m["reghold"]["rt"]:
-                        aluoutm1 = 1
-                        print("ALUOutM -> srcAE")
-                        stats["ALUOutM -> srcAE"] += 1
-                    if ft["reghold"]["rt"] == de["reghold"]["rt"]:
-                        if ex["name"] == "sw":
-                            aluoutm2 = 1
-                            print("ALUOutM ‐> WriteDataE")
-                            stats["ALUOutM ‐> WriteDataE"] += 1
-                        else:
-                            aluoutm2 = 1
-                            print("ALUOutM -> srcBE")
-                            stats["ALUOutM -> srcBE"] += 1
-                if m["type"] == "r":
-                    if ex["reghold"]["rs"] == m["reghold"]["rd"]:
-                        aluoutm1 = 1
-                        print("ALUOutM -> srcAE")
-                        stats["ALUOutM -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == m["reghold"]["rd"]:
-                        if ex["name"] == "sw":
-                            aluoutm2 = 1
-                            print("ALUOutM ‐> WriteDataE")
-                            stats["ALUOutM ‐> WriteDataE"] += 1
-                        else:
-                            aluoutm2 = 1
-                            print("ALUOutM -> srcBE")
-                            stats["ALUOutM -> srcBE"] += 1
-
-                if de["name"] == "beq" or "bne":
-                    if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        print("ALUOutM -> EqualD")
-                        stats["ALUOutM -> EqualD"] += 1
-                    if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
-                            de["reghold"]["rt"]:
-                        print("ALUOutM -> EqualD")
-                        stats["ALUOutM -> EqualD"] += 1
-
-                if wb["nop"] == 1:
-                    writeBack = "bubble stall"
-                elif wb["nop"] == 2:
-                    writeBack = "empty"
-                elif wb["nop"] == 3:
-                    writeBack = "bubble flush"
-                else:
-                    writeBack = ft["instr"]
-
-                if wb["type"] == "i" and wb["name"] != "sw":
-                    if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
-                        print("ResultW -> srcAE")
-                        stats["ResultW -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
-                        if ex["name"] == "sw":
-                            print("ResultW ‐> WriteDataE")
-                            stats["ResultW ‐> WriteDataE"] += 1
-                        else:
-                            print("ResultW -> srcBE")
-                            stats["ResultW -> srcBE"] += 1
-
-                if m["type"] == "r":
-                    if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
-                        print("ResultW -> srcAE")
-                        stats["ResultW -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
-                        if ex["name"] == "sw":
-                            print("ResultW ‐> WriteDataE")
-                            stats["ResultW ‐> WriteDataE"] += 1
-                        else:
-                            print("ResultW -> srcBE")
-                            stats["ResultW -> srcBE"] += 1
-                if de["name"] == "beq" or "bne":
-                    if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        print("ResultW -> EqualD")
-                        stats["ResultW -> EqualD"] += 1
-                    if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
-                            de["reghold"]["rt"]:
-                        print("ResultW -> EqualD")
-                        stats["ResultW -> EqualD"] += 1
-                if diagnostic == 1:
-                    print("current instruction's in each cycle and forwarding paths")
-                    print(
-                        "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
-                    input("press enter to continue")
+                print("current instruction's in each cycle and forwarding paths")
+                print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
 
             cycles += 1
             wb = m
             m["nop"] = 2
 
+            if ft["nop"] == 1:
+                fetch = "bubble stall"
+            elif ft["nop"] == 2:
+                fetch = "empty"
+            elif ft["nop"] == 3:
+                fetch = "bubble flush"
+            else:
+                fetch = ft["instr"]
+
+            if de["nop"] == 1:
+                decode = "bubble stall"
+            elif de["nop"] == 2:
+                decode = "empty"
+            elif de["nop"] == 3:
+                decode = "bubble flush"
+            else:
+                decode = ft["instr"]
+
+            if ex["nop"] == 1:
+                execution = "bubble stall"
+            elif ex["nop"] == 2:
+                execution = "empty"
+            elif ex["nop"] == 3:
+                execution = "bubble flush"
+            else:
+                execution = ft["instr"]
+
+            if m["nop"] == 1:
+                mem = "bubble stall"
+            elif m["nop"] == 2:
+                mem = "empty"
+            elif m["nop"] == 3:
+                mem = "bubble flush"
+            else:
+                mem = ft["instr"]
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            if m["type"] == "i" and m["name"] != "sw" or "lw":
+                if ex["reghold"]["rs"] == m["reghold"]["rt"]:
+                    aluoutm1 = 1
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
+                    stats["ALUOutM -> srcAE"] += 1
+                if ft["reghold"]["rt"] == de["reghold"]["rt"]:
+                    if ex["name"] == "sw":
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
+                        stats["ALUOutM ‐> WriteDataE"] += 1
+                    else:
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
+                        stats["ALUOutM -> srcBE"] += 1
+            if m["type"] == "r":
+                if ex["reghold"]["rs"] == m["reghold"]["rd"]:
+                    aluoutm1 = 1
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
+                    stats["ALUOutM -> srcAE"] += 1
+                if ex["reghold"]["rt"] == m["reghold"]["rd"]:
+                    if ex["name"] == "sw":
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
+                        stats["ALUOutM ‐> WriteDataE"] += 1
+                    else:
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
+                        stats["ALUOutM -> srcBE"] += 1
+
+            if de["name"] == "beq" or "bne":
+                if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
+                    stats["ALUOutM -> EqualD"] += 1
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
+                        de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
+                    stats["ALUOutM -> EqualD"] += 1
+
+            if wb["nop"] == 1:
+                writeBack = "bubble stall"
+            elif wb["nop"] == 2:
+                writeBack = "empty"
+            elif wb["nop"] == 3:
+                writeBack = "bubble flush"
+            else:
+                writeBack = ft["instr"]
+
+            if wb["type"] == "i" and wb["name"] != "sw":
+                if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
+                    stats["ResultW -> srcAE"] += 1
+                if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
+                    if ex["name"] == "sw":
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
+                        stats["ResultW ‐> WriteDataE"] += 1
+                    else:
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
+                        stats["ResultW -> srcBE"] += 1
+
+            if m["type"] == "r":
+                if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
+                    stats["ResultW -> srcAE"] += 1
+                if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
+                    if ex["name"] == "sw":
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
+                        stats["ResultW ‐> WriteDataE"] += 1
+                    else:
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
+                        stats["ResultW -> srcBE"] += 1
+            if de["name"] == "beq" or "bne":
+                if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
+                    stats["ResultW -> EqualD"] += 1
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
+                        de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
+                    stats["ResultW -> EqualD"] += 1
             if diagnostic == 1:
-
-                if ft["nop"] == 1:
-                    fetch = "bubble stall"
-                elif ft["nop"] == 2:
-                    fetch = "empty"
-                elif ft["nop"] == 3:
-                    fetch = "bubble flush"
-                else:
-                    fetch = ft["instr"]
-
-                if de["nop"] == 1:
-                    decode = "bubble stall"
-                elif de["nop"] == 2:
-                    decode = "empty"
-                elif de["nop"] == 3:
-                    decode = "bubble flush"
-                else:
-                    decode = ft["instr"]
-
-                if ex["nop"] == 1:
-                    execution = "bubble stall"
-                elif ex["nop"] == 2:
-                    execution = "empty"
-                elif ex["nop"] == 3:
-                    execution = "bubble flush"
-                else:
-                    execution = ft["instr"]
-
-                if m["nop"] == 1:
-                    mem = "bubble stall"
-                elif m["nop"] == 2:
-                    mem = "empty"
-                elif m["nop"] == 3:
-                    mem = "bubble flush"
-                else:
-                    mem = ft["instr"]
-
-                aluoutm1 = 0
-                aluoutm2 = 0
-                if m["type"] == "i" and m["name"] != "sw" or "lw":
-                    if ex["reghold"]["rs"] == m["reghold"]["rt"]:
-                        aluoutm1 = 1
-                        print("ALUOutM -> srcAE")
-                        stats["ALUOutM -> srcAE"] += 1
-                    if ft["reghold"]["rt"] == de["reghold"]["rt"]:
-                        if ex["name"] == "sw":
-                            aluoutm2 = 1
-                            print("ALUOutM ‐> WriteDataE")
-                            stats["ALUOutM ‐> WriteDataE"] += 1
-                        else:
-                            aluoutm2 = 1
-                            print("ALUOutM -> srcBE")
-                            stats["ALUOutM -> srcBE"] += 1
-                if m["type"] == "r":
-                    if ex["reghold"]["rs"] == m["reghold"]["rd"]:
-                        aluoutm1 = 1
-                        print("ALUOutM -> srcAE")
-                        stats["ALUOutM -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == m["reghold"]["rd"]:
-                        if ex["name"] == "sw":
-                            aluoutm2 = 1
-                            print("ALUOutM ‐> WriteDataE")
-                            stats["ALUOutM ‐> WriteDataE"] += 1
-                        else:
-                            aluoutm2 = 1
-                            print("ALUOutM -> srcBE")
-                            stats["ALUOutM -> srcBE"] += 1
-
-                if de["name"] == "beq" or "bne":
-                    if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        print("ALUOutM -> EqualD")
-                        stats["ALUOutM -> EqualD"] += 1
-                    if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
-                            de["reghold"]["rt"]:
-                        print("ALUOutM -> EqualD")
-                        stats["ALUOutM -> EqualD"] += 1
-
-                if wb["nop"] == 1:
-                    writeBack = "bubble stall"
-                elif wb["nop"] == 2:
-                    writeBack = "empty"
-                elif wb["nop"] == 3:
-                    writeBack = "bubble flush"
-                else:
-                    writeBack = ft["instr"]
-
-                if wb["type"] == "i" and wb["name"] != "sw":
-                    if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
-                        print("ResultW -> srcAE")
-                        stats["ResultW -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
-                        if ex["name"] == "sw":
-                            print("ResultW ‐> WriteDataE")
-                            stats["ResultW ‐> WriteDataE"] += 1
-                        else:
-                            print("ResultW -> srcBE")
-                            stats["ResultW -> srcBE"] += 1
-
-                if m["type"] == "r":
-                    if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
-                        print("ResultW -> srcAE")
-                        stats["ResultW -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
-                        if ex["name"] == "sw":
-                            print("ResultW ‐> WriteDataE")
-                            stats["ResultW ‐> WriteDataE"] += 1
-                        else:
-                            print("ResultW -> srcBE")
-                            stats["ResultW -> srcBE"] += 1
-                if de["name"] == "beq" or "bne":
-                    if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        print("ResultW -> EqualD")
-                        stats["ResultW -> EqualD"] += 1
-                    if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
-                            de["reghold"]["rt"]:
-                        print("ResultW -> EqualD")
-                        stats["ResultW -> EqualD"] += 1
-                if diagnostic == 1:
-                    print("current instruction's in each cycle and forwarding paths")
-                    print(
-                        "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
-                    input("press enter to continue")
+                print("current instruction's in each cycle and forwarding paths")
+                print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
 
             cycles += 1
             wb["nop"] = 2
 
+            if ft["nop"] == 1:
+                fetch = "bubble stall"
+            elif ft["nop"] == 2:
+                fetch = "empty"
+            elif ft["nop"] == 3:
+                fetch = "bubble flush"
+            else:
+                fetch = ft["instr"]
+
+            if de["nop"] == 1:
+                decode = "bubble stall"
+            elif de["nop"] == 2:
+                decode = "empty"
+            elif de["nop"] == 3:
+                decode = "bubble flush"
+            else:
+                decode = ft["instr"]
+
+            if ex["nop"] == 1:
+                execution = "bubble stall"
+            elif ex["nop"] == 2:
+                execution = "empty"
+            elif ex["nop"] == 3:
+                execution = "bubble flush"
+            else:
+                execution = ft["instr"]
+
+            if m["nop"] == 1:
+                mem = "bubble stall"
+            elif m["nop"] == 2:
+                mem = "empty"
+            elif m["nop"] == 3:
+                mem = "bubble flush"
+            else:
+                mem = ft["instr"]
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            if m["type"] == "i" and m["name"] != "sw" or "lw":
+                if ex["reghold"]["rs"] == m["reghold"]["rt"]:
+                    aluoutm1 = 1
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
+                    stats["ALUOutM -> srcAE"] += 1
+                if ft["reghold"]["rt"] == de["reghold"]["rt"]:
+                    if ex["name"] == "sw":
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
+                        stats["ALUOutM ‐> WriteDataE"] += 1
+                    else:
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
+                        stats["ALUOutM -> srcBE"] += 1
+            if m["type"] == "r":
+                if ex["reghold"]["rs"] == m["reghold"]["rd"]:
+                    aluoutm1 = 1
+                    if diagnostic == 1:
+                        print("ALUOutM -> srcAE")
+                    stats["ALUOutM -> srcAE"] += 1
+                if ex["reghold"]["rt"] == m["reghold"]["rd"]:
+                    if ex["name"] == "sw":
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM ‐> WriteDataE")
+                        stats["ALUOutM ‐> WriteDataE"] += 1
+                    else:
+                        aluoutm2 = 1
+                        if diagnostic == 1:
+                            print("ALUOutM -> srcBE")
+                        stats["ALUOutM -> srcBE"] += 1
+
+            if de["name"] == "beq" or "bne":
+                if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
+                    stats["ALUOutM -> EqualD"] += 1
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
+                        de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ALUOutM -> EqualD")
+                    stats["ALUOutM -> EqualD"] += 1
+
+            if wb["nop"] == 1:
+                writeBack = "bubble stall"
+            elif wb["nop"] == 2:
+                writeBack = "empty"
+            elif wb["nop"] == 3:
+                writeBack = "bubble flush"
+            else:
+                writeBack = ft["instr"]
+
+            if wb["type"] == "i" and wb["name"] != "sw":
+                if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
+                    stats["ResultW -> srcAE"] += 1
+                if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
+                    if ex["name"] == "sw":
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
+                        stats["ResultW ‐> WriteDataE"] += 1
+                    else:
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
+                        stats["ResultW -> srcBE"] += 1
+
+            if m["type"] == "r":
+                if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
+                    if diagnostic == 1:
+                        print("ResultW -> srcAE")
+                    stats["ResultW -> srcAE"] += 1
+                if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
+                    if ex["name"] == "sw":
+                        if diagnostic == 1:
+                            print("ResultW ‐> WriteDataE")
+                        stats["ResultW ‐> WriteDataE"] += 1
+                    else:
+                        if diagnostic == 1:
+                            print("ResultW -> srcBE")
+                        stats["ResultW -> srcBE"] += 1
+            if de["name"] == "beq" or "bne":
+                if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
+                    stats["ResultW -> EqualD"] += 1
+                if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
+                        de["reghold"]["rt"]:
+                    if diagnostic == 1:
+                        print("ResultW -> EqualD")
+                    stats["ResultW -> EqualD"] += 1
             if diagnostic == 1:
-
-                if ft["nop"] == 1:
-                    fetch = "bubble stall"
-                elif ft["nop"] == 2:
-                    fetch = "empty"
-                elif ft["nop"] == 3:
-                    fetch = "bubble flush"
-                else:
-                    fetch = ft["instr"]
-
-                if de["nop"] == 1:
-                    decode = "bubble stall"
-                elif de["nop"] == 2:
-                    decode = "empty"
-                elif de["nop"] == 3:
-                    decode = "bubble flush"
-                else:
-                    decode = ft["instr"]
-
-                if ex["nop"] == 1:
-                    execution = "bubble stall"
-                elif ex["nop"] == 2:
-                    execution = "empty"
-                elif ex["nop"] == 3:
-                    execution = "bubble flush"
-                else:
-                    execution = ft["instr"]
-
-                if m["nop"] == 1:
-                    mem = "bubble stall"
-                elif m["nop"] == 2:
-                    mem = "empty"
-                elif m["nop"] == 3:
-                    mem = "bubble flush"
-                else:
-                    mem = ft["instr"]
-
-                aluoutm1 = 0
-                aluoutm2 = 0
-                if m["type"] == "i" and m["name"] != "sw" or "lw":
-                    if ex["reghold"]["rs"] == m["reghold"]["rt"]:
-                        aluoutm1 = 1
-                        print("ALUOutM -> srcAE")
-                        stats["ALUOutM -> srcAE"] += 1
-                    if ft["reghold"]["rt"] == de["reghold"]["rt"]:
-                        if ex["name"] == "sw":
-                            aluoutm2 = 1
-                            print("ALUOutM ‐> WriteDataE")
-                            stats["ALUOutM ‐> WriteDataE"] += 1
-                        else:
-                            aluoutm2 = 1
-                            print("ALUOutM -> srcBE")
-                            stats["ALUOutM -> srcBE"] += 1
-                if m["type"] == "r":
-                    if ex["reghold"]["rs"] == m["reghold"]["rd"]:
-                        aluoutm1 = 1
-                        print("ALUOutM -> srcAE")
-                        stats["ALUOutM -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == m["reghold"]["rd"]:
-                        if ex["name"] == "sw":
-                            aluoutm2 = 1
-                            print("ALUOutM ‐> WriteDataE")
-                            stats["ALUOutM ‐> WriteDataE"] += 1
-                        else:
-                            aluoutm2 = 1
-                            print("ALUOutM -> srcBE")
-                            stats["ALUOutM -> srcBE"] += 1
-
-                if de["name"] == "beq" or "bne":
-                    if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        print("ALUOutM -> EqualD")
-                        stats["ALUOutM -> EqualD"] += 1
-                    if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
-                            de["reghold"]["rt"]:
-                        print("ALUOutM -> EqualD")
-                        stats["ALUOutM -> EqualD"] += 1
-
-                if wb["nop"] == 1:
-                    writeBack = "bubble stall"
-                elif wb["nop"] == 2:
-                    writeBack = "empty"
-                elif wb["nop"] == 3:
-                    writeBack = "bubble flush"
-                else:
-                    writeBack = ft["instr"]
-
-                if wb["type"] == "i" and wb["name"] != "sw":
-                    if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
-                        print("ResultW -> srcAE")
-                        stats["ResultW -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
-                        if ex["name"] == "sw":
-                            print("ResultW ‐> WriteDataE")
-                            stats["ResultW ‐> WriteDataE"] += 1
-                        else:
-                            print("ResultW -> srcBE")
-                            stats["ResultW -> srcBE"] += 1
-
-                if m["type"] == "r":
-                    if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
-                        print("ResultW -> srcAE")
-                        stats["ResultW -> srcAE"] += 1
-                    if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
-                        if ex["name"] == "sw":
-                            print("ResultW ‐> WriteDataE")
-                            stats["ResultW ‐> WriteDataE"] += 1
-                        else:
-                            print("ResultW -> srcBE")
-                            stats["ResultW -> srcBE"] += 1
-                if de["name"] == "beq" or "bne":
-                    if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
-                        print("ResultW -> EqualD")
-                        stats["ResultW -> EqualD"] += 1
-                    if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or \
-                            de["reghold"]["rt"]:
-                        print("ResultW -> EqualD")
-                        stats["ResultW -> EqualD"] += 1
-                if diagnostic == 1:
-                    print("current instruction's in each cycle and forwarding paths")
-                    print(
-                        "fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
-                    input("press enter to continue")
+                print("current instruction's in each cycle and forwarding paths")
+                print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+                input("press enter to continue")
 				
 def cacheAnalysis(Valid,Cache,mem,rt,Tag,LBU,lworsw):
     print("In Progress")
