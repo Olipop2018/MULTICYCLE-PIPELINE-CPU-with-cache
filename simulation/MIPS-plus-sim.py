@@ -68,7 +68,7 @@ labelName = []
 pcAssign= []
 
 
-def multiCycle(instrs, DIC, pc, cycles,set_offset, word_offset):
+def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
     cycle1=0
     cycle2=0
     cycle3=0
@@ -104,7 +104,7 @@ def multiCycle(instrs, DIC, pc, cycles,set_offset, word_offset):
            # controlSignals["AluOp"]='00'
        #cycle4
             print("word_offset", word_offset)
-            pc= instrExecution(l, pc, set_offset, word_offset)
+            pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
             #controlSignals["IorD"]=0
             cycle4+=1
             if "sw" in l:
@@ -125,7 +125,7 @@ def multiCycle(instrs, DIC, pc, cycles,set_offset, word_offset):
           # controlSignals["AluOp"]='01'
            # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
-            pc= instrExecution(l, pc)
+            pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
         elif "beq" in l:
       #cycle3 
             cycle3+=1
@@ -135,7 +135,7 @@ def multiCycle(instrs, DIC, pc, cycles,set_offset, word_offset):
           # controlSignals["AluOp"]='01'
            # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
-            pc= instrExecution(l, pc, set_offset, word_offset)
+            pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
         else:
             controlSignals["c4"]+=1
             if "i" in l:    
@@ -146,7 +146,7 @@ def multiCycle(instrs, DIC, pc, cycles,set_offset, word_offset):
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
-                pc= instrExecution(l, pc, set_offset, word_offset)
+                pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
                 controlSignals["RegDst"]+= 0
                 controlSignals["MemtoReg"]+=0
                 controlSignals["RegWrite"]+=1
@@ -156,7 +156,7 @@ def multiCycle(instrs, DIC, pc, cycles,set_offset, word_offset):
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
-                pc= instrExecution(l, pc, set_offset, word_offset)
+                pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
                 controlSignals["RegDst"]+= 1
                 controlSignals["MemtoReg"]+=0
                 controlSignals["RegWrite"]+=1
@@ -319,7 +319,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
 
         de = ft
 
-        pc = instrExecution(l, pc, set_offset, word_offset)
+        pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
         ft["instr"] = l
         ft["nop"] = 0
         if "w" in l:
@@ -634,7 +634,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
         
     return(Cache, LRU, Tag, Valid)	
     
-def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
+def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_offset):
     print("you are in cache analysis")
     global cache_type
     global blk_size   #Block size in Bytes
@@ -663,9 +663,9 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_
             Cache[setIndex][o] = byte
             
             #Load word or store word
-            if(lworsw == 0):
+            if(lborsb == 0):
                 registers[rt] = Cache[setIndex][o]
-            elif(lworsw == 1):
+            elif(lborsb == 1):
                 temp = Cache[setIndex][o]
                 temp = format(temp,'016b')
                 byte = temp[8:16]
@@ -681,9 +681,9 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_
         
         else:
             if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
-                if(lworsw == 0):
+                if(lborsb == 0):
                     registers[rt] = Cache[setIndex][o]
-                elif(lworsw == 1):
+                elif(lborsb == 1):
                     temp = Cache[setIndex][o]
                     temp = format(temp,'016b')
                     byte = temp[8:16]
@@ -711,9 +711,9 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_
             byte = int(byte,2)
         
         Cache[setIndex][remove_way] = word
-        if(lworsw == 0):
+        if(lborsb == 0):
             registers[rt] = Cache[setIndex][remove_way]
-        elif(lworsw == 1):
+        elif(lborsb == 1):
             temp = Cache[setIndex][o]
             temp = format(temp,'016b')
             byte = temp[8:16]
@@ -725,7 +725,7 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_
         
     return(Cache, LRU, Tag, Valid)	
 
-def instrExecution(line, pc,set_offset, word_offset):
+def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
         global cache_type
         global blk_size   #Block size in Bytes
         global num_ways   #Number of ways
@@ -733,11 +733,11 @@ def instrExecution(line, pc,set_offset, word_offset):
         global Misses 
         global Hits
         print
-        
-        LRU = [],[]
-        Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
-        Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
-        Cache = [0 for f in range(total_s)],[0 for g in range(num_ways)]# Cache data
+        if(pc == 0):
+            LRU = [],[]
+            Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
+            Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
+            Cache = [0 for f in range(total_s)],[0 for g in range(num_ways)]# Cache data
         
         print("Current instruction PC =",pc)
         
@@ -891,6 +891,7 @@ def instrExecution(line, pc,set_offset, word_offset):
             mem = imm + rs
             memo= mem
             mem = mem - int('0x2000', 16)
+            Cache, LRU, Tag, Valid = cacheAnalysisByte(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             rt= format(rt,'08b')
             rt= int(rt,2)
             memory[mem] = rt
@@ -922,6 +923,7 @@ def instrExecution(line, pc,set_offset, word_offset):
             print (instruction , rt , hex(imm)+ "("+("$" + str(line[2]))+")" )
             mem = imm + rs
             mem = mem - int('0x2000', 16)
+            Cache, LRU, Tag, Valid = cacheAnalysisByte(Valid, Cache, memo, rt, Tag, LRU, 0, set_offset, word_offset)
             temp3 = int(memory[mem]) if (int(memory[mem]) > 0 or op == '100000') else (65536 + int(memory[mem]))
             temp3 = format(temp3, '08b')
             temp3 = int(temp3[:8],2)
@@ -1287,7 +1289,7 @@ def instrExecution(line, pc,set_offset, word_offset):
                 pc= (pcAssign[lpos])+4
                 print ("branch to" ,label)
         print("Next instruction PC =",pc)
-        return pc;
+        return pc, Cache, LRU, Tag, Valid;
                         #pc= format(int(labelIndex[i]),'026b')
                         #pc = int(pc,2)
                         #hexstr= hex(int(hexstr[0], 2))
