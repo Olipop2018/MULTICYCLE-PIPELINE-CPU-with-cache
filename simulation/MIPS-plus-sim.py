@@ -1714,7 +1714,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic):
                 print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
                 input("press enter to continue")
 
-def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
+def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_offset):
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -1729,7 +1729,14 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
             Cache[setIndex][o] = memory[mem]
             if(lworsw == 0):
                 registers[rt] = Cache[setIndex][o]
-            if(lwosw == 1):
+            if(lworsw == 1):
+                temp = Cache[setIndex][o]
+                temp = format(temp,'064b')
+                first= temp[32:40]
+                sec= temp[40:48]
+                third= temp[48:56]
+                rt= temp[56:64]
+                
                 memory[mem] = Cache[setIndex][o]
             Valid[setIndex][o] = 1
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
@@ -1738,10 +1745,10 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
         if(updated == 1):
             break
         else:
-            if(Tag[setIndex][o] == mem[0:16-set_offset]-word_offset):
+            if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lworsw == 0):
                     registers[rt] = Cache[setIndex][o]
-                if(lwosw == 1):
+                if(lworsw == 1):
                     memory[mem] = Cache[setIndex][o]
                 Hits += 1
                 updated = 1
@@ -1755,7 +1762,7 @@ def cacheAnalysis(Valid,Cache,mem,rt,Tag,lworsw,set_offset, word_set):
         Cache[setIndex][remove_way] = memory[mem]
         if(lworsw == 0):
             registers[rt] = Cache[setIndex][remove_way]
-        if(lwosw == 1):
+        if(lworsw == 1):
             memory[mem] = Cache[setIndex][remove_way]
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
@@ -2365,15 +2372,15 @@ def cache_def():
         blk_size = 16    #Block size in Bytes
         num_ways = 1    #Number of ways
         total_s = 4   #Number of blocks/sets
-    if(cache_type == '2'):
+    elif(cache_type == '2'):
         blk_size = 8    #Block size in Bytes
         num_ways = 8    #Number of ways
         total_s = 1   #Number of blocks/sets
-    if(cache_type == '3'):
+    elif(cache_type == '3'):
         blk_size = 8    #Block size in Bytes
         num_ways = 2    #Number of ways
         total_s = 4   #Number of blocks/sets
-    if(cache_type == '4'):
+    elif(cache_type == '4'):
         blk_size = 8    #Block size in Bytes
         num_ways = 4    #Number of ways
         total_s = 2   #Number of blocks/sets
