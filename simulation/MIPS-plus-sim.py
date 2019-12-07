@@ -312,7 +312,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
     if diagnostic == 1:
         print("current instruction's in each cycle and forwarding paths\n")
         print("fetch: {} , decode: {}, execution: {} , memory: {} , write back: {}".format(fetch, decode,execution,mem,writeBack), sep='|')
-        input("press enter to continue")
+      #  input("press enter to continue")
 
 
     
@@ -347,13 +347,13 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         l = instrs[int(pc / 4)]
         cycles += 1
 
-        wb = m
+        wb = m.copy()
 
-        m = ex
+        m = ex.copy()
 
-        ex = de
+        ex = de.copy()
 
-        de = ft
+        de = ft.copy()
 
         pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
         ft["instr"] = l
@@ -428,8 +428,8 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
         if ex["stall"] == 2:
             cycles += 1
-            wb = m
-            m = ex
+            wb = m.copy()
+            m = ex.copy()
             ex["nop"] = 1
             stats["delay"] += 1
 
@@ -438,7 +438,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
             pathsandprint(aluoutm1, aluoutm2, diagnostic)
 
             cycles += 1
-            wb = m
+            wb = m.copy()
             m["nop"] = 1
             stats["delay"] += 1
 
@@ -448,8 +448,8 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
         if ex["stall"] == 1:
             cycles += 1
-            wb = m
-            m = ex
+            wb = m.copy()
+            m = ex.copy()
             ex["nop"] = 1
             stats["delay"] += 1
 
@@ -459,10 +459,10 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
         if ft["branch"] == 1:
             cycles += 1
-            wb = m
-            m = ex
-            ex = de
-            de = ft
+            wb = m.copy()
+            m = ex.copy()
+            ex = de.copy()
+            de = ft.copy()
             stats["flush"] += 1
 
             currentpc +=4
@@ -504,10 +504,10 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
             ft["nop"] = 3
         if (int(pc / 4) >= len(instrs)):
             cycles += 1
-            wb = m
-            m = ex
-            ex = de
-            de = ft
+            wb = m.copy()
+            m = ex.copy()
+            ex = de.copy()
+            de = ft.copy()
             ft["nop"] = 2
 
             aluoutm1 = 0
@@ -515,9 +515,9 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
             pathsandprint(aluoutm1, aluoutm2, diagnostic)
 
             cycles += 1
-            wb = m
-            m = ex
-            ex = de
+            wb = m.copy()
+            m = ex.copy()
+            ex = de.copy()
             de["nop"] = 2
 
             aluoutm1 = 0
@@ -525,8 +525,8 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
             pathsandprint(aluoutm1, aluoutm2, diagnostic)
 
             cycles += 1
-            wb = m
-            m = ex
+            wb = m.copy()
+            m = ex.copy()
             ex["nop"] = 2
 
             aluoutm1 = 0
@@ -534,7 +534,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
             pathsandprint(aluoutm1, aluoutm2, diagnostic)
 
             cycles += 1
-            wb = m
+            wb = m.copy()
             m["nop"] = 2
 
             aluoutm1 = 0
