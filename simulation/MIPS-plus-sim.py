@@ -299,12 +299,13 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
                 if diagnostic == 1:
                     print("ResultW ‐> SrcBE")
                 stats["ResultW ‐> SrcBE"] += 1
+
     if (de["name"] == "beq") or (de["name"] == "bne"):
-        if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+        if wb["type"] == "r" and ((wb["reghold"]["rd"] == de["reghold"]["rs"]) or (wb["reghold"]["rd"] == de["reghold"]["rt"])):
             if diagnostic == 1:
                 print("ResultW ‐> EqualD")
             stats["ResultW ‐> EqualD"] += 1
-        if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+        if wb["type"] == "i" and wb["name"] != "sw" and ((wb["reghold"]["rt"] == de["reghold"]["rs"]) or (wb["reghold"]["rt"] ==de["reghold"]["rt"])):
             if diagnostic == 1:
                 print("ResultW ‐> EqualD")
             stats["ResultW ‐> EqualD"] += 1
