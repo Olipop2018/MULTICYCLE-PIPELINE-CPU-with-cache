@@ -462,7 +462,11 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
 
             l = instrs[int(currentpc + 4 / 4)]
+
+
             ft["instr"] = l
+
+
             tmp = l
             tmp = re.split('(\d+)',tmp)
             tmp.pop(2)
@@ -470,10 +474,11 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
             ft["name"] = tmp[0]
             tmp.pop(0)
             regs = tmp
-            if ft["name"] == "lw" or "sw":
+            
+            if (ft["name"] == "lw") or (ft["name"] == "sw"):
                 ft["reghold"]["rt"] = regs[0]
                 ft["reghold"]["rs"] = regs[2]
-            elif ft["type"] == "i" and ft["name"] != "bne" or "beq":
+            elif (ft["type"] == "i") and ((ft["name"] != "bne") or (ft["name"] != "beq")):
                 ft["reghold"]["rt"] = regs[0]
                 ft["reghold"]["rs"] = regs[1]
             elif ft["type"] == "r":
@@ -550,7 +555,9 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     updated = 0
     mem = format(mem, '016b')
     mem = mem[:16]
+    print(mem)
     setIndex = mem[16-word_offset-set_offset:16-word_offset]
+    print("check here for set index------------------>1", setIndex)
     wordIndex = mem[16-word_offset:16]
     if(setIndex == ''):
         setIndex = '0'
@@ -574,6 +581,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             
             #Determine if negative
             if(word[0] == '1'):
+                print("word[0]", word[0])
                 word = int(word,2)
                 word = word - (2^32)
             else:
