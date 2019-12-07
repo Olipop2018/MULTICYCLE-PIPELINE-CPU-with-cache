@@ -644,12 +644,13 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 temp = registers[rt]
                 if(temp < 0):
                     temp = int32_to_uint32(temp)
-                temp = format(temp, '032b')
                 
-                first = temp[0:8]
-                second = temp[8:16]
-                third = temp[16:24]
-                fourth = temp[24:32]
+                temp = format(temp,'064b')
+                
+                first= temp[32:40]
+                second= temp[40:48]
+                third= temp[48:56]
+                fourth= temp[56:64]
                 
                 first= int(first,2)
                 second = int(second,2)
@@ -705,12 +706,13 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     temp = registers[rt]
                     if(temp < 0):
                         temp = int32_to_uint32(temp)
-                    temp = format(temp, '032b')
-                        
-                    first = temp[0:8]
-                    second = temp[8:16]
-                    third = temp[16:24]
-                    fourth = temp[24:32]
+                
+                    temp = format(temp,'064b')
+                
+                    first= temp[32:40]
+                    second= temp[40:48]
+                    third= temp[48:56]
+                    fourth= temp[56:64]
                 
                     first= int(first,2)
                     second = int(second,2)
@@ -780,14 +782,16 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             registers[rt] = word
         elif(lworsw == 1):
             temp = registers[rt]
+            
             if(temp < 0):
                 temp = int32_to_uint32(temp)
-            temp = format(temp, '032b')
                 
-            first = temp[0:8]
-            second = temp[8:16]
-            third = temp[16:24]
-            fourth = temp[24:32]
+            temp = format(temp,'064b')
+                
+            first= temp[32:40]
+            second= temp[40:48]
+            third= temp[48:56]
+            fourth= temp[56:64]
             
             first= int(first,2)
             second = int(second,2)
