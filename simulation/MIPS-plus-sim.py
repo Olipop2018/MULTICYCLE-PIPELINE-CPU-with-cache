@@ -178,11 +178,8 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                 controlSignals["RegWrite"]+=1
 
 def pathsandprint(aluoutm1,aluoutm2, diagnostic):
-    print(ft)
-    print(de)
-    print(ex)
-    print(m)
-    print(wb)
+    print("\n")
+    print("the following are any fowarding paths taken")
 
     if ft["nop"] == 1:
         fetch = "bubble stall"
@@ -315,8 +312,10 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
                     print("ResultW ‐> EqualD")
                 stats["ResultW ‐> EqualD"] += 1
     if diagnostic == 1:
-        print("current instruction's in each cycle and forwarding paths\n")
-        print("fetch: {} , decode: {}, execution: {} , memory: {} , write back: {}".format(fetch, decode,execution,mem,writeBack), sep='|')
+        print("end of fowarding paths taken\n")
+
+        print("current instruction's in each cycle")
+        print("fetch: {} , decode: {}, execution: {} , memory: {} , write back: {}\n".format(fetch, decode,execution,mem,writeBack), sep='|')
       #  input("press enter to continue")
 
 
