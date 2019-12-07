@@ -1,5 +1,6 @@
 import math
 import re
+import ctypes
 memory = [0] *4096 #Remember when ever you get an address in hex subtract 8192 from it then write to it
 				#Dynamic Instruction Count
 registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0, 
@@ -55,12 +56,14 @@ global cache_type
 global blk_size   #Block size in Bytes
 global num_ways   #Number of ways
 global total_s 
+global total_blk
 global Misses 
 global Hits
 cache_type = 0
 blk_size = 0    #Block size in Bytes
 num_ways = 0    #Number of ways
 total_s = 0   #Number of blocks/sets
+total_blk = 0
 Misses = 0
 Hits = 0
 
@@ -68,6 +71,9 @@ labelIndex = []
 labelName = []
 pcAssign= []
 
+def int32_to_uint32(i):
+    print(i)
+    return ctypes.c_uint32(i).value
 
 def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
     cycle1=0
@@ -80,6 +86,7 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
     global total_s 
+    global total_blk
     global Misses 
     global Hits
     print
@@ -87,8 +94,7 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
     LRU = [['' for j in range(num_ways)] for i in range(total_s)]
     Valid = [[0 for j in range(num_ways)] for i in range(total_s)]
     Tag = [["0" for j in range(num_ways)] for i in range(total_s)]
-    Cache = [[0 for j in range(num_ways)] for i in range(total_s)]# Cache data
-    
+    Cache = [[[0 for j in range(num_ways)] for i in range(blk_size)] for i in range(total_s)] #Cache data    
     
     while True:
         cycles= cycle1+ cycle2+ cycle3+ cycle4+ cycle5
@@ -325,6 +331,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
     global total_s 
+    global total_blk
     global Misses 
     global Hits
     global m
@@ -338,11 +345,10 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
     LRU = [['' for j in range(num_ways)] for i in range(total_s)]
     Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
     Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
-    Cache = [0 for f in range(total_s)],[0 for g in range(num_ways)]# Cache data
+    Cache = [[[0 for j in range(num_ways)] for i in range(blk_size)] for i in range(total_s)] #Cache data
     
     while True:
 
-        
         currentpc = pc
         if (int(pc / 4) >= len(instrs)):
             print("Dynamic Instruction Count: ", DIC)
@@ -580,15 +586,14 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
     global total_s 
+    global total_blk
     global Misses 
-    global Hits 
+    global Hits
     print("In Progress")
     updated = 0
     mem = format(mem, '016b')
     mem = mem[:16]
-    print(mem)
     setIndex = mem[16-word_offset-set_offset:16-word_offset]
-    print("check here for set index------------------>1", setIndex)
     wordIndex = mem[16-word_offset:16]
     if(setIndex == ''):
         setIndex = '0'
@@ -599,41 +604,64 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     for o in range(num_ways):
         if(Valid[setIndex][o] == 0):
             Misses += 1
+            print("Miss")
             memo = mem
+            me = mem[0:16-word_offset]
+            
+            for a in range(word_offset):
+                me = me + '0'
+            
             memo = int(memo, 2)
             memo = memo - int('0x2000', 16)
+            me = int(me,2)
+            me = me - int('0x2000', 16)
             
-            #Grab word
-            fourth = format(memory[memo], '08b')
-            third = format(memory[memo+1], '08b')
-            second = format(memory[memo+2], '08b')
-            first = format(memory[memo+3], '08b')
-            word = first + second + third + fourth
-            
-            #Determine if negative
-            if(word[0] == '1'):
-                print("word[0]", word[0])
-                word = int(word,2)
-                word = word - (2^32)
-            else:
-                word = int(word,2)
-            Cache[setIndex][o] = word
+            for u in range(blk_size):
+                #Grab byte
+                byte = format(memory[me+u], '08b')
+                byte = int(byte,2)
+                Cache[setIndex][u][o] = byte
             
             #Load word or store word
             if(lworsw == 0):
-                registers[rt] = Cache[setIndex][o]
+                first = Cache[setIndex][wordIndex][o]
+                second = Cache[setIndex][wordIndex+1][o]
+                third = Cache[setIndex][wordIndex+2][o]
+                fourth = Cache[setIndex][wordIndex+3][o]
+                
+                fourth = format(fourth, '08b') 
+                third = format(third, '08b')
+                second = format(second, '08b') 
+                first = format(first, '08b')
+                word = first + second + third + fourth
+                word = int(word,2)
+                
+                if(word < 0):
+                    word = int32_to_uint32(word)
+                
+                registers[rt] = word
+                print(registers[rt])
+                
             elif(lworsw == 1):
-                temp = Cache[setIndex][o]
-                temp = format(temp,'064b')
-                first = temp[32:40]
-                second = temp[40:48]
-                third = temp[48:56]
-                fourth = temp[56:64]
+                temp = registers[rt]
+                if(temp < 0):
+                    temp = int32_to_uint32(temp)
+                temp = format(temp, '032b')
+                
+                first = temp[0:8]
+                second = temp[8:16]
+                third = temp[16:24]
+                fourth = temp[24:32]
                 
                 first= int(first,2)
-                second= int(second,2)
-                third= int(third,2)
+                second = int(second,2)
+                third = int(third,2)
                 fourth= int(fourth,2)
+                
+                Cache[setIndex][wordIndex][o] = fourth
+                Cache[setIndex][wordIndex+1][o] = third
+                Cache[setIndex][wordIndex+2][o] = second
+                Cache[setIndex][wordIndex+3][o] = first
                 
                 memo = mem
                 memo = int(memo, 2)
@@ -643,6 +671,8 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 memory[memo+1] = third
                 memory[memo+2] = second
                 memory[memo+3] = first
+                print(memory[memo+3],memory[memo+2], memory[memo+1], memory[memo])
+                print(Cache)
                 
             Valid[setIndex][o] = 1
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
@@ -656,20 +686,43 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
         else:
             if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lworsw == 0):
-                    registers[rt] = Cache[setIndex][o]
-                elif(lworsw == 1):
-                    temp = Cache[setIndex][o]
-                    temp = format(temp,'064b')
-                    first = temp[32:40]
-                    second = temp[40:48]
-                    third = temp[48:56]
-                    fourth = temp[56:64]
+                    first = Cache[setIndex][wordIndex][o]
+                    second = Cache[setIndex][wordIndex+1][o]
+                    third = Cache[setIndex][wordIndex+2][o]
+                    fourth = Cache[setIndex][wordIndex+3][o]
                     
+                    fourth = format(fourth, '08b') 
+                    third = format(third, '08b')
+                    second = format(second, '08b') 
+                    first = format(first, '08b')
+                    word = first + second + third + fourth
+                    word = int(word,2)
+                
+                    if(word < 0):
+                        word = int32_to_uint32(word)
+                
+                    registers[rt] = word
+                elif(lworsw == 1):
+                    temp = registers[rt]
+                    if(temp < 0):
+                        temp = int32_to_uint32(temp)
+                    temp = format(temp, '032b')
+                        
+                    first = temp[0:8]
+                    second = temp[8:16]
+                    third = temp[16:24]
+                    fourth = temp[24:32]
+                
                     first= int(first,2)
                     second = int(second,2)
                     third = int(third,2)
                     fourth= int(fourth,2)
-                    
+                
+                    Cache[setIndex][wordIndex][o] = fourth
+                    Cache[setIndex][wordIndex+1][o] = third
+                    Cache[setIndex][wordIndex+2][o] = second
+                    Cache[setIndex][wordIndex+3][o] = first
+                
                     memo = mem
                     memo = int(memo, 2)
                     memo = memo - int('0x2000', 16)
@@ -678,8 +731,11 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     memory[memo+1] = third
                     memory[memo+2] = second
                     memory[memo+3] = first
-                    
+                    print(memory[memo+3],memory[memo+2], memory[memo+1], memory[memo])
+                    print(Cache)
+                        
                 Hits += 1
+                print("Hit")
                 updated = 1
                 LRU[setIndex].remove(o)
                 LRU[setIndex].append(o)
@@ -688,40 +744,70 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
         
     if(updated == 0):
         Misses += 1
+        print("miss")
         remove_way = LRU[setIndex][0]
         
         memo = mem
+        me = mem[0:16-word_offset]
+        print(memo)
+        print(me)
+        
+        for a in range(word_offset):
+            me = me + '0'
+            
+        print(me)
+            
         memo = int(memo, 2)
         memo = memo - int('0x2000', 16)
+        me = int(me,2)
+        me = me - int('0x2000', 16)
         
-        fourth = format(memory[memo], '08b')
-        third = format(memory[memo+1], '08b')
-        second = format(memory[memo+2], '08b')
-        first = format(memory[memo+3], '08b')
-        word = first + second + third + fourth
+        print(me)
+        print(memo)
             
-        #Determine if negative
-        if(word[0] == '1'):
-            word = int(word,2)
-            word = word - (2^32)
-        else:
-            word = int(word,2)
+        for u in range(blk_size):
+            #Grab byte
+            byte = format(memory[me+u], '08b')
+            byte = int(byte,2)
+            Cache[setIndex][u][remove_way] = byte
         
-        Cache[setIndex][remove_way] = word
         if(lworsw == 0):
-            registers[rt] = Cache[setIndex][remove_way]
+            first = Cache[setIndex][wordIndex][remove_way]
+            second = Cache[setIndex][wordIndex+1][remove_way]
+            third = Cache[setIndex][wordIndex+2][remove_way]
+            fourth = Cache[setIndex][wordIndex+3][remove_way]
+            
+            fourth = format(fourth, '08b') 
+            third = format(third, '08b')
+            second = format(second, '08b') 
+            first = format(first, '08b')
+            word = first + second + third + fourth
+            word = int(word,2)
+            
+            if(word < 0):
+                word = int32_to_uint32(word)
+            
+            registers[rt] = word
         elif(lworsw == 1):
-            temp = Cache[setIndex][o]
-            temp = format(temp,'064b')
-            first = temp[32:40]
-            second = temp[40:48]
-            third = temp[48:56]
-            fourth = temp[56:64]
+            temp = registers[rt]
+            if(temp < 0):
+                temp = int32_to_uint32(temp)
+            temp = format(temp, '032b')
+                
+            first = temp[0:8]
+            second = temp[8:16]
+            third = temp[16:24]
+            fourth = temp[24:32]
             
             first= int(first,2)
-            second= int(second,2)
-            third= int(third,2)
+            second = int(second,2)
+            third = int(third,2)
             fourth= int(fourth,2)
+                
+            Cache[setIndex][wordIndex][o] = fourth
+            Cache[setIndex][wordIndex+1][o] = third
+            Cache[setIndex][wordIndex+2][o] = second
+            Cache[setIndex][wordIndex+3][o] = first
             
             memo = mem
             memo = int(memo, 2)
@@ -731,102 +817,8 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             memory[memo+1] = third
             memory[memo+2] = second
             memory[memo+3] = first
-            
-        Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
-        LRU[setIndex].remove(remove_way)
-        LRU[setIndex].append(remove_way)
-        
-    return(Cache, LRU, Tag, Valid)	
-    
-def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_offset):
-    print("you are in cache analysis")
-    global cache_type
-    global blk_size   #Block size in Bytes
-    global num_ways   #Number of ways
-    global total_s 
-    global Misses 
-    global Hits 
-    print("In Progress")
-    updated = 0
-    mem = format(mem, '016b')
-    mem = mem[:16]
-    setIndex = mem[16-word_offset-set_offset:16-word_offset]
-    wordIndex = mem[16-word_offset:16]
-    setIndex = int(setIndex,2)
-    wordIndex = int(wordIndex,2)
-    for o in range(num_ways):
-        if(Valid[setIndex][o] == 0):
-            Misses += 1
-            
-            #Grab byte
-            byte = format(memory[mem], '08b')
-            byte = byte[:8]
-            
-            #Determine if negative
-            if(byte[0] == '1'):
-                byte = int(byte,2)
-                byte = byte - (2^8)
-            else:
-                byte = int(byte,2)
-                
-            Cache[setIndex][o] = byte
-            
-            #Load word or store word
-            if(lborsb == 0):
-                registers[rt] = Cache[setIndex][o]
-            elif(lborsb == 1):
-                temp = Cache[setIndex][o]
-                temp = format(temp,'016b')
-                byte = temp[8:16]
-                memory[mem] = byte
-                
-            Valid[setIndex][o] = 1
-            Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
-            updated = 1;
-            LRU[setIndex].append(o)   
-            
-        if(updated == 1):
-            break
-        
-        else:
-            if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
-                if(lborsb == 0):
-                    registers[rt] = Cache[setIndex][o]
-                elif(lborsb == 1):
-                    temp = Cache[setIndex][o]
-                    temp = format(temp,'016b')
-                    byte = temp[8:16]
-                    memory[mem] = byte
-                    
-                Hits += 1
-                updated = 1
-                LRU[setIndex].remove(o)
-                LRU[setIndex].append(o)
-        if(updated == 1):
-            break
-        
-    if(updated == 0):
-        Misses += 1
-        remove_way = LRU[setIndex][0]
-        
-        byte = format(memory[mem], '08b')
-        byte = byte[:8]
-            
-        #Determine if negative
-        if(byte[0] == '1'):
-            byte = int(byte,2)
-            byte = byte - (2^32)
-        else:
-            byte = int(byte,2)
-        
-        Cache[setIndex][remove_way] = byte
-        if(lborsb == 0):
-            registers[rt] = Cache[setIndex][remove_way]
-        elif(lborsb == 1):
-            temp = Cache[setIndex][o]
-            temp = format(temp,'016b')
-            byte = temp[8:16]
-            memory[mem] = byte
+            print(memory[memo+3],memory[memo+2], memory[memo+1], memory[memo])
+            print(Cache)
             
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
@@ -839,6 +831,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
         global blk_size   #Block size in Bytes
         global num_ways   #Number of ways
         global total_s 
+        global total_blk
         global Misses 
         global Hits
         print
@@ -916,20 +909,22 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                word = word - 4294967296
             else:
                 word= int(word,2)
-
-
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-            registers[("$" + str(line[0]))] = word
-      #      Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-			            #registers[("$" + str(line[0]))] = word
-            print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
-            pc+= 4# increments pc by 4 
+			registers[("$" + str(line[0]))] = word
+	  #      Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+						#registers[("$" + str(line[0]))] = word
+
+			
+			Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 0, set_offset, word_offset)
+			#registers[("$" + str(line[0]))] = word
+
+			print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
+			pc+= 4# increments pc by 4 
 
 		   # pcprint=  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)  
-
+			#print(registers)# print all the registers and their values (testing purposes to see what is happening)
+			#print(pc)
+			#print(pcprint)  
         elif(line[0:2] == "sw"): # sw
             line = line.replace("sw","")
             line = line.replace(")","")
@@ -965,6 +960,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             word= int(word,2)
             print(" word_offset", word_offset)
             rt = "$" + str(line[0])
+
 
             # Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             memory[mem] = fourth
@@ -1436,24 +1432,29 @@ def cache_def():
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
     global total_s 
+    global total_blk
     global Misses 
-    global Hits 
+    global Hits
     if(cache_type == '1'):
         blk_size = 16    #Block size in Bytes
         num_ways = 1    #Number of ways
         total_s = 4   #Number of blocks/sets
+        total_blk = num_ways * total_s
     elif(cache_type == '2'):
         blk_size = 8    #Block size in Bytes
         num_ways = 8    #Number of ways
         total_s = 1   #Number of blocks/sets
+        total_blk = num_ways * total_s
     elif(cache_type == '3'):
         blk_size = 8    #Block size in Bytes
         num_ways = 2    #Number of ways
         total_s = 4   #Number of blocks/sets
+        total_blk = num_ways * total_s
     elif(cache_type == '4'):
         blk_size = 8    #Block size in Bytes
         num_ways = 4    #Number of ways
         total_s = 2   #Number of blocks/sets
+        total_blk = num_ways * total_s
     elif(cache_type == '5'):
         blk_size = input("Please insert a block size that is a power of 2: ")
         blk_size = int(blk_size)
@@ -1461,17 +1462,19 @@ def cache_def():
         num_ways = int(num_ways)
         total_s = input("Please insert total sets that is a power of 2: ")
         total_s = int(total_s)
+        total_blk = num_ways * total_s
     else:
         print("Invalid cache type, exiting program")
         #quit()
         
-    return(blk_size, num_ways, total_s)
+    return
 
 def main():
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
     global total_s 
+    global total_blk
     global Misses 
     global Hits
     
@@ -1516,7 +1519,7 @@ def main():
     if cpu == "1":
         FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
     else:
-        FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles,1, set_offset, word_offset)
+        FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, 1, set_offset, word_offset)
 
     print("All memory contents:")
     for k in range(0,1024):
