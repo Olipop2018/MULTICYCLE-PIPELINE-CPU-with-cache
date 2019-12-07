@@ -195,7 +195,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
     elif de["nop"] == 3:
         decode = "bubble flush"
     else:
-        decode = ft["instr"]
+        decode = de["instr"]
 
     if ex["nop"] == 1:
         execution = "bubble stall"
@@ -204,7 +204,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
     elif ex["nop"] == 3:
         execution = "bubble flush"
     else:
-        execution = ft["instr"]
+        execution = ex["instr"]
 
     if m["nop"] == 1:
         mem = "bubble stall"
@@ -213,7 +213,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
     elif m["nop"] == 3:
         mem = "bubble flush"
     else:
-        mem = ft["instr"]
+        mem = m["instr"]
 
 
     if (m["type"] == "i") and ((m["name"] != "sw") or (m["name"] != "lw")):
@@ -268,7 +268,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
     elif wb["nop"] == 3:
         writeBack = "bubble flush"
     else:
-        writeBack = ft["instr"]
+        writeBack = wb["instr"]
 
     if wb["type"] == "i" and wb["name"] != "sw":
         if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
@@ -310,8 +310,8 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
                 print("ResultW ‐> EqualD")
             stats["ResultW ‐> EqualD"] += 1
     if diagnostic == 1:
-        print("current instruction's in each cycle and forwarding paths")
-        print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
+        print("current instruction's in each cycle and forwarding paths\n")
+        print("fetch: {} , decode: {}, execution: {} , memory: {} , write back: {}".format(fetch, decode,execution,mem,writeBack), sep='|')
         input("press enter to continue")
 
 
@@ -338,13 +338,13 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
     
     while True:
 
-        l = instrs[int(pc / 4)]
+        
         currentpc = pc
         if (int(pc / 4) >= len(instrs)):
             print("Dynamic Instruction Count: ", DIC)
             return DIC, pc, cycles;
         DIC += 1
-
+        l = instrs[int(pc / 4)]
         cycles += 1
 
         wb = m
@@ -1490,7 +1490,7 @@ def main():
     if cpu == "1":
         FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
     else:
-        FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles,0, set_offset, word_offset)
+        FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles,1, set_offset, word_offset)
 
     print("All memory contents:")
     for k in range(0,1024):
@@ -1560,7 +1560,7 @@ def main():
     print("ALUSrc: {}% was 1".format(per2))
     print("RegDst: {}% was 1".format(per1))
     print("RegWrite: {}% was 1".format(per0))
-    print("Hit Rate = ", Hits/(Hits/Misses))
+    #print("Hit Rate = ", Hits/(Hits/Misses))
     #print("Instruction Count: ",FinalDIC)
 
    # print(memory)
