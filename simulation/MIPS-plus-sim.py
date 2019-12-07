@@ -1454,11 +1454,12 @@ def main():
     print(pcAssign)
     print("pipe line or multi cycle")
     print("1 is multicycle")
-    print("2 is pipe line")
+    print("anything else for pipe line")
     cpu = input("Enter a choice: ")
-    
-    FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
-    FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles,0, set_offset, word_offset)
+    if cpu == "1":
+        FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+    else:
+        FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles,0, set_offset, word_offset)
 
     print("All memory contents:")
     for k in range(0,1024):
