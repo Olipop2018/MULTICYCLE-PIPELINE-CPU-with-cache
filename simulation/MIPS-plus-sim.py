@@ -361,6 +361,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
             ft["type"] = "i"
         elif "i" in l:
             ft["type"] = "i"
+        
         else:
             ft["type"] = "r"
 
