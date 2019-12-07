@@ -315,7 +315,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
 
 
     
-def pipeline(instrs, DIC, pc, cycles, diagnostic):
+def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -1452,6 +1452,7 @@ def main():
        
     print(pcAssign)
     FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+    FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles,0, set_offset, word_offset)
 
     print("All memory contents:")
     for k in range(0,1024):
