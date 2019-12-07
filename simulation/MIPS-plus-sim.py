@@ -1521,6 +1521,7 @@ def main():
         word= int(word,2)
         word = format(word,"08x")
         print("memory", hex(mem)+": 0x"+ word )
+   
     if(cpu=="1"):
         print("Final Multicycle Statistics ")
         per5 = (controlSignals["c5"]/FinalDIC)*100
