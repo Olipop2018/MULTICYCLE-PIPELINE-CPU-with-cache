@@ -910,18 +910,16 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             else:
                 word= int(word,2)
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-			registers[("$" + str(line[0]))] = word
+            registers[("$" + str(line[0]))] = word
 	  #      Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
 						#registers[("$" + str(line[0]))] = word
-
-			
-			Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 0, set_offset, word_offset)
+            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 0, set_offset, word_offset)
 			#registers[("$" + str(line[0]))] = word
 
-			print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
-			pc+= 4# increments pc by 4 
+            print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
+            pc+= 4# increments pc by 4 
 
-		   # pcprint=  hex(pc)
+			# pcprint=  hex(pc)
 			#print(registers)# print all the registers and their values (testing purposes to see what is happening)
 			#print(pc)
 			#print(pcprint)  
@@ -1408,6 +1406,8 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                         #pc = int(pc,2)
                         #hexstr= hex(int(hexstr[0], 2))
                        # f.write(hexstr+ '\n')#str('000010') + str(format(int(labelIndex[i]),'026b')) + '\n'+ hexstr+ '\n')
+    
+    
 
 def saveJumpLabel(asm,labelIndex, labelName):
     lineCount = 0
