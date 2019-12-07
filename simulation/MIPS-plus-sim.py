@@ -1537,29 +1537,42 @@ def main():
         word= int(word,2)
         word = format(word,"08x")
         print("memory", hex(mem)+": 0x"+ word )
-    print("Final Multicycle Statistics ")
-    per5 = (controlSignals["c5"]/FinalDIC)*100
-    per4 = (controlSignals["c4"]/FinalDIC)*100
-    per3 = (controlSignals["c3"]/FinalDIC)*100
-    print("Dynamic Instruction Count: ",FinalDIC)
-    print("Total Cycle Count: ",TotalCycles)
-    print("Instruction Count with 3 Cycles: \n{} was executed\n {}%".format(controlSignals["c3"], per3))
-    print("Instruction Count with 4 Cycles:  \n{} was executed\n {}%".format(controlSignals["c4"], per4))
-    print("Instruction Count with 5 Cycles: \n{} was executed\n {}%".format(controlSignals["c5"], per5))
-    cpi= (controlSignals["c5"]*5+controlSignals["c4"]*4+controlSignals["c3"]*3)/FinalDIC
-    print("CPI: ({}*5+{}*4+{}*3)/{} = {}".format(controlSignals["c5"],controlSignals["c4"],controlSignals["c3"], FinalDIC, cpi))
-    per5 = (controlSignals["MemtoReg"]/TotalCycles)*100
-    per4 = (controlSignals["MemWrite"]/TotalCycles)*100
-    per3 = (controlSignals["Branch"]/TotalCycles)*100
-    per2 = (controlSignals["AluScrA"]/TotalCycles)*100
-    per1 = (controlSignals["RegDst"]/TotalCycles)*100
-    per0 = (controlSignals["RegWrite"]/TotalCycles)*100
-    print("MemtoReg:{}% was 1".format(per5))
-    print("MemWrite: {}% was 1".format(per4))
-    print("Branch: {}% was 1".format(per3))
-    print("ALUSrc: {}% was 1".format(per2))
-    print("RegDst: {}% was 1".format(per1))
-    print("RegWrite: {}% was 1".format(per0))
+    if(cpu==1):
+        print("Final Multicycle Statistics ")
+        per5 = (controlSignals["c5"]/FinalDIC)*100
+        per4 = (controlSignals["c4"]/FinalDIC)*100
+        per3 = (controlSignals["c3"]/FinalDIC)*100
+        print("Dynamic Instruction Count: ",FinalDIC)
+        print("Total Cycle Count: ",TotalCycles)
+        print("Instruction Count with 3 Cycles: \n{} was executed\n {}%".format(controlSignals["c3"], per3))
+        print("Instruction Count with 4 Cycles:  \n{} was executed\n {}%".format(controlSignals["c4"], per4))
+        print("Instruction Count with 5 Cycles: \n{} was executed\n {}%".format(controlSignals["c5"], per5))
+        cpi= (controlSignals["c5"]*5+controlSignals["c4"]*4+controlSignals["c3"]*3)/FinalDIC
+        print("CPI: ({}*5+{}*4+{}*3)/{} = {}".format(controlSignals["c5"],controlSignals["c4"],controlSignals["c3"], FinalDIC, cpi))
+        per5 = (controlSignals["MemtoReg"]/TotalCycles)*100
+        per4 = (controlSignals["MemWrite"]/TotalCycles)*100
+        per3 = (controlSignals["Branch"]/TotalCycles)*100
+        per2 = (controlSignals["AluScrA"]/TotalCycles)*100
+        per1 = (controlSignals["RegDst"]/TotalCycles)*100
+        per0 = (controlSignals["RegWrite"]/TotalCycles)*100
+        print("MemtoReg:{}% was 1".format(per5))
+        print("MemWrite: {}% was 1".format(per4))
+        print("Branch: {}% was 1".format(per3))
+        print("ALUSrc: {}% was 1".format(per2))
+        print("RegDst: {}% was 1".format(per1))
+        print("RegWrite: {}% was 1".format(per0))
+    else:
+        print("Final Multicycle Statistics ")
+        print("Dynamic Instruction Count: ",FinalDIC)
+        print("Total Cycle Count: ",TotalCycles)
+        stat= str(stats)
+        stat= stat.replace("'","")
+        stat= stat.replace("{","")
+        stat= stat.replace("}","")
+        stat= stat.replace(",","\n")
+        #print(registers)
+        print(" "+ stat)
+        print(stats, sep= '|')
     #print("Hit Rate = ", Hits/(Hits/Misses))
     #print("Instruction Count: ",FinalDIC)
 
