@@ -878,13 +878,14 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             else:
                 word= int(word,2)
 
+
 	#         Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             registers[("$" + str(line[0]))] = word
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
 			            #registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
-			pc+= 4# increments pc by 4 
-			 
+            pc+= 4# increments pc by 4 
+
 		   # pcprint=  hex(pc)
             #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
