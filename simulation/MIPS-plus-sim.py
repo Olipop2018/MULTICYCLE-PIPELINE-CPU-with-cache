@@ -314,7 +314,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
 
 
     
-def pipeline(instrs, DIC, pc, cycles, diagnostic):
+def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -1449,6 +1449,7 @@ def main():
     word_offset = int(math.log(blk_size,2)) 
     set_offset = int(math.log(total_s,2))
 
+
     saveJumpLabel(asm,labelIndex,labelName) # Save all jump's destinations
     for line in asm:
         #line = line.replace("\t","")
@@ -1460,7 +1461,13 @@ def main():
         instrs.append(line)
        
     print(pcAssign)
+    print("pipe line or multi cycle")
+    print("1 is multicycle")
+    print("2 is pipe line")
+    cpu = input("Enter a choice: ")
+    
     FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+    FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles,0, set_offset, word_offset)
 
     print("All memory contents:")
     for k in range(0,1024):
