@@ -461,8 +461,8 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
             de = ft
             stats["flush"] += 1
 
-
-            l = instrs[int(currentpc + 4 / 4)]
+            currentpc +=4
+            l = instrs[int(currentpc/ 4)]
 
 
             ft["instr"] = l
