@@ -578,7 +578,6 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 word = word - (2^32)
             else:
                 word = int(word,2)
-                
             Cache[setIndex][o] = word
             
             #Load word or store word
@@ -592,11 +591,16 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 third = temp[48:56]
                 fourth = temp[56:64]
                 
+                first= int(first,2)
+                second= int(second,2)
+                third= int(third,2)
+                fourth= int(fourth,2)
+                
                 memo = mem
                 memo = int(memo, 2)
                 memo = memo - int('0x2000', 16)
                 
-                memory[memo] = fourth, '08b'
+                memory[memo] = fourth
                 memory[memo+1] = third
                 memory[memo+2] = second
                 memory[memo+3] = first
@@ -862,7 +866,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             memo= mem
             mem = mem - int('0x2000', 16)
             
-            print(memory)
             
             fourth = format(memory[mem], '08b') 
             third= format(memory[mem+1], '08b')
@@ -874,12 +877,15 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                word = word - 4294967296
             else:
                 word= int(word,2)
-   #         Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+
+	#         Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             registers[("$" + str(line[0]))] = word
+            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+			            #registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
-            pc+= 4# increments pc by 4 
-             
-           # pcprint=  hex(pc)
+			pc+= 4# increments pc by 4 
+			 
+		   # pcprint=  hex(pc)
             #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)  
@@ -904,9 +910,9 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             instruction = "sw"
             print (instruction , ("$" + str(line[0])) , (str(imm) if(n== 10) else hex(imm))  + "("+("$" + str(line[2]))+")" )
             mem = imm + rs
-            memo= mem
+            memo = mem
             mem = mem - int('0x2000', 16)
-            rt= format(rt,'064b')
+            rt = format(rt,'064b')
             first= rt[32:40]
             sec= rt[40:48]
             third= rt[48:56]
@@ -919,6 +925,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             word= int(word,2)
             print(" word_offset", word_offset)
             rt = "$" + str(line[0])
+
             # Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             memory[mem] = fourth
             mem+=1
@@ -927,6 +934,16 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             memory[mem] = sec
             mem+=1
             memory[mem] = first
+
+            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+            #memory[mem] = fourth
+            #mem+=1
+            #memory[mem] = third
+            #mem+=1
+            #memory[mem] = sec
+            #mem+=1
+            #memory[mem] = first
+
             print ("result memory: ", hex(memo) ,"=", hex(word))
             pc+= 4# increments pc by 4 
              
