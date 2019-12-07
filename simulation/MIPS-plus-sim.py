@@ -918,7 +918,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                 word= int(word,2)
 
 
-	#         Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             registers[("$" + str(line[0]))] = word
       #      Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
 			            #registers[("$" + str(line[0]))] = word
@@ -975,7 +975,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             mem+=1
             memory[mem] = first
 
-    #        Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             #memory[mem] = fourth
             #mem+=1
             #memory[mem] = third
