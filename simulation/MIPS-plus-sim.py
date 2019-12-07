@@ -84,7 +84,6 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
     print
         
     LRU = [['' for j in range(num_ways)] for i in range(total_s)]
-    print(LRU)
     Valid = [[0 for j in range(num_ways)] for i in range(total_s)]
     Tag = [["0" for j in range(num_ways)] for i in range(total_s)]
     Cache = [[0 for j in range(num_ways)] for i in range(total_s)]# Cache data
@@ -324,7 +323,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
     global Hits
     print
         
-    LRU = [],[]
+    LRU = [['' for j in range(num_ways)] for i in range(total_s)]
     Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
     Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
     Cache = [0 for f in range(total_s)],[0 for g in range(num_ways)]# Cache data
@@ -606,7 +605,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 memo = int(memo, 2)
                 memo = memo - int('0x2000', 16)
                 
-                memory[memo] = fourth
+                memory[memo] = fourth, '08b'
                 memory[memo+1] = third
                 memory[memo+2] = second
                 memory[memo+3] = first
@@ -632,6 +631,11 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     third = temp[48:56]
                     fourth = temp[56:64]
                     
+                    first= int(first,2)
+                    second = int(second,2)
+                    third = int(third,2)
+                    fourth= int(fourth,2)
+                    
                     memo = mem
                     memo = int(memo, 2)
                     memo = memo - int('0x2000', 16)
@@ -651,14 +655,12 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     if(updated == 0):
         Misses += 1
         remove_way = LRU[setIndex][0]
-        print(remove_way)
-        print("here")
         
         memo = mem
         memo = int(memo, 2)
         memo = memo - int('0x2000', 16)
         
-        fourth = format(int(str(memory[memo]), 2), '08b')
+        fourth = format(memory[memo], '08b')
         third = format(memory[memo+1], '08b')
         second = format(memory[memo+2], '08b')
         first = format(memory[memo+3], '08b')
@@ -681,6 +683,11 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             second = temp[40:48]
             third = temp[48:56]
             fourth = temp[56:64]
+            
+            first= int(first,2)
+            second= int(second,2)
+            third= int(third,2)
+            fourth= int(fourth,2)
             
             memo = mem
             memo = int(memo, 2)
@@ -864,19 +871,21 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             memo= mem
             mem = mem - int('0x2000', 16)
             
-            #fourth = format(memory[mem], '08b') 
-            #third= format(memory[mem+1], '08b')
-            #sec = format(memory[mem+2], '08b') 
-            #first= format(memory[mem+3], '08b')
-            #word=  first +sec+ third+ fourth
-            #if word[0] == '1':
-            #   word= int(word,2)
-            #   word = word - 4294967296
-            #else:
-            #    word= int(word,2)
+            print(memory)
+            
+            fourth = format(memory[mem], '08b') 
+            third= format(memory[mem+1], '08b')
+            sec = format(memory[mem+2], '08b') 
+            first= format(memory[mem+3], '08b')
+            word=  first +sec+ third+ fourth
+            if word[0] == '1':
+               word= int(word,2)
+               word = word - 4294967296
+            else:
+                word= int(word,2)
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-            #registers[("$" + str(line[0]))] = word
-            #print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
+            registers[("$" + str(line[0]))] = word
+            print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
              
            # pcprint=  hex(pc)
@@ -910,17 +919,17 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             first= rt[32:40]
             sec= rt[40:48]
             third= rt[48:56]
-            rt= rt[56:64]
-            word=  first +sec+ third+ rt
+            fourth= rt[56:64]
+            word=  first +sec+ third+ fourth
             first= int(first,2)
             sec= int(sec,2)
             third= int(third,2)
-            rt= int(rt,2)
+            fourth= int(fourth,2)
             word= int(word,2)
             print(" word_offset", word_offset)
             rt = "$" + str(line[0])
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-            memory[mem] = rt
+            memory[mem] = fourth
             mem+=1
             memory[mem] = third
             mem+=1
@@ -1419,7 +1428,7 @@ def main():
     global Hits
     
    # f = open("mc.txt","w+")
-    h = open("ProgramB_Testcase2","r")
+    h = open("ProgramB_Testcase2.txt","r")
     asm = h.readlines()
     instrs = []
     FinalDIC= 0
@@ -1538,9 +1547,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    
-    
-
-
-
