@@ -1,4 +1,5 @@
 import math
+import re
 memory = [0] *4096 #Remember when ever you get an address in hex subtract 8192 from it then write to it
 				#Dynamic Instruction Count
 registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0, 
@@ -40,7 +41,7 @@ wb = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
 stats = {"delay" : 0,
         "flush" : 0,
         "ALUOutM -> srcAE" : 0,
-        "ALUOutM ‐> SrcBE" : 0,
+        "ALUOutM ‐> srcBE" : 0,
         "ALUOutM ‐> WriteDataE" : 0,
         "ALUOutM ‐> EqualD" : 0,
         "ResultW ‐> SrcAE" : 0,
@@ -230,8 +231,8 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
             else:
                 aluoutm2 = 1
                 if diagnostic == 1:
-                    print("ALUOutM -> srcBE")
-                stats["ALUOutM -> srcBE"] += 1
+                    print("ALUOutM ‐> srcBE")
+                stats["ALUOutM ‐> srcBE"] += 1
     if m["type"] == "r":
         if ex["reghold"]["rs"] == m["reghold"]["rd"]:
             aluoutm1 = 1
@@ -247,18 +248,18 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
             else:
                 aluoutm2 = 1
                 if diagnostic == 1:
-                    print("ALUOutM -> srcBE")
-                stats["ALUOutM -> srcBE"] += 1
+                    print("ALUOutM ‐> srcBE")
+                stats["ALUOutM ‐> srcBE"] += 1
 
     if de["name"] == "beq" or "bne":
         if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
             if diagnostic == 1:
-                print("ALUOutM -> EqualD")
-            stats["ALUOutM -> EqualD"] += 1
+                print("ALUOutM ‐> EqualD")
+            stats["ALUOutM ‐> EqualD"] += 1
         if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
             if diagnostic == 1:
-                print("ALUOutM -> EqualD")
-            stats["ALUOutM -> EqualD"] += 1
+                print("ALUOutM ‐> EqualD")
+            stats["ALUOutM ‐> EqualD"] += 1
 
     if wb["nop"] == 1:
         writeBack = "bubble stall"
@@ -272,8 +273,8 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
     if wb["type"] == "i" and wb["name"] != "sw":
         if ex["reghold"]["rs"] == wb["reghold"]["rt"] and aluoutm1 != 1:
             if diagnostic == 1:
-                print("ResultW -> srcAE")
-            stats["ResultW -> srcAE"] += 1
+                print("ResultW ‐> SrcAE")
+            stats["ResultW ‐> SrcAE"] += 1
         if ex["reghold"]["rt"] == wb["reghold"]["rt"] and aluoutm2 != 1:
             if ex["name"] == "sw":
                 if diagnostic == 1:
@@ -281,14 +282,14 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
                 stats["ResultW ‐> WriteDataE"] += 1
             else:
                 if diagnostic == 1:
-                    print("ResultW -> srcBE")
-                stats["ResultW -> srcBE"] += 1
+                    print("ResultW ‐> SrcBE")
+                stats["ResultW ‐> SrcBE"] += 1
 
     if m["type"] == "r":
         if ex["reghold"]["rs"] == wb["reghold"]["rd"] and aluoutm1 != 1:
             if diagnostic == 1:
-                print("ResultW -> srcAE")
-            stats["ResultW -> srcAE"] += 1
+                print("ResultW ‐> SrcAE")
+            stats["ResultW ‐> SrcAE"] += 1
         if ex["reghold"]["rt"] == wb["reghold"]["rd"] and aluoutm2 != 1:
             if ex["name"] == "sw":
                 if diagnostic == 1:
@@ -296,17 +297,17 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
                 stats["ResultW ‐> WriteDataE"] += 1
             else:
                 if diagnostic == 1:
-                    print("ResultW -> srcBE")
-                stats["ResultW -> srcBE"] += 1
+                    print("ResultW ‐> SrcBE")
+                stats["ResultW ‐> SrcBE"] += 1
     if de["name"] == "beq" or "bne":
         if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
             if diagnostic == 1:
-                print("ResultW -> EqualD")
-            stats["ResultW -> EqualD"] += 1
+                print("ResultW ‐> EqualD")
+            stats["ResultW ‐> EqualD"] += 1
         if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
             if diagnostic == 1:
-                print("ResultW -> EqualD")
-            stats["ResultW -> EqualD"] += 1
+                print("ResultW ‐> EqualD")
+            stats["ResultW ‐> EqualD"] += 1
     if diagnostic == 1:
         print("current instruction's in each cycle and forwarding paths")
         print("fetch: " + fetch + "decode: " + decode + "execution: " + execution + "memory: " + mem + "write back: " + writeBack)
@@ -321,7 +322,13 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
     global total_s 
     global Misses 
     global Hits
-    print
+    global m
+    global ex   #Block size in Bytes
+    global ft   #Number of ways
+    global de 
+    global wb 
+   
+    
         
     LRU = [['' for j in range(num_ways)] for i in range(total_s)]
     Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
@@ -359,24 +366,16 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
 
         tmp = l
-        tmp = tmp.replace(",", "")
-        tmp = tmp.split("")
-        i = 0
-
-        while tmp[i].isalpha():
-            inst = inst + tmp[i]
-            i += 1
-
-        ft["name"] = inst
-        while i >= 0:
-            tmp.pop(0)
-            i -= 1
-
+        tmp = re.split('(\d+)',tmp)
+        tmp.pop(2)
+        tmp.pop(3)
+        ft["name"] = tmp[0]
+        tmp.pop(0)
         regs = tmp
-        if ft["name"] == "lw" or "sw":
+        if (ft["name"] == "lw") or (ft["name"] == "sw"):
             ft["reghold"]["rt"] = regs[0]
             ft["reghold"]["rs"] = regs[2]
-        elif ft["type"] == "i" and ft["name"] != "bne" or "beq":
+        elif (ft["type"] == "i") and ((ft["name"] != "bne") or (ft["name"] !="beq")):
             ft["reghold"]["rt"] = regs[0]
             ft["reghold"]["rs"] = regs[1]
         elif ft["type"] == "r":
@@ -465,19 +464,11 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
             l = instrs[int(currentpc + 4 / 4)]
             ft["instr"] = l
             tmp = l
-            tmp = tmp.replace(",", "")
-            tmp = tmp.split("")
-            i = 0
-
-            while tmp[i].isalpha():
-                inst = inst + tmp[i]
-                i += 1
-
-            ft["name"] = inst
-            while i >= 0:
-                tmp.pop(0)
-                i -= 1
-
+            tmp = re.split('(\d+)',tmp)
+            tmp.pop(2)
+            tmp.pop(3)
+            ft["name"] = tmp[0]
+            tmp.pop(0)
             regs = tmp
             if ft["name"] == "lw" or "sw":
                 ft["reghold"]["rt"] = regs[0]
@@ -889,12 +880,16 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                word = word - 4294967296
             else:
                 word= int(word,2)
-            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-            #registers[("$" + str(line[0]))] = word
+
+
+	#         Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+            registers[("$" + str(line[0]))] = word
+      #      Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+			            #registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
-             
-           # pcprint=  hex(pc)
+
+		   # pcprint=  hex(pc)
             #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)  
@@ -934,7 +929,17 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             word= int(word,2)
             print(" word_offset", word_offset)
             rt = "$" + str(line[0])
-            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+
+            # Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+            memory[mem] = fourth
+            mem+=1
+            memory[mem] = third
+            mem+=1
+            memory[mem] = sec
+            mem+=1
+            memory[mem] = first
+
+    #        Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             #memory[mem] = fourth
             #mem+=1
             #memory[mem] = third
@@ -942,6 +947,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             #memory[mem] = sec
             #mem+=1
             #memory[mem] = first
+
             print ("result memory: ", hex(memo) ,"=", hex(word))
             pc+= 4# increments pc by 4 
              
