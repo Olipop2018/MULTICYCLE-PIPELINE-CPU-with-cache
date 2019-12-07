@@ -658,7 +658,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
         memo = int(memo, 2)
         memo = memo - int('0x2000', 16)
         
-        fourth = format(memory[memo], '08b')
+        fourth = format(int(str(memory[memo]), 2), '08b')
         third = format(memory[memo+1], '08b')
         second = format(memory[memo+2], '08b')
         first = format(memory[memo+3], '08b')
@@ -871,7 +871,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             #word=  first +sec+ third+ fourth
             #if word[0] == '1':
             #   word= int(word,2)
-            #    word = word - 4294967296
+            #   word = word - 4294967296
             #else:
             #    word= int(word,2)
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
