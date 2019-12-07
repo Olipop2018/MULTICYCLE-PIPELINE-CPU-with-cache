@@ -310,6 +310,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
                 print("ResultW ‐> EqualD")
             stats["ResultW ‐> EqualD"] += 1
     if diagnostic == 1:
+        print("\n")
         print("current instruction's in each cycle and forwarding paths\n")
         print("fetch: {} , decode: {}, execution: {} , memory: {} , write back: {}".format(fetch, decode,execution,mem,writeBack), sep='|')
         input("press enter to continue")
