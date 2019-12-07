@@ -10,32 +10,32 @@ registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0,
 
 
 ft = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
-            "rs": " ", "rd": " ", "rt": " ",
-
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
 
 de = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
 
 ex = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
 
 m = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
 
 wb = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
             }
 
 stats = {"delay" : 0,
@@ -178,11 +178,6 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                 controlSignals["RegWrite"]+=1
 
 def pathsandprint(aluoutm1,aluoutm2, diagnostic):
-    print("ft ", ft)
-    print("de ", de)
-    print("ex ", ex)
-    print("m ", m)
-    print("wb ", wb)
 
     if ft["nop"] == 1:
         fetch = "bubble stall"
@@ -222,8 +217,11 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
 
 
     if (m["type"] == "i") and ((m["name"] != "sw") or (m["name"] != "lw")):
+<<<<<<< HEAD
         #random comment
 
+=======
+>>>>>>> 9ed68f5be69398b8d17c11d480c348d3b2c32504
         if ex["reghold"]["rs"] == m["reghold"]["rt"]:
             aluoutm1 = 1
             if diagnostic == 1:
@@ -317,7 +315,6 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
                 print("ResultW ‐> EqualD")
             stats["ResultW ‐> EqualD"] += 1
     if diagnostic == 1:
-        print("\n")
         print("current instruction's in each cycle and forwarding paths\n")
         print("fetch: {} , decode: {}, execution: {} , memory: {} , write back: {}".format(fetch, decode,execution,mem,writeBack), sep='|')
       #  input("press enter to continue")
@@ -366,13 +363,13 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
         ft["instr"] = l
         ft["nop"] = 0
-        if "bne" in l:
-            ft["type"] = "b"
-        elif "bne" in l:
-            ft["type"] = "b"
+        if "w" in l:
+            ft["type"] = "i"
         elif "i" in l:
             ft["type"] = "i"
-        elif "w" in l:
+        elif "bne" in l:
+            ft["type"] = "b"
+        elif "beq" in l:
             ft["type"] = "b"
         else:
             ft["type"] = "r"
@@ -386,30 +383,18 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         tmp.pop(0)
         regs = tmp
         if (ft["name"] == "lw") or (ft["name"] == "sw"):
-            print("case 1")
-            print(ft)
             ft["reghold"]["rt"] = regs[0]
             ft["reghold"]["rs"] = regs[2]
-            print(ft)
-        elif (ft["type"] == "i"):
-            print("case 2")
-            print(ft)
+        elif (ft["type"] == "i") and ((ft["name"] != "bne") or (ft["name"] !="beq")):
             ft["reghold"]["rt"] = regs[0]
             ft["reghold"]["rs"] = regs[1]
-            print(ft)
         elif ft["type"] == "r":
-            print("case 3")
-            print(ft)
             ft["reghold"]["rd"] = regs[0]
             ft["reghold"]["rs"] = regs[1]
             ft["reghold"]["rt"] = regs[2]
-            print(ft)
         else:
-            print("case 4")
-            print(ft)
             ft["reghold"]["rs"] = regs[0]
             ft["reghold"]["rt"] = regs[1]
-            print(ft)
 
         ft["branch"] = 0
         ft["stall"] = 0
@@ -1557,29 +1542,42 @@ def main():
         word= int(word,2)
         word = format(word,"08x")
         print("memory", hex(mem)+": 0x"+ word )
-    print("Final Multicycle Statistics ")
-    per5 = (controlSignals["c5"]/FinalDIC)*100
-    per4 = (controlSignals["c4"]/FinalDIC)*100
-    per3 = (controlSignals["c3"]/FinalDIC)*100
-    print("Dynamic Instruction Count: ",FinalDIC)
-    print("Total Cycle Count: ",TotalCycles)
-    print("Instruction Count with 3 Cycles: \n{} was executed\n {}%".format(controlSignals["c3"], per3))
-    print("Instruction Count with 4 Cycles:  \n{} was executed\n {}%".format(controlSignals["c4"], per4))
-    print("Instruction Count with 5 Cycles: \n{} was executed\n {}%".format(controlSignals["c5"], per5))
-    cpi= (controlSignals["c5"]*5+controlSignals["c4"]*4+controlSignals["c3"]*3)/FinalDIC
-    print("CPI: ({}*5+{}*4+{}*3)/{} = {}".format(controlSignals["c5"],controlSignals["c4"],controlSignals["c3"], FinalDIC, cpi))
-    per5 = (controlSignals["MemtoReg"]/TotalCycles)*100
-    per4 = (controlSignals["MemWrite"]/TotalCycles)*100
-    per3 = (controlSignals["Branch"]/TotalCycles)*100
-    per2 = (controlSignals["AluScrA"]/TotalCycles)*100
-    per1 = (controlSignals["RegDst"]/TotalCycles)*100
-    per0 = (controlSignals["RegWrite"]/TotalCycles)*100
-    print("MemtoReg:{}% was 1".format(per5))
-    print("MemWrite: {}% was 1".format(per4))
-    print("Branch: {}% was 1".format(per3))
-    print("ALUSrc: {}% was 1".format(per2))
-    print("RegDst: {}% was 1".format(per1))
-    print("RegWrite: {}% was 1".format(per0))
+    if(cpu==1):
+        print("Final Multicycle Statistics ")
+        per5 = (controlSignals["c5"]/FinalDIC)*100
+        per4 = (controlSignals["c4"]/FinalDIC)*100
+        per3 = (controlSignals["c3"]/FinalDIC)*100
+        print("Dynamic Instruction Count: ",FinalDIC)
+        print("Total Cycle Count: ",TotalCycles)
+        print("Instruction Count with 3 Cycles: \n{} was executed\n {}%".format(controlSignals["c3"], per3))
+        print("Instruction Count with 4 Cycles:  \n{} was executed\n {}%".format(controlSignals["c4"], per4))
+        print("Instruction Count with 5 Cycles: \n{} was executed\n {}%".format(controlSignals["c5"], per5))
+        cpi= (controlSignals["c5"]*5+controlSignals["c4"]*4+controlSignals["c3"]*3)/FinalDIC
+        print("CPI: ({}*5+{}*4+{}*3)/{} = {}".format(controlSignals["c5"],controlSignals["c4"],controlSignals["c3"], FinalDIC, cpi))
+        per5 = (controlSignals["MemtoReg"]/TotalCycles)*100
+        per4 = (controlSignals["MemWrite"]/TotalCycles)*100
+        per3 = (controlSignals["Branch"]/TotalCycles)*100
+        per2 = (controlSignals["AluScrA"]/TotalCycles)*100
+        per1 = (controlSignals["RegDst"]/TotalCycles)*100
+        per0 = (controlSignals["RegWrite"]/TotalCycles)*100
+        print("MemtoReg:{}% was 1".format(per5))
+        print("MemWrite: {}% was 1".format(per4))
+        print("Branch: {}% was 1".format(per3))
+        print("ALUSrc: {}% was 1".format(per2))
+        print("RegDst: {}% was 1".format(per1))
+        print("RegWrite: {}% was 1".format(per0))
+    else:
+        print("Final Multicycle Statistics ")
+        print("Dynamic Instruction Count: ",FinalDIC)
+        print("Total Cycle Count: ",TotalCycles)
+        stat= str(stats)
+        stat= stat.replace("'","")
+        stat= stat.replace("{","")
+        stat= stat.replace("}","")
+        stat= stat.replace(",","\n")
+        #print(registers)
+        print(" "+ stat)
+        #print(stats, sep= '|')
     #print("Hit Rate = ", Hits/(Hits/Misses))
     #print("Instruction Count: ",FinalDIC)
 
