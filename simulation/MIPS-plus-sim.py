@@ -178,6 +178,11 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                 controlSignals["RegWrite"]+=1
 
 def pathsandprint(aluoutm1,aluoutm2, diagnostic):
+    print(ft)
+    print(de)
+    print(ex)
+    print(m)
+    print(wb)
 
     if ft["nop"] == 1:
         fetch = "bubble stall"
@@ -349,13 +354,13 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         cycles += 1
 
         wb = m.copy()
-
+        wb["reghold"]= m["reghold"].copy()
         m = ex.copy()
-
+        m["reghold"]= ex["reghold"].copy()
         ex = de.copy()
-
+        ex["reghold"]= de["reghold"].copy()
         de = ft.copy()
-
+        de["reghold"]= ft["reghold"].copy()
         pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
         ft["instr"] = l
         ft["nop"] = 0
@@ -380,7 +385,10 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         regs = tmp
         if (ft["name"] == "lw") or (ft["name"] == "sw"):
             ft["reghold"]["rt"] = regs[0]
-            ft["reghold"]["rs"] = regs[2]
+            if(len(tmp)== 4):
+                ft["reghold"]["rs"] = regs[2]
+            else:
+                ft["reghold"]["rs"] = regs[4]
         elif (ft["type"] == "i") and ((ft["name"] != "bne") or (ft["name"] !="beq")):
             ft["reghold"]["rt"] = regs[0]
             ft["reghold"]["rs"] = regs[1]
@@ -430,7 +438,9 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         if ex["stall"] == 2:
             cycles += 1
             wb = m.copy()
+            wb["reghold"]= m["reghold"].copy()
             m = ex.copy()
+            m["reghold"]= ex["reghold"].copy()
             ex["nop"] = 1
             stats["delay"] += 1
 
@@ -440,6 +450,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             cycles += 1
             wb = m.copy()
+            wb["reghold"]= m["reghold"].copy()
             m["nop"] = 1
             stats["delay"] += 1
 
@@ -450,7 +461,9 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         if ex["stall"] == 1:
             cycles += 1
             wb = m.copy()
+            wb["reghold"]= m["reghold"].copy()
             m = ex.copy()
+            m["reghold"]= ex["reghold"].copy()
             ex["nop"] = 1
             stats["delay"] += 1
 
@@ -461,9 +474,13 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         if ft["branch"] == 1:
             cycles += 1
             wb = m.copy()
+            wb["reghold"]= m["reghold"].copy()
             m = ex.copy()
+            m["reghold"]= ex["reghold"].copy()
             ex = de.copy()
+            ex["reghold"]= de["reghold"].copy()
             de = ft.copy()
+            de["reghold"]= ft["reghold"].copy()
             stats["flush"] += 1
 
             currentpc +=4
@@ -506,9 +523,13 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         if (int(pc / 4) >= len(instrs)):
             cycles += 1
             wb = m.copy()
+            wb["reghold"]= m["reghold"].copy()
             m = ex.copy()
+            m["reghold"]= ex["reghold"].copy()
             ex = de.copy()
+            ex["reghold"]= de["reghold"].copy()
             de = ft.copy()
+            de["reghold"]= ft["reghold"].copy()
             ft["nop"] = 2
 
             aluoutm1 = 0
@@ -517,8 +538,11 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             cycles += 1
             wb = m.copy()
+            wb["reghold"]= m["reghold"].copy()
             m = ex.copy()
+            m["reghold"]= ex["reghold"].copy()
             ex = de.copy()
+            ex["reghold"]= de["reghold"].copy()
             de["nop"] = 2
 
             aluoutm1 = 0
@@ -527,7 +551,9 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             cycles += 1
             wb = m.copy()
+            wb["reghold"]= m["reghold"].copy()
             m = ex.copy()
+            m["reghold"]= ex["reghold"].copy()
             ex["nop"] = 2
 
             aluoutm1 = 0
@@ -536,6 +562,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             cycles += 1
             wb = m.copy()
+            wb["reghold"]= m["reghold"].copy()
             m["nop"] = 2
 
             aluoutm1 = 0
