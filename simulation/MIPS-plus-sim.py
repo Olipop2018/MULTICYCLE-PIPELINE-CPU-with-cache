@@ -604,19 +604,21 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     for o in range(num_ways):
         if(Valid[setIndex][o] == 0):
             Misses += 1
+            print("Miss")
             memo = mem
+            me = mem[0:16-word_offset]
+            
+            for a in range(word_offset):
+                me = me + '0'
+            
             memo = int(memo, 2)
             memo = memo - int('0x2000', 16)
-            print(memo)
-            print("YEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-            print(memory[memo])
-            print(rt)
-            print(registers[rt])
-            
+            me = int(me,2)
+            me = me - int('0x2000', 16)
             
             for u in range(blk_size):
                 #Grab byte
-                byte = format(memory[memo+u], '08b')
+                byte = format(memory[me+u], '08b')
                 byte = int(byte,2)
                 Cache[setIndex][u][o] = byte
             
@@ -632,25 +634,18 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 second = format(second, '08b') 
                 first = format(first, '08b')
                 word = first + second + third + fourth
+                word = int(word,2)
                 
-                if(word[0] == '1'):
-                    word = int(word,2)
-                    word = word - (2^32)
-                else:
-                    word = int(word,2)
+                if(word < 0):
+                    word = int32_to_uint32(word)
                 
                 registers[rt] = word
                 
             elif(lworsw == 1):
-                
                 temp = registers[rt]
-                print(temp)
                 if(temp < 0):
                     temp = int32_to_uint32(temp)
-                print(temp)
                 temp = format(temp, '032b')
-                print(temp)
-                print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
                 
                 first = temp[0:8]
                 second = temp[8:16]
@@ -667,8 +662,6 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 Cache[setIndex][wordIndex+2][o] = second
                 Cache[setIndex][wordIndex+3][o] = first
                 
-                print(Cache)
-                
                 memo = mem
                 memo = int(memo, 2)
                 memo = memo - int('0x2000', 16)
@@ -677,6 +670,8 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 memory[memo+1] = third
                 memory[memo+2] = second
                 memory[memo+3] = first
+                print(memory[memo])
+                print(Cache)
                 
             Valid[setIndex][o] = 1
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
@@ -700,33 +695,33 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     second = format(second, '08b') 
                     first = format(first, '08b')
                     word = first + second + third + fourth
+                    word = int(word,2)
                 
-                    if(word[0] == '1'):
-                        word = int(word,2)
-                        word = word - (2^32)
-                    else:
-                        word = int(word,2)
+                    if(word < 0):
+                        word = int32_to_uint32(word)
                 
                     registers[rt] = word
                 elif(lworsw == 1):
                     temp = registers[rt]
-                    temp = format(temp, '064b')
+                    if(temp < 0):
+                        temp = int32_to_uint32(temp)
+                    temp = format(temp, '032b')
+                        
+                    first = temp[0:8]
+                    second = temp[8:16]
+                    third = temp[16:24]
+                    fourth = temp[24:32]
                 
-                    first = temp[32:40]
-                    second = temp[40:48]
-                    third = temp[48:56]
-                    fourth = temp[56:64]
-                    
                     first= int(first,2)
                     second = int(second,2)
                     third = int(third,2)
                     fourth= int(fourth,2)
-                    
+                
                     Cache[setIndex][wordIndex][o] = fourth
                     Cache[setIndex][wordIndex+1][o] = third
                     Cache[setIndex][wordIndex+2][o] = second
                     Cache[setIndex][wordIndex+3][o] = first
-                    
+                
                     memo = mem
                     memo = int(memo, 2)
                     memo = memo - int('0x2000', 16)
@@ -735,8 +730,11 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     memory[memo+1] = third
                     memory[memo+2] = second
                     memory[memo+3] = first
+                    print(memory[memo])
+                    print(Cache)
                         
                 Hits += 1
+                print("Hit")
                 updated = 1
                 LRU[setIndex].remove(o)
                 LRU[setIndex].append(o)
@@ -745,25 +743,30 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
         
     if(updated == 0):
         Misses += 1
+        print("miss")
         remove_way = LRU[setIndex][0]
         
         memo = mem
+        me = mem[0:16-word_offset]
+        print(memo)
+        print(me)
+        
+        for a in range(word_offset):
+            me = me + '0'
+            
+        print(me)
+            
         memo = int(memo, 2)
         memo = memo - int('0x2000', 16)
-        print(memo)
-        print("YEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-        print(memory[memo])
+        me = int(me,2)
+        me = me - int('0x2000', 16)
         
+        print(me)
+        print(memo)
+            
         for u in range(blk_size):
             #Grab byte
-            byte = format(memory[memo+u], '08b')
-            #fourth = format(memory[memo+(0+(u*4))], '08b')
-            #third = format(memory[memo+(1+(u*4))], '08b')
-            #second = format(memory[memo+(2+(u*4))], '08b')
-            #first = format(memory[memo+(3+(u*4))], '08b')
-            #word = first + second + third + fourth
-        
-            #Determine if negative
+            byte = format(memory[me+u], '08b')
             byte = int(byte,2)
             Cache[setIndex][u][remove_way] = byte
         
@@ -778,33 +781,33 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             second = format(second, '08b') 
             first = format(first, '08b')
             word = first + second + third + fourth
+            word = int(word,2)
             
-            if(word[0] == '1'):
-                word = int(word,2)
-                word = word - (2^32)
-            else:
-                word = int(word,2)
+            if(word < 0):
+                word = int32_to_uint32(word)
             
             registers[rt] = word
         elif(lworsw == 1):
             temp = registers[rt]
-            temp = format(temp, '064b')
-            
-            first = temp[32:40]
-            second = temp[40:48]
-            third = temp[48:56]
-            fourth = temp[56:64]
+            if(temp < 0):
+                temp = int32_to_uint32(temp)
+            temp = format(temp, '032b')
+                
+            first = temp[0:8]
+            second = temp[8:16]
+            third = temp[16:24]
+            fourth = temp[24:32]
             
             first= int(first,2)
             second = int(second,2)
             third = int(third,2)
             fourth= int(fourth,2)
-        
-            Cache[setIndex][wordIndex][remove_way] = fourth
-            Cache[setIndex][wordIndex+1][remove_way] = third
-            Cache[setIndex][wordIndex+2][remove_way] = second
-            Cache[setIndex][wordIndex+3][remove_way] = first
                 
+            Cache[setIndex][wordIndex][o] = fourth
+            Cache[setIndex][wordIndex+1][o] = third
+            Cache[setIndex][wordIndex+2][o] = second
+            Cache[setIndex][wordIndex+3][o] = first
+            
             memo = mem
             memo = int(memo, 2)
             memo = memo - int('0x2000', 16)
@@ -813,6 +816,8 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             memory[memo+1] = third
             memory[memo+2] = second
             memory[memo+3] = first
+            print(memory[memo])
+            print(Cache)
             
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
