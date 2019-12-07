@@ -217,11 +217,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
 
 
     if (m["type"] == "i") and ((m["name"] != "sw") or (m["name"] != "lw")):
-<<<<<<< HEAD
-        #random comment
 
-=======
->>>>>>> 9ed68f5be69398b8d17c11d480c348d3b2c32504
         if ex["reghold"]["rs"] == m["reghold"]["rt"]:
             aluoutm1 = 1
             if diagnostic == 1:
