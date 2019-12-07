@@ -1440,6 +1440,7 @@ def main():
     word_offset = int(math.log(blk_size,2)) 
     set_offset = int(math.log(total_s,2))
 
+
     saveJumpLabel(asm,labelIndex,labelName) # Save all jump's destinations
     for line in asm:
         #line = line.replace("\t","")
@@ -1451,6 +1452,11 @@ def main():
         instrs.append(line)
        
     print(pcAssign)
+    print("pipe line or multi cycle")
+    print("1 is multicycle")
+    print("2 is pipe line")
+    cpu = input("Enter a choice: ")
+    
     FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
 
     print("All memory contents:")
