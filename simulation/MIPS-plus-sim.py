@@ -343,9 +343,9 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
     
         
     LRU = [['' for j in range(num_ways)] for i in range(total_s)]
-    Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
-    Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
-    Cache = [[[0 for j in range(num_ways)] for i in range(blk_size)] for i in range(total_s)] #Cache data
+    Valid = [[0 for j in range(num_ways)] for i in range(total_s)]
+    Tag = [["0" for j in range(num_ways)] for i in range(total_s)]
+    Cache = [[[0 for j in range(num_ways)] for i in range(blk_size)] for i in range(total_s)] #Cache data   
     
     while True:
 
