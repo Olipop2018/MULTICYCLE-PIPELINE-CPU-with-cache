@@ -602,7 +602,6 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     for o in range(num_ways):
         if(Valid[setIndex][o] == 0):
             Misses += 1
-            print("Miss")
             memo = mem
             me = mem[0:16-word_offset]
             
@@ -632,13 +631,14 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 second = format(second, '08b') 
                 first = format(first, '08b')
                 word = first + second + third + fourth
-                word = int(word,2)
                 
-                if(word < 0):
-                    word = int32_to_uint32(word)
+                if word[0] == '1':
+                    word= int(word,2)
+                    word = word - 4294967296
+                else:
+                    word= int(word,2)
                 
                 registers[rt] = word
-                print(registers[rt])
                 
             elif(lworsw == 1):
                 temp = registers[rt]
@@ -669,8 +669,6 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 memory[memo+1] = third
                 memory[memo+2] = second
                 memory[memo+3] = first
-                print(memory[memo+3],memory[memo+2], memory[memo+1], memory[memo])
-                print(Cache)
                 
             Valid[setIndex][o] = 1
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
@@ -680,6 +678,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             
         if(updated == 1):
             break
+        
         
         else:
             if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
@@ -694,10 +693,12 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     second = format(second, '08b') 
                     first = format(first, '08b')
                     word = first + second + third + fourth
-                    word = int(word,2)
                 
-                    if(word < 0):
-                        word = int32_to_uint32(word)
+                    if word[0] == '1':
+                        word= int(word,2)
+                        word = word - 4294967296
+                    else:
+                        word= int(word,2)
                 
                     registers[rt] = word
                 elif(lworsw == 1):
@@ -729,11 +730,8 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     memory[memo+1] = third
                     memory[memo+2] = second
                     memory[memo+3] = first
-                    print(memory[memo+3],memory[memo+2], memory[memo+1], memory[memo])
-                    print(Cache)
                         
                 Hits += 1
-                print("Hit")
                 updated = 1
                 LRU[setIndex].remove(o)
                 LRU[setIndex].append(o)
@@ -742,26 +740,18 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
         
     if(updated == 0):
         Misses += 1
-        print("miss")
         remove_way = LRU[setIndex][0]
         
         memo = mem
         me = mem[0:16-word_offset]
-        print(memo)
-        print(me)
         
         for a in range(word_offset):
             me = me + '0'
-            
-        print(me)
             
         memo = int(memo, 2)
         memo = memo - int('0x2000', 16)
         me = int(me,2)
         me = me - int('0x2000', 16)
-        
-        print(me)
-        print(memo)
             
         for u in range(blk_size):
             #Grab byte
@@ -780,10 +770,12 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             second = format(second, '08b') 
             first = format(first, '08b')
             word = first + second + third + fourth
-            word = int(word,2)
             
-            if(word < 0):
-                word = int32_to_uint32(word)
+            if word[0] == '1':
+                word= int(word,2)
+                word = word - 4294967296
+            else:
+                word= int(word,2)
             
             registers[rt] = word
         elif(lworsw == 1):
@@ -815,8 +807,6 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             memory[memo+1] = third
             memory[memo+2] = second
             memory[memo+3] = first
-            print(memory[memo+3],memory[memo+2], memory[memo+1], memory[memo])
-            print(Cache)
             
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
@@ -914,11 +904,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
 
-		   # pcprint=  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)  
-
         elif(line[0:2] == "sw"): # sw
             line = line.replace("sw","")
             line = line.replace(")","")
@@ -959,11 +944,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
 
             print ("result memory: ", hex(memo) ,"=", hex(word))
             pc+= 4# increments pc by 4 
-             
-           # pcprint=  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)  
+            
            
         elif(line[0:2] == "sb"): # sb
             line = line.replace("sb","")
@@ -1046,11 +1027,8 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             else:
                 pc+= 4
                 print ("does not branch, go to next instructions" )
-           # pcprint=  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)
-        elif(line[0:3] == "beq"): # bne
+
+        elif(line[0:3] == "beq"): # beq
             line = line.replace("beq","")
             line = line.split(",")
             for i in range(len(labelName)):
@@ -1069,10 +1047,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             else:
                 pc+= 4
                 print ("does not branch, go to next instructions" )
-           # pcprint=  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)
 
         elif(line[0:3] == "srl"): # SRL
             line = line.replace("srl","")
@@ -1545,7 +1519,7 @@ def main():
         word= int(word,2)
         word = format(word,"08x")
         print("memory", hex(mem)+": 0x"+ word )
-    if(cpu==1):
+    if(cpu== '1'):
         print("Final Multicycle Statistics ")
         per5 = (controlSignals["c5"]/FinalDIC)*100
         per4 = (controlSignals["c4"]/FinalDIC)*100
@@ -1581,12 +1555,7 @@ def main():
         #print(registers)
         print(" "+ stat)
         #print(stats, sep= '|')
-    #print("Hit Rate = ", Hits/(Hits/Misses))
-    #print("Instruction Count: ",FinalDIC)
-
-   # print(memory)
-
-    #f.close()
+    print("Hit Rate = ", Hits/(Hits+Misses), "%")
 
 if __name__ == "__main__":
     main()
