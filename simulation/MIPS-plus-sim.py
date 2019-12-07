@@ -559,7 +559,9 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     updated = 0
     mem = format(mem, '016b')
     mem = mem[:16]
+    print(mem)
     setIndex = mem[16-word_offset-set_offset:16-word_offset]
+    print("check here for set index------------------>1", setIndex)
     wordIndex = mem[16-word_offset:16]
     if(setIndex == ''):
         setIndex = '0'
@@ -583,6 +585,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             
             #Determine if negative
             if(word[0] == '1'):
+                print("word[0]", word[0])
                 word = int(word,2)
                 word = word - (2^32)
             else:
