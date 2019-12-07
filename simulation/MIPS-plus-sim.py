@@ -102,6 +102,8 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
             print("Dynamic Instruction Count: ",DIC)
             return DIC, pc, cycles;
         DIC+=1
+        if DIC == 174:
+            print("pause")
         #cycle1
         l = instrs[int(pc/4)]
         cycle1+=1
@@ -1523,7 +1525,8 @@ def main():
         word= int(word,2)
         word = format(word,"08x")
         print("memory", hex(mem)+": 0x"+ word )
-    if(cpu== '1'):
+   
+    if(cpu=="1"):
         print("Final Multicycle Statistics ")
         per5 = (controlSignals["c5"]/FinalDIC)*100
         per4 = (controlSignals["c4"]/FinalDIC)*100
@@ -1548,7 +1551,7 @@ def main():
         print("RegDst: {}% was 1".format(per1))
         print("RegWrite: {}% was 1".format(per0))
     else:
-        print("Final Multicycle Statistics ")
+        print("Final Pipeline Statistics ")
         print("Dynamic Instruction Count: ",FinalDIC)
         print("Total Cycle Count: ",TotalCycles)
         stat= str(stats)
@@ -1556,7 +1559,6 @@ def main():
         stat= stat.replace("{","")
         stat= stat.replace("}","")
         stat= stat.replace(",","\n")
-        #print(registers)
         print(" "+ stat)
         #print(stats, sep= '|')
     print("Hit Rate = ", Hits/(Hits+Misses), "%")
