@@ -1,6 +1,5 @@
 import math
-memory = [0] * 4096 #Remember when ever you get an address in hex subtract 8192 from it then write
-                    #to it
+memory = [0] *4096 #Remember when ever you get an address in hex subtract 8192 from it then write to it
 				#Dynamic Instruction Count
 registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0, 
                   "$12":0,"$13": 0, "$14":0,"$15": 0, "$16":0,"$17": 0, 
@@ -66,42 +65,58 @@ Hits = 0
 
 labelIndex = []
 labelName = []
-pcAssign = []
+pcAssign= []
 
 
 def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
-    cycle1 = 0
-    cycle2 = 0
-    cycle3 = 0
-    cycle4 = 0
-    cycle5 = 0
+    cycle1=0
+    cycle2=0
+    cycle3=0
+    cycle4=0
+    cycle5=0
+    
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global Misses 
+    global Hits
+    print
+        
+    LRU = [['' for j in range(num_ways)] for i in range(total_s)]
+    print(LRU)
+    Valid = [[0 for j in range(num_ways)] for i in range(total_s)]
+    Tag = [["0" for j in range(num_ways)] for i in range(total_s)]
+    Cache = [[0 for j in range(num_ways)] for i in range(total_s)]# Cache data
+    
+    
     while True:
-        cycles = cycle1 + cycle2 + cycle3 + cycle4 + cycle5        
-        if (int(pc / 4) >= len(instrs)):
+        cycles= cycle1+ cycle2+ cycle3+ cycle4+ cycle5
+        if (int(pc/4) >= len(instrs)):
             print("Dynamic Instruction Count: ",DIC)
-            return DIC, pc, cycles
+            return DIC, pc, cycles;
         DIC+=1
         #cycle1
-        l = instrs[int(pc / 4)]
+        l = instrs[int(pc/4)]
         cycle1+=1
         controlSignals["AluScrA"]+=0
-        controlSignals["AluScrB"] = '01'
+        controlSignals["AluScrB"]='01'
         #controlSignals["PCSrc"]=0
         #controlSignals["IorD"]=0
        # controlSignals["AluOp"]='00'
        # controlSignals["IRWrite"]=1
         #controlSignals["PCWrite"]=1
         #pc=pc+4
-   #cycle2
+   #cycle2  
         cycle2+=1
         controlSignals["AluScrA"]+=0 
-        controlSignals["AluScrB"] = '11'
+        controlSignals["AluScrB"]='11'
        # controlSignals["AluOp"]='00'
         if "w" in l[0:2]:
-       #cycle3
+       #cycle3 
             cycle3+=1
             controlSignals["AluScrA"]+=1
-            controlSignals["AluScrB"] = '10'
+            controlSignals["AluScrB"]='10'
            # controlSignals["AluOp"]='00'
        #cycle4
             print("word_offset", word_offset)
@@ -118,21 +133,21 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                  controlSignals["MemtoReg"]+=1
                  controlSignals["RegWrite"]+=1
         elif "bne" in l:
-      #cycle3
+      #cycle3 
             cycle3+=1
             controlSignals["c3"]+=1
             controlSignals["AluScrA"]+= 1
-            controlSignals["AluScrB"] = '10'
+            controlSignals["AluScrB"]='10'
           # controlSignals["AluOp"]='01'
            # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
             pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
         elif "beq" in l:
-      #cycle3
+      #cycle3 
             cycle3+=1
             controlSignals["c3"]+=1
             controlSignals["AluScrA"]+= 1
-            controlSignals["AluScrB"] = '10'
+            controlSignals["AluScrB"]='10'
           # controlSignals["AluOp"]='01'
            # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
@@ -143,7 +158,7 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
            #cycle3
                 cycle3+=1
                 controlSignals["AluScrA"]+= 1
-                controlSignals["AluScrB"] = '10'
+                controlSignals["AluScrB"]='10'
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
@@ -153,7 +168,7 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                 controlSignals["RegWrite"]+=1
             else:
                 controlSignals["AluScrA"]+=1 
-                controlSignals["AluScrB"] = '00'
+                controlSignals["AluScrB"]='00'
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
@@ -301,221 +316,237 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
 
     
 def pipeline(instrs, DIC, pc, cycles, diagnostic):
-	while True:
-		l = instrs[int(pc / 4)]
-		currentpc = pc
-		if (int(pc / 4) >= len(instrs)):
-			print("Dynamic Instruction Count: ", DIC)
-			return DIC, pc, cycles
-		DIC += 1
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global Misses 
+    global Hits
+    print
+        
+    LRU = [],[]
+    Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
+    Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
+    Cache = [0 for f in range(total_s)],[0 for g in range(num_ways)]# Cache data
+    
+    while True:
 
-		cycles += 1
+        l = instrs[int(pc / 4)]
+        currentpc = pc
+        if (int(pc / 4) >= len(instrs)):
+            print("Dynamic Instruction Count: ", DIC)
+            return DIC, pc, cycles;
+        DIC += 1
 
-		wb = m
+        cycles += 1
 
-		m = ex
+        wb = m
 
-		ex = de
+        m = ex
 
-		de = ft
+        ex = de
 
-		pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
-		ft["instr"] = l
-		ft["nop"] = 0
-		if "w" in l:
-			ft["type"] = "i"
-		elif "i" in l:
-			ft["type"] = "i"
-		else:
-			ft["type"] = "r"
+        de = ft
 
-
-		tmp = l
-		tmp = tmp.replace(",", "")
-		tmp = tmp.split("")
-		i = 0
-
-		while tmp[i].isalpha():
-			inst = inst + tmp[i]
-			i += 1
-
-		ft["name"] = inst
-		while i >= 0:
-			tmp.pop(0)
-			i -= 1
-
-		regs = tmp
-		if ft["name"] == "lw" or "sw":
-			ft["reghold"]["rt"] = regs[0]
-			ft["reghold"]["rs"] = regs[2]
-		elif ft["type"] == "i" and ft["name"] != "bne" or "beq":
-			ft["reghold"]["rt"] = regs[0]
-			ft["reghold"]["rs"] = regs[1]
-		elif ft["type"] == "r":
-			ft["reghold"]["rd"] = regs[0]
-			ft["reghold"]["rs"] = regs[1]
-			ft["reghold"]["rt"] = regs[2]
-		else:
-			ft["reghold"]["rs"] = regs[0]
-			ft["reghold"]["rt"] = regs[1]
-
-		ft["branch"] = 0
-		ft["stall"] = 0
-		if "lw" in l:
-			ft["stall"] = 1
-		elif "beq" in l:
-			if currentpc + 4 != pc:
-				ft["branch"] = 1
-			else:
-				ft["branch"] = 0
-
-			if de["type"] == "i" and de["name"] != "sw":
-				if ft["reghold"]["rs"] == de["reghold"]["rt"]:
-					if de["name"] == "lw":
-						de["stall"] = 2
-					else:
-						de["stall"] = 1
-				if ft["reghold"]["rt"] == de["reghold"]["rt"]:
-					if de["name"] == "lw":
-						de["stall"] = 2
-					else:
-						de["stall"] = 1
-			elif de["type"] == "r":
-				if ft["reghold"]["rs"] == de["reghold"]["rd"]:
-					de["stall"] = 1
-				elif ft["reghold"]["rt"] == de["reghold"]["rd"]:
-					de["stall"] = 1
-		else:
-			ft["branch"] = 0
-			ft["stall"] = 0
-			ft["nop"] = 0
-
-		aluoutm1 = 0
-		aluoutm2 = 0
-		pathsandprint(aluoutm1, aluoutm2, diagnostic)
-
-		if ex["stall"] == 2:
-			cycles += 1
-			wb = m
-			m = ex
-			ex["nop"] = 1
-			stats["delay"] += 1
-			aluoutm1 = 0
-			aluoutm2 = 0
-			pathsandprint(aluoutm1, aluoutm2, diagnostic)
-			cycles += 1
-			wb = m
-			m["nop"] = 1
-			stats["delay"] += 1
-
-			aluoutm1 = 0
-			aluoutm2 = 0
-			pathsandprint(aluoutm1, aluoutm2, diagnostic)
-
-		if ex["stall"] == 1:
-			cycles += 1
-			wb = m
-			m = ex
-			ex["nop"] = 1
-			stats["delay"] += 1
-
-			aluoutm1 = 0
-			aluoutm2 = 0
-			pathsandprint(aluoutm1, aluoutm2, diagnostic)
-
-		if ft["branch"] == 1:
-			cycles += 1
-			wb = m
-			m = ex
-			ex = de
-			de = ft
-			stats["flush"] += 1
+        pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
+        ft["instr"] = l
+        ft["nop"] = 0
+        if "w" in l:
+            ft["type"] = "i"
+        elif "i" in l:
+            ft["type"] = "i"
+        else:
+            ft["type"] = "r"
 
 
-			l = instrs[int(currentpc + 4 / 4)]
-			ft["instr"] = l
-			tmp = l
-			tmp = tmp.replace(",", "")
-			tmp = tmp.split("")
-			i = 0
+        tmp = l
+        tmp = tmp.replace(",", "")
+        tmp = tmp.split("")
+        i = 0
 
-			while tmp[i].isalpha():
-				inst = inst + tmp[i]
-				i += 1
+        while tmp[i].isalpha():
+            inst = inst + tmp[i]
+            i += 1
 
-			ft["name"] = inst
-			while i >= 0:
-				tmp.pop(0)
-				i -= 1
+        ft["name"] = inst
+        while i >= 0:
+            tmp.pop(0)
+            i -= 1
 
-			regs = tmp
-			if ft["name"] == "lw" or "sw":
-				ft["reghold"]["rt"] = regs[0]
-				ft["reghold"]["rs"] = regs[2]
-			elif ft["type"] == "i" and ft["name"] != "bne" or "beq":
-				ft["reghold"]["rt"] = regs[0]
-				ft["reghold"]["rs"] = regs[1]
-			elif ft["type"] == "r":
-				ft["reghold"]["rd"] = regs[0]
-				ft["reghold"]["rs"] = regs[1]
-				ft["reghold"]["rt"] = regs[2]
-			else:
-				ft["reghold"]["rs"] = regs[0]
-				ft["reghold"]["rt"] = regs[1]
-			ft["branch"] = 0
-			ft["stall"] = 0
-			ft["nop"] = 0
+        regs = tmp
+        if ft["name"] == "lw" or "sw":
+            ft["reghold"]["rt"] = regs[0]
+            ft["reghold"]["rs"] = regs[2]
+        elif ft["type"] == "i" and ft["name"] != "bne" or "beq":
+            ft["reghold"]["rt"] = regs[0]
+            ft["reghold"]["rs"] = regs[1]
+        elif ft["type"] == "r":
+            ft["reghold"]["rd"] = regs[0]
+            ft["reghold"]["rs"] = regs[1]
+            ft["reghold"]["rt"] = regs[2]
+        else:
+            ft["reghold"]["rs"] = regs[0]
+            ft["reghold"]["rt"] = regs[1]
 
-			aluoutm1 = 0
-			aluoutm2 = 0
-			pathsandprint(aluoutm1, aluoutm2, diagnostic)
+        ft["branch"] = 0
+        ft["stall"] = 0
+        if "lw" in l:
+            ft["stall"] = 1
+        elif "beq" in l:
+            if currentpc + 4 != pc:
+                ft["branch"] = 1
+            else:
+                ft["branch"] = 0
 
-			ft["nop"] = 3
-		if (int(pc / 4) >= len(instrs)):
-			cycles += 1
-			wb = m
-			m = ex
-			ex = de
-			de = ft
-			ft["nop"] = 2
+            if de["type"] == "i" and de["name"] != "sw":
+                if ft["reghold"]["rs"] == de["reghold"]["rt"]:
+                    if de["name"] == "lw":
+                        de["stall"] = 2
+                    else:
+                        de["stall"] = 1
+                if ft["reghold"]["rt"] == de["reghold"]["rt"]:
+                    if de["name"] == "lw":
+                        de["stall"] = 2
+                    else:
+                        de["stall"] = 1
+            elif de["type"] == "r":
+                if ft["reghold"]["rs"] == de["reghold"]["rd"]:
+                    de["stall"] = 1
+                elif ft["reghold"]["rt"] == de["reghold"]["rd"]:
+                    de["stall"] = 1
+        else:
+            ft["branch"] = 0
+            ft["stall"] = 0
+            ft["nop"] = 0
 
-			aluoutm1 = 0
-			aluoutm2 = 0
-			pathsandprint(aluoutm1, aluoutm2, diagnostic)
+        aluoutm1 = 0
+        aluoutm2 = 0
+        pathsandprint(aluoutm1, aluoutm2, diagnostic)
 
-			cycles += 1
-			wb = m
-			m = ex
-			ex = de
-			de["nop"] = 2
+        if ex["stall"] == 2:
+            cycles += 1
+            wb = m
+            m = ex
+            ex["nop"] = 1
+            stats["delay"] += 1
 
-			aluoutm1 = 0
-			aluoutm2 = 0
-			pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            aluoutm1 = 0
+            aluoutm2 = 0
+            pathsandprint(aluoutm1, aluoutm2, diagnostic)
 
-			cycles += 1
-			wb = m
-			m = ex
-			ex["nop"] = 2
+            cycles += 1
+            wb = m
+            m["nop"] = 1
+            stats["delay"] += 1
 
-			aluoutm1 = 0
-			aluoutm2 = 0
-			pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            aluoutm1 = 0
+            aluoutm2 = 0
+            pathsandprint(aluoutm1, aluoutm2, diagnostic)
 
-			cycles += 1
-			wb = m
-			m["nop"] = 2
+        if ex["stall"] == 1:
+            cycles += 1
+            wb = m
+            m = ex
+            ex["nop"] = 1
+            stats["delay"] += 1
 
-			aluoutm1 = 0
-			aluoutm2 = 0
-			pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            aluoutm1 = 0
+            aluoutm2 = 0
+            pathsandprint(aluoutm1, aluoutm2, diagnostic)
 
-			cycles += 1
-			wb["nop"] = 2
+        if ft["branch"] == 1:
+            cycles += 1
+            wb = m
+            m = ex
+            ex = de
+            de = ft
+            stats["flush"] += 1
 
-			aluoutm1 = 0
-			aluoutm2 = 0
-			pathsandprint(aluoutm1, aluoutm2, diagnostic)
+
+            l = instrs[int(currentpc + 4 / 4)]
+            ft["instr"] = l
+            tmp = l
+            tmp = tmp.replace(",", "")
+            tmp = tmp.split("")
+            i = 0
+
+            while tmp[i].isalpha():
+                inst = inst + tmp[i]
+                i += 1
+
+            ft["name"] = inst
+            while i >= 0:
+                tmp.pop(0)
+                i -= 1
+
+            regs = tmp
+            if ft["name"] == "lw" or "sw":
+                ft["reghold"]["rt"] = regs[0]
+                ft["reghold"]["rs"] = regs[2]
+            elif ft["type"] == "i" and ft["name"] != "bne" or "beq":
+                ft["reghold"]["rt"] = regs[0]
+                ft["reghold"]["rs"] = regs[1]
+            elif ft["type"] == "r":
+                ft["reghold"]["rd"] = regs[0]
+                ft["reghold"]["rs"] = regs[1]
+                ft["reghold"]["rt"] = regs[2]
+            else:
+                ft["reghold"]["rs"] = regs[0]
+                ft["reghold"]["rt"] = regs[1]
+            ft["branch"] = 0
+            ft["stall"] = 0
+            ft["nop"] = 0
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+
+            ft["nop"] = 3
+        if (int(pc / 4) >= len(instrs)):
+            cycles += 1
+            wb = m
+            m = ex
+            ex = de
+            de = ft
+            ft["nop"] = 2
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+
+            cycles += 1
+            wb = m
+            m = ex
+            ex = de
+            de["nop"] = 2
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+
+            cycles += 1
+            wb = m
+            m = ex
+            ex["nop"] = 2
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+
+            cycles += 1
+            wb = m
+            m["nop"] = 2
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+
+            cycles += 1
+            wb["nop"] = 2
+
+            aluoutm1 = 0
+            aluoutm2 = 0
+            pathsandprint(aluoutm1, aluoutm2, diagnostic)
 
 def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
     print("you are in cache analysis")
@@ -527,22 +558,34 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     global Hits 
     print("In Progress")
     updated = 0
-    setIndex = mem[16 - word_offset - set_offset:16 - word_offset]
+    mem = format(mem, '016b')
+    mem = mem[:16]
+    setIndex = mem[16-word_offset-set_offset:16-word_offset]
+    wordIndex = mem[16-word_offset:16]
+    if(setIndex == ''):
+        setIndex = '0'
+        
+    setIndex = int(setIndex,2)
+    wordIndex = int(wordIndex,2)
+    
     for o in range(num_ways):
         if(Valid[setIndex][o] == 0):
             Misses += 1
+            memo = mem
+            memo = int(memo, 2)
+            memo = memo - int('0x2000', 16)
             
             #Grab word
-            fourth = format(memory[mem], '08b')
-            third = format(memory[mem + 1], '08b')
-            second = format(memory[mem + 2], '08b')
-            first = format(memory[mem + 3], '08b')
+            fourth = format(memory[memo], '08b')
+            third = format(memory[memo+1], '08b')
+            second = format(memory[memo+2], '08b')
+            first = format(memory[memo+3], '08b')
             word = first + second + third + fourth
             
             #Determine if negative
             if(word[0] == '1'):
                 word = int(word,2)
-                word = word - (2 ^ 32)
+                word = word - (2^32)
             else:
                 word = int(word,2)
                 
@@ -558,21 +601,27 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 second = temp[40:48]
                 third = temp[48:56]
                 fourth = temp[56:64]
-                memory[mem] = fourth
-                memory[mem + 1] = third
-                memory[mem + 2] = second
-                memory[mem + 3] = first
+                
+                memo = mem
+                memo = int(memo, 2)
+                memo = memo - int('0x2000', 16)
+                
+                memory[memo] = fourth
+                memory[memo+1] = third
+                memory[memo+2] = second
+                memory[memo+3] = first
                 
             Valid[setIndex][o] = 1
-            Tag[setIndex][o] = mem[0:16 - set_offset - word_offset]
-            updated = 1
-            LRU[setIndex].append(o)   
+            Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
+            updated = 1;
+            LRU[setIndex].remove('')
+            LRU[setIndex].append(o) 
             
         if(updated == 1):
             break
         
         else:
-            if(Tag[setIndex][o] == mem[0:16 - set_offset - word_offset]):
+            if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lworsw == 0):
                     registers[rt] = Cache[setIndex][o]
                 elif(lworsw == 1):
@@ -582,10 +631,15 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     second = temp[40:48]
                     third = temp[48:56]
                     fourth = temp[56:64]
-                    memory[mem] = fourth
-                    memory[mem + 1] = third
-                    memory[mem + 2] = second
-                    memory[mem + 3] = first
+                    
+                    memo = mem
+                    memo = int(memo, 2)
+                    memo = memo - int('0x2000', 16)
+                    
+                    memory[memo] = fourth
+                    memory[memo+1] = third
+                    memory[memo+2] = second
+                    memory[memo+3] = first
                     
                 Hits += 1
                 updated = 1
@@ -597,17 +651,23 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     if(updated == 0):
         Misses += 1
         remove_way = LRU[setIndex][0]
+        print(remove_way)
+        print("here")
         
-        fourth = format(memory[mem], '08b')
-        third = format(memory[mem + 1], '08b')
-        second = format(memory[mem + 2], '08b')
-        first = format(memory[mem + 3], '08b')
+        memo = mem
+        memo = int(memo, 2)
+        memo = memo - int('0x2000', 16)
+        
+        fourth = format(memory[memo], '08b')
+        third = format(memory[memo+1], '08b')
+        second = format(memory[memo+2], '08b')
+        first = format(memory[memo+3], '08b')
         word = first + second + third + fourth
             
         #Determine if negative
         if(word[0] == '1'):
             word = int(word,2)
-            word = word - (2 ^ 32)
+            word = word - (2^32)
         else:
             word = int(word,2)
         
@@ -621,12 +681,17 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             second = temp[40:48]
             third = temp[48:56]
             fourth = temp[56:64]
-            memory[mem] = fourth
-            memory[mem + 1] = third
-            memory[mem + 2] = second
-            memory[mem + 3] = first
             
-        Tag[setIndex][remove_way] = mem[0:16 - set_offset - word_offset]
+            memo = mem
+            memo = int(memo, 2)
+            memo = memo - int('0x2000', 16)
+            
+            memory[memo] = fourth
+            memory[memo+1] = third
+            memory[memo+2] = second
+            memory[memo+3] = first
+            
+        Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
         LRU[setIndex].append(remove_way)
         
@@ -642,7 +707,12 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
     global Hits 
     print("In Progress")
     updated = 0
-    setIndex = mem[16 - word_offset - set_offset:16 - word_offset]
+    mem = format(mem, '016b')
+    mem = mem[:16]
+    setIndex = mem[16-word_offset-set_offset:16-word_offset]
+    wordIndex = mem[16-word_offset:16]
+    setIndex = int(setIndex,2)
+    wordIndex = int(wordIndex,2)
     for o in range(num_ways):
         if(Valid[setIndex][o] == 0):
             Misses += 1
@@ -654,7 +724,7 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
             #Determine if negative
             if(byte[0] == '1'):
                 byte = int(byte,2)
-                byte = byte - (2 ^ 8)
+                byte = byte - (2^8)
             else:
                 byte = int(byte,2)
                 
@@ -670,15 +740,15 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
                 memory[mem] = byte
                 
             Valid[setIndex][o] = 1
-            Tag[setIndex][o] = mem[0:16 - set_offset - word_offset]
-            updated = 1
+            Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
+            updated = 1;
             LRU[setIndex].append(o)   
             
         if(updated == 1):
             break
         
         else:
-            if(Tag[setIndex][o] == mem[0:16 - set_offset - word_offset]):
+            if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lborsb == 0):
                     registers[rt] = Cache[setIndex][o]
                 elif(lborsb == 1):
@@ -704,11 +774,11 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
         #Determine if negative
         if(byte[0] == '1'):
             byte = int(byte,2)
-            byte = byte - (2 ^ 32)
+            byte = byte - (2^32)
         else:
             byte = int(byte,2)
         
-        Cache[setIndex][remove_way] = word
+        Cache[setIndex][remove_way] = byte
         if(lborsb == 0):
             registers[rt] = Cache[setIndex][remove_way]
         elif(lborsb == 1):
@@ -717,7 +787,7 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
             byte = temp[8:16]
             memory[mem] = byte
             
-        Tag[setIndex][remove_way] = mem[0:16 - set_offset - word_offset]
+        Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
         LRU[setIndex].append(remove_way)
         
@@ -731,15 +801,10 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
         global Misses 
         global Hits
         print
-        if(pc == 0):
-            LRU = [],[]
-            Valid = [0 for f in range(total_s)],[0 for g in range(num_ways)]
-            Tag = ["0" for f in range(total_s)],["0" for g in range(num_ways)]
-            Cache = [0 for f in range(total_s)],[0 for g in range(num_ways)]# Cache data
         
         print("Current instruction PC =",pc)
         
-        if(line[0:4] == "addi"): # ADDI/U
+        if(line[0:4] == "addi"): # ADDI/U 
             line = line.replace("addi","")
             if(line[0:1] == "u"):
                line = line.replace("u","")
@@ -747,117 +812,111 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             else:
                 op = '001000'
             line = line.split(",")
-            if(line[2][0:2] == "0x"):
-                n = 16
+            if(line[2][0:2]== "0x"):
+                n=16
             else:
-                n = 10
-            imm = int(line[2],n) if (int(line[2],n) >= 0 or op == '001000') else (65536 + int(line[2],n)) # will get the negative or positive inter value.  if unsigned and negative
-                                                                                                          # will get the unsigned value of th negative integer.
+                n=10
+            imm = int(line[2],n) if (int(line[2],n) >= 0 or op == '001000') else (65536 + int(line[2],n)) # will get the negative or positive inter value. if unsigned and negative will get the unsigned value of th negative integer.
             rs = registers[("$" + str(line[1]))] # reads the value from specified register
             rt = "$" + str(line[0]) # locate the register in which to write to
             instruction = "addi" if(op == '001000') else "addiu"
-            print(instruction , rt ,("$" + str(line[1])), imm if(n == 10) else hex(imm))
+            print (instruction , rt ,("$" + str(line[1])), imm if(n== 10) else hex(imm))
             result = rs + imm # does the addition operation
-            registers[rt] = result # writes the value to the register specified
-            print("result:" ,rt ,"=",  hex(result))
-            pc += 4# increments pc by 4
+            registers[rt]= result # writes the value to the register specified
+            print ("result:" ,rt ,"=",  hex(result))
+            pc += 4# increments pc by 4 
            # pcprint = hex(pc)
-                              # print(registers)# print all the registers and their values
-                              # (testing purposes to see what is happening)
+           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
-                               #print(pcprint)
+            #print(pcprint)
 
-        elif(line[0:3] == "lui"): #lui
+        elif(line[0:3] == "lui"): #lui 
             line = line.replace("lui","")
             line = line.split(",")
-            if(line[1][0:2] == "0x"):
-                n = 16
+            if(line[1][0:2]== "0x"):
+                n=16
             else:
-                n = 10
-            imm = int(line[1],n) if (int(line[1],n) >= 0) else (65536 + int(line[2],n)) # will get the negative or positive inter value.  if unsigned and negative
-                                                                                        # will get the unsigned value of th negative integer.
+                n=10
+            imm = int(line[1],n) if (int(line[1],n) >= 0) else (65536 + int(line[2],n)) # will get the negative or positive inter value. if unsigned and negative will get the unsigned value of th negative integer.
             rd = "$" + str(line[0]) # locate the register in which to write to
             instruction = "lui"
-            print(instruction , rd, imm if(n == 10) else hex(imm))
+            print (instruction , rd, imm if(n== 10) else hex(imm))
             imm = imm << 16
             registers[rd] = imm #Write upper imm to rd designation
-            print("result:",rd ,"=", hex(imm))
-            pc += 4# increments pc by 4
+            print ("result:",rd ,"=", hex(imm))
+            pc += 4# increments pc by 4 
             
         elif(line[0:2] == "lw"): # lw
             line = line.replace("lw","")
             line = line.replace(")","")
             line = line.replace("(",",")
             line = line.split(",")
-            if(line[1][0:2] == "0x"):
-                n = 16
+            if(line[1][0:2]== "0x"):
+                n=16
             else:
-                n = 10
+                n=10
             imm = int(line[1],n) if (int(line[1],n) >= 0) else (65536 + int(line[1],n))
             rs = int(registers[("$" + str(line[2]))])
             instruction = "lw"
-            print(instruction , ("$" + str(line[0])) , (str(imm) if(n == 10) else hex(imm)) + "(" + ("$" + str(line[2])) + ")")
+            print (instruction , ("$" + str(line[0])) , (str(imm) if(n== 10) else hex(imm))  + "("+("$" + str(line[2]))+")" )
             rt = "$" + str(line[0])
             mem = imm + rs
-            memo = mem
+            memo= mem
             mem = mem - int('0x2000', 16)
-            fourth = format(memory[mem],'08b') 
-            mem+=1
-            third = format(memory[mem],'08b')
-            mem+=1
-            sec = format(memory[mem],'08b') 
-            mem+=1
-            first = format(memory[mem],'08b')
-            word = first + sec + third + fourth
-            if word[0] == '1':
-                word = int(word,2)
-                word = word - 4294967296
-            else:
-                word = int(word,2)
+            
+            #fourth = format(memory[mem], '08b') 
+            #third= format(memory[mem+1], '08b')
+            #sec = format(memory[mem+2], '08b') 
+            #first= format(memory[mem+3], '08b')
+            #word=  first +sec+ third+ fourth
+            #if word[0] == '1':
+            #   word= int(word,2)
+            #    word = word - 4294967296
+            #else:
+            #    word= int(word,2)
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-            registers[("$" + str(line[0]))] = word
-            print("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
-            pc+= 4# increments pc by 4
+            #registers[("$" + str(line[0]))] = word
+            #print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
+            pc+= 4# increments pc by 4 
              
-           # pcprint= hex(pc)
-            #print(registers)# print all the registers and their values
-            #(testing purposes to see what is happening)
+           # pcprint=  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
-            #print(pcprint)
+            #print(pcprint)  
 
         elif(line[0:2] == "sw"): # sw
             line = line.replace("sw","")
             line = line.replace(")","")
             line = line.replace("(",",")
             line = line.split(",")
-            if(line[1][0:2] == "0x"):
-                n = 16
+            if(line[1][0:2]== "0x"):
+                n=16
             else:
-                n = 10
+                n=10
             imm = int(line[1],n) if (int(line[1],n) >= 0) else (65536 + int(line[1],n))
             rs = int(registers[("$" + str(line[2]))])
             rt = int(registers[("$" + str(line[0]))])# need int convert here
             if rt < 0:
-                maxnu = 4294967296
+                maxnu= 4294967296
                  #convert to binary
                 rt+= maxnu
                 #rt= int("{0:b}".format(rt))
             instruction = "sw"
-            print(instruction , ("$" + str(line[0])) , (str(imm) if(n == 10) else hex(imm)) + "(" + ("$" + str(line[2])) + ")")
+            print (instruction , ("$" + str(line[0])) , (str(imm) if(n== 10) else hex(imm))  + "("+("$" + str(line[2]))+")" )
             mem = imm + rs
-            memo = mem
+            memo= mem
             mem = mem - int('0x2000', 16)
-            rt = format(rt,'064b')
-            first = rt[32:40]
-            sec = rt[40:48]
-            third = rt[48:56]
-            rt = rt[56:64]
-            word = first + sec + third + rt
-            first = int(first,2)
-            sec = int(sec,2)
-            third = int(third,2)
-            rt = int(rt,2)
-            word = int(word,2)
+            rt= format(rt,'064b')
+            first= rt[32:40]
+            sec= rt[40:48]
+            third= rt[48:56]
+            rt= rt[56:64]
+            word=  first +sec+ third+ rt
+            first= int(first,2)
+            sec= int(sec,2)
+            third= int(third,2)
+            rt= int(rt,2)
+            word= int(word,2)
             print(" word_offset", word_offset)
             rt = "$" + str(line[0])
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
@@ -868,43 +927,41 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             memory[mem] = sec
             mem+=1
             memory[mem] = first
-            print("result memory: ", hex(memo) ,"=", hex(word))
-            pc+= 4# increments pc by 4
+            print ("result memory: ", hex(memo) ,"=", hex(word))
+            pc+= 4# increments pc by 4 
              
-           # pcprint= hex(pc)
-            #print(registers)# print all the registers and their values
-            #(testing purposes to see what is happening)
+           # pcprint=  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
-            #print(pcprint)
+            #print(pcprint)  
            
         elif(line[0:2] == "sb"): # sb
             line = line.replace("sb","")
             line = line.replace(")","")
             line = line.replace("(",",")
             line = line.split(",")
-            if(line[1][0:2] == "0x"):
-                n = 16
+            if(line[1][0:2]== "0x"):
+                n=16
             else:
-                n = 10
+                n=10
             imm = int(line[1],n) if (int(line[1],n) >= 0) else (65536 + int(line[1],n))
             rs = int(registers[("$" + str(line[2]))])
             rt = registers[("$" + str(line[0]))]
             instruction = "sb"
-            print(instruction , ("$" + str(line[0])) , (str(imm) if(n == 10) else hex(imm)) + "(" + ("$" + str(line[2])) + ")")
+            print (instruction , ("$" + str(line[0])) , (str(imm) if(n== 10) else hex(imm)) + "("+("$" + str(line[2]))+")" )
             mem = imm + rs
-            memo = mem
+            memo= mem
             mem = mem - int('0x2000', 16)
             Cache, LRU, Tag, Valid = cacheAnalysisByte(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-            rt = format(rt,'08b')
-            rt = int(rt,2)
+            rt= format(rt,'08b')
+            rt= int(rt,2)
             memory[mem] = rt
-            print("result memory:", hex(memo) ,"=", hex(rt))
-            pc+= 4# increments pc by 4
-           # pcprint= hex(pc)
-            #print(registers)# print all the registers and their values
-                              #(testing purposes to see what is happening)
-                              #print(pc)
-                              #print(pcprint)
+            print ("result memory:", hex(memo) ,"=", hex(rt))
+            pc+= 4# increments pc by 4 
+           # pcprint=  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
+            #print(pc)
+            #print(pcprint)  
        
         elif(line[0:2] == "lb"): # lbu
             line = line.replace("lb","")
@@ -916,15 +973,15 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             else:
                 op = '100000'
             line = line.split(",")
-            if(line[1][0:2] == "0x"):
-                n = 16
+            if(line[1][0:2]== "0x"):
+                n=16
             else:
-                n = 10
+                n=10
             imm = int(line[1],n) if (int(line[1],n) >= 0) else (65536 + int(line[1],n))
             rs = int(registers[("$" + str(line[2]))])
             rt = "$" + str(line[0])
             instruction = "lb" if(op == '100000') else "lbu"
-            print(instruction , rt , hex(imm) + "(" + ("$" + str(line[2])) + ")")
+            print (instruction , rt , hex(imm)+ "("+("$" + str(line[2]))+")" )
             mem = imm + rs
             mem = mem - int('0x2000', 16)
             Cache, LRU, Tag, Valid = cacheAnalysisByte(Valid, Cache, memo, rt, Tag, LRU, 0, set_offset, word_offset)
@@ -932,12 +989,11 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             temp3 = format(temp3, '08b')
             temp3 = int(temp3[:8],2)
             registers[rt] = temp3
-            print("result:",rt ,"=", hex(temp3))
-            pc += 4# increments pc by 4
+            print ("result:",rt ,"=", hex(temp3))
+            pc += 4# increments pc by 4 
              
            # pcprint = hex(pc)
-            #print(registers)# print all the registers and their values
-            #(testing purposes to see what is happening)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)
 
@@ -946,23 +1002,22 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             line = line.split(",")
             for i in range(len(labelName)):
                     if(labelName[i] == line[2]):
-                       lpos = int(labelIndex[i] - 1)
-                       label = labelName[i] 
-            temp2 = (pcAssign[lpos]) + 4
+                       lpos = int(labelIndex[i]-1)
+                       label= labelName[i] 
+            temp2= (pcAssign[lpos])+4
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[0]))]
             instruction = "bne" 
-            print(instruction , ("$" + str(line[0])) ,("$" + str(line[1])), str(line[2]))
+            print (instruction , ("$" + str(line[0])) ,("$" + str(line[1])), str(line[2]))
             if(rs != rt):
-                temp2 = temp2 - pc
+                temp2= temp2-pc
                 pc+=temp2
-                print("branch to" ,label)
+                print ("branch to" ,label)
             else:
                 pc+= 4
-                print("does not branch, go to next instructions")
-           # pcprint= hex(pc)
-            #print(registers)# print all the registers and their values
-            #(testing purposes to see what is happening)
+                print ("does not branch, go to next instructions" )
+           # pcprint=  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)
         elif(line[0:3] == "beq"): # bne
@@ -970,23 +1025,22 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             line = line.split(",")
             for i in range(len(labelName)):
                     if(labelName[i] == line[2]):
-                       lpos = int(labelIndex[i] - 1)
-                       label = labelName[i] 
-            temp2 = (pcAssign[lpos]) + 4
+                       lpos = int(labelIndex[i]-1)
+                       label= labelName[i] 
+            temp2= (pcAssign[lpos])+4
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[0]))]
             instruction = "bne" 
-            print(instruction , ("$" + str(line[0])) ,("$" + str(line[1])), str(line[2]))
+            print (instruction , ("$" + str(line[0])) ,("$" + str(line[1])), str(line[2]))
             if(rs == rt):
-                temp2 = temp2 - pc
+                temp2= temp2-pc
                 pc+=temp2
-                print("branch to" ,label)
+                print ("branch to" ,label)
             else:
                 pc+= 4
-                print("does not branch, go to next instructions")
-           # pcprint= hex(pc)
-            #print(registers)# print all the registers and their values
-            #(testing purposes to see what is happening)
+                print ("does not branch, go to next instructions" )
+           # pcprint=  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)
 
@@ -997,15 +1051,14 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             rt = registers[("$" + str(line[1]))]
             shamt = int(line[2])
             instruction = "srl"
-            print(instruction , rd ,("$" + str(line[1])), shamt)
+            print (instruction , rd ,("$" + str(line[1])), shamt)
             result = rt >> shamt 
-            registers[rd] = result
-            print("result:" , rd ,"=", hex(result))
-            pc+= 4# increments pc by 4
+            registers[rd]= result
+            print ("result:" , rd ,"=", hex(result))
+            pc+= 4# increments pc by 4 
              
-            #pcprint= hex(pc)
-            #print(registers)# print all the registers and their values
-            #(testing purposes to see what is happening)
+            #pcprint=  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)
         
@@ -1015,26 +1068,25 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             rd = "$" + str(line[0])
             rt = registers[("$" + str(line[1]))]
             if rt < 0:
-                u = 1
+                u=1
             else:
-                u = 0
-            rt = int(rt) if (int(rt) >= 0) else (4294967296 + int(rt))
+                u=0
+            rt= int(rt) if (int(rt) >= 0) else (4294967296 + int(rt))
             shamt = int(line[2])
             instruction = "sll" 
-            print(instruction , rd ,("$" + str(line[1])), shamt)
+            print (instruction , rd ,("$" + str(line[1])), shamt)
             result = rt << shamt # does the addition operation
             result = format(result,'064b')
             result = int(result[32:],2) 
-            print("result:" ,rd ,"=", hex(result))
-            result = result if(u != 1) else (result - 4294967296)
-            registers[rd] = result
+            print ("result:" ,rd ,"=", hex(result))
+            result = result if( u !=1) else (result-4294967296)
+            registers[rd]= result
            
-            pc += 4 # increments pc by 4
-           # pcprint = hex(pc)
-                              # print(registers)# print all the registers and their values
-                              # (testing purposes to see what is happening)
+            pc += 4 # increments pc by 4 
+           # pcprint =  hex(pc)
+           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
-                               #print(pcprint)
+            #print(pcprint)     
             
         
 
@@ -1042,31 +1094,30 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             line = line.replace("mult","")
             if(line[0:1] == "u"):
                line = line.replace("u","")
-               op = '011001'
+               op= '011001'
             else:
-                op = '011000'
+                op= '011000'
             line = line.split(",")
             rs = registers[("$" + str(line[0]))]	#First register
             rt = registers[("$" + str(line[1]))]	#Second register
-            rs = int(rs) if (int(rs) > 0 or op == '011000') else (65536 + int(rs))
-            rt = int(rt) if (int(rt) > 0 or op == '011000') else (65536 + int(rt))
+            rs= int(rs) if (int(rs) > 0 or op == '011000') else (65536 + int(rs))
+            rt= int(rt) if (int(rt) > 0 or op == '011000') else (65536 + int(rt))
             instruction = "mult" if(op == '011000') else "multu"
-            print(instruction , ("$" + str(line[0])) ,("$" + str(line[1])))
+            print (instruction , ("$" + str(line[0])) ,("$" + str(line[1])))
             temp = rs * rt	#Multiply
-            temp = format(temp,'064b')
-            hi = int(temp[:32],2)
-            lo = int(temp[32:],2)
+            temp= format(temp,'064b')
+            hi=  int(temp[:32],2)
+            lo=  int(temp[32:],2)
             registers["$hi"] = hi		#Shift high right 32
             registers["$lo"] = lo	#Shift low left 32
-            print("result:" ,"$hi" ,"=", hex(hi))
-            print("result:" ,"$lo" ,"=", hex(lo))
-            pc += 4# increments pc by 4
+            print ("result:" ,"$hi" ,"=", hex(hi))
+            print ("result:" ,"$lo" ,"=", hex(lo))
+            pc += 4# increments pc by 4 
              
-            #pcprint = hex(pc)
-            #print(registers)# print all the registers and their values
-            #(testing purposes to see what is happening)
+            #pcprint =  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
-            #print(pcprint)
+            #print(pcprint) 
 
         elif(line[0:4] == "mflo"): #MFLO
             line = line.replace("mflo","")
@@ -1075,14 +1126,13 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             rs = "$" + str(line[0])		#Register to write to
             result = registers["$lo"]
             instruction = "mflo" 
-            print(instruction , rs)
+            print (instruction , rs )
             registers[rs] = registers["$lo"]	#Write value to register
-            print("result:" ,rs ,"=", hex(result))
-            pc += 4# increments pc by 4
+            print ("result:" ,rs ,"=", hex(result))
+            pc += 4# increments pc by 4 
              
-           # pcprint = hex(pc)
-            #print(registers)# print all the registers and their values
-            #(testing purposes to see what is happening)
+           # pcprint =  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)
 
@@ -1093,14 +1143,13 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             rd = "$" + str(line[0])		#Register to write to
             result = registers["$hi"]
             instruction = "mfhi" 
-            print(instruction ,rd)
+            print (instruction ,rd )
             registers[rd] = registers["$hi"]	#Write value to register
 
-            print("result:" ,rd ,"=", hex(result))
-            pc += 4# increments pc by 4
+            print ("result:" ,rd ,"=", hex(result))
+            pc += 4# increments pc by 4 
              
-           # print(registers)# print all the registers and their values
-           # (testing purposes to see what is happening)
+           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)
 
@@ -1110,25 +1159,24 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                line = line.replace("u","")
                op = '001011'
             else:
-                op = '001010'
+                op= '001010'
             line = line.split(",")
-            if(line[2][0:2] == "0x"):
-                n = 16
+            if(line[2][0:2]== "0x"):
+                n=16
             else:
-                n = 10
-            imm = int(line[2],n) if (int(line[2],n) > 0 or op == '001010') else (65536 + int(line[2],n)) # will get the negative or positive inter value.  if unsigned and negative
-                                                                                                         # will get the unsigned value of th negative integer.
+                n=10
+            imm = int(line[2],n) if (int(line[2],n) > 0 or op == '001010') else (65536 + int(line[2],n)) # will get the negative or positive inter value. if unsigned and negative will get the unsigned value of th negative integer.
             rs = registers[("$" + str(line[1]))] # reads the value from specified register
             rt = "$" + str(line[0]) # locate the register in which to write to
             instruction = "slti" if(op == '001010') else "sltiu"
-            print(instruction , rt ,("$" + str(line[1])), imm if(n == 10) else hex(imm))
+            print (instruction , rt ,("$" + str(line[1])), imm if(n== 10) else hex(imm))
             if(rs < imm):
                 result = 1
             else:
                 result = 0
-            registers[rt] = result # writes the value to the register specified
-            print("result:" ,rt ,"=", hex(result))
-            pc += 4 # increments pc by 4
+            registers[rt]= result # writes the value to the register specified
+            print ("result:" ,rt ,"=", hex(result))
+            pc += 4 # increments pc by 4 
 
         elif(line[0:3] == "slt"): # SLT/U
             line = line.replace("slt","")
@@ -1136,32 +1184,30 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                line = line.replace("u","")
                op = '101011'
             else:
-                op = '101010'
+                op= '101010'
             line = line.split(",")
-            if(line[2][0:2] == "0x"):
-                n = 16
+            if(line[2][0:2]== "0x"):
+                n=16
             else:
-                n = 10
+                n=10
             rd = "$" + str(line[0])
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[2]))]
-            rs = int(rs) if (int(rs) >= 0 or op == '101010') else (4294967296 + int(rs))
-            rt = int(rt) if (int(rt) >= 0 or op == '101010') else (4294967296 + int(rt))
+            rs= int(rs) if (int(rs) >= 0 or op == '101010') else (4294967296+ int(rs))
+            rt= int(rt) if (int(rt) >= 0 or op == '101010') else (4294967296 + int(rt))
             instruction = "slt" if(op == '101010') else "sltu"
-            #print (instruction , rt ,("$" + str(line[1])), imm if(n== 10) else
-            #hex(imm))
+            #print (instruction , rt ,("$" + str(line[1])), imm if(n== 10) else hex(imm))
             if(rs < rt):
                 result = 1
             else:
                 result = 0
-            registers[rd] = result # writes the value to the register specified
-            print("result:" ,rt ,"=", hex(result))
-            pc += 4 # increments pc by 4
+            registers[rd]= result # writes the value to the register specified
+            print ("result:" ,rt ,"=", hex(result))
+            pc += 4 # increments pc by 4  
             #pcprint = hex(pc)
-                               #print(registers)# print all the registers and their values
-                               #(testing purposes to see what is happening)
-                               #print(pc)
-                               #print(pcprint)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
+            #print(pc)
+            #print(pcprint)
            
         elif(line[0:3] == "xor"): # XOR
             line = line.replace("xor","")
@@ -1170,25 +1216,24 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[2]))]
             if ((rt < 0) or (rs < 0)):
-                u = 1
+                u=1
             else:
-                u = 0
-            rs = int(rs) if (int(rs) >= 0) else (4294967296 + int(rs))
-            rt = int(rt) if (int(rt) >= 0) else (4294967296 + int(rt))
+                u=0
+            rs= int(rs) if (int(rs) >= 0 ) else (4294967296 + int(rs))
+            rt= int(rt) if (int(rt) >= 0 ) else (4294967296 + int(rt))
             instruction = "xor"
-            print(instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
+            print (instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
             result = rs ^ rt # does the addition operation
             result = format(result,'064b')
             result = int(result[32:],2)
-            print("result:" ,rd ,"=", hex(result))
-            result = result if(u != 1) else (result - 4294967296)
-            registers[rd] = result
+            print ("result:" ,rd ,"=", hex(result))
+            result = result if( u !=1) else (result-4294967296)
+            registers[rd]= result
             
-            pc+= 4 # increments pc by 4
+            pc+= 4 # increments pc by 4 
              
-           # pcprint = hex(pc)
-           # print(registers)# print all the registers and their values
-           # (testing purposes to see what is happening)
+           # pcprint =  hex(pc)
+           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
            # print(pc)
            # print(pcprint)
        
@@ -1203,22 +1248,22 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             rd = "$" + str(line[0])
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[2]))]
-            rs = int(rs) if (int(rs) >= 0 or op == '100000') else (4294967296 + int(rs))
-            rt = int(rt) if (int(rt) >= 0 or op == '100000') else (4294967296 + int(rt))
+            rs= int(rs) if (int(rs) >= 0 or op == '100000') else (4294967296 + int(rs))
+            rt= int(rt) if (int(rt) >= 0 or op == '100000') else (4294967296 + int(rt))
             instruction = "add"
-            print(instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
+            print (instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
             result = rs + rt # does the addition operation
             result = format(result,'064b')
-            if result[32] == '1':
+            if result[32]== '1':
                 result = int(result[32:],2)
-                print("result:" ,rd ,"=", hex(result))
-                result = result if(op == '100000') else (result - 4294967296)
+                print ("result:" ,rd ,"=", hex(result))
+                result = result if( op =='100000') else (result-4294967296)
             else :
                 result = int(result[32:],2)
-                print("result:" ,rd ,"=", hex(result))
-            registers[rd] = result
+                print ("result:" ,rd ,"=", hex(result))
+            registers[rd]= result
             
-            pc+= 4 # increments pc by 4
+            pc+= 4 # increments pc by 4 
 
         elif(line[0:3] == "sub"): # SUB
             line = line.replace("sub","")
@@ -1227,62 +1272,57 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[2]))]
             instruction = "sub"
-            print(instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
+            print (instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
             result = rs - rt # does the addition operation
-            registers[rd] = result
-            print("result:" ,rd ,"=", hex(result))
-            pc+= 4 # increments pc by 4
-           # pcprint = hex(pc)
-                             # print(registers)# print all the registers and their values
-                             # (testing purposes to see what is happening)
-                             # print(pc)
-                             # print(pcprint)
+            registers[rd]= result
+            print ("result:" ,rd ,"=", hex(result))
+            pc+= 4 # increments pc by 4  
+           # pcprint =  hex(pc)
+           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
+           # print(pc)
+           # print(pcprint)
         
         elif(line[0:3] == "ori"): # ori
             line = line.replace("ori","")
             line = line.split(",")
-            if(line[2][0:2] == "0x"):
-                n = 16
+            if(line[2][0:2]== "0x"):
+                n=16
             else:
-                n = 10
-            imm = int(line[2],n) if (int(line[2],n) > 0) else (65536 + int(line[2],n)) # will get the negative or positive inter value.  if unsigned and negative
-                                                                                       # will get the unsigned value of th negative integer.
+                n=10
+            imm = int(line[2],n) if (int(line[2],n) > 0) else (65536 + int(line[2],n)) # will get the negative or positive inter value. if unsigned and negative will get the unsigned value of th negative integer.
             rs = registers[("$" + str(line[1]))] # reads the value from specified register
             rt = "$" + str(line[0]) # locate the register in which to write to
             instruction = "ori"
-            print(instruction , rt ,("$" + str(line[1])), imm if(n == 10) else hex(imm))
+            print (instruction , rt ,("$" + str(line[1])), imm if(n== 10) else hex(imm))
             result = rs | imm # does the addition operation
-            registers[rt] = result # writes the value to the register specified
-            print("result:" ,rt ,"=", hex(result))
-            pc+= 4 # increments pc by 4
+            registers[rt]= result # writes the value to the register specified
+            print ("result:" ,rt ,"=", hex(result))
+            pc+= 4 # increments pc by 4 
              
-            #pcprint = hex(pc)
-            #print(registers)# print all the registers and their values
-            #(testing purposes to see what is happening)
+            #pcprint =  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)
             
         elif(line[0:4] == "andi"): # andi
             line = line.replace("andi","")
             line = line.split(",")
-            if(line[2][0:2] == "0x"):
-                n = 16
+            if(line[2][0:2]== "0x"):
+                n=16
             else:
-                n = 10
-            imm = int(line[2],n) if (int(line[2],n) >= 0) else (65536 + int(line[2],n)) # will get the negative or positive inter value.  if unsigned and negative
-                                                                                        # will get the unsigned value of th negative integer.
+                n=10
+            imm = int(line[2],n) if (int(line[2],n) >= 0) else (65536 + int(line[2],n)) # will get the negative or positive inter value. if unsigned and negative will get the unsigned value of th negative integer.
             rs = registers[("$" + str(line[1]))] # reads the value from specified register
             rt = "$" + str(line[0]) # locate the register in which to write to
             instruction = "andi" 
-            print(instruction , rt ,("$" + str(line[1])), imm if(n == 10) else hex(imm))
+            print (instruction , rt ,("$" + str(line[1])), imm if(n== 10) else hex(imm))
             result = rs & imm # does the addition operation
-            registers[rt] = result # writes the value to the register specified
-            print("result:" ,rt ,"=", hex(result))
-            pc+= 4 # increments pc by 4
+            registers[rt]= result # writes the value to the register specified
+            print ("result:" ,rt ,"=", hex(result))
+            pc+= 4 # increments pc by 4 
              
-           # pcprint = hex(pc)
-            #print(registers)# print all the registers and their values
-            #(testing purposes to see what is happening)
+           # pcprint =  hex(pc)
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
             #print(pc)
             #print(pcprint)
 
@@ -1290,7 +1330,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             line = line.replace("j","")
             line = line.split(",")
             instruction = "j" 
-            print(instruction , ("$" + str(line[0])))
+            print (instruction , ("$" + str(line[0])))
            
             # Since jump instruction has 2 options:
             # 1) jump to a label
@@ -1298,20 +1338,19 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             # We need to save the label destination and its target location
 
             if(line[0].isdigit()): # First,test to see if it's a label or a integer
-                pc = int(line[0])
+                pc= int(line[0])
                # hexstr= hex(int(hexstr[0], 2))
-               # f.write(hexstr + '\n')#str('000010') +
-               # str(format(int(line[0]),'026b')) + '\n'+ hexstr+ '\n')
+               # f.write(hexstr + '\n')#str('000010') + str(format(int(line[0]),'026b')) + '\n'+ hexstr+ '\n')
 
             else: # Jumping to label
                 for i in range(len(labelName)):
                     if(labelName[i] == line[0]):
-                        lpos = int(labelIndex[i] - 1)
+                        lpos = int(labelIndex[i]-1)
                         
-                pc = (pcAssign[lpos]) + 4
-                print("branch to" ,label)
+                pc= (pcAssign[lpos])+4
+                print ("branch to" ,label)
         print("Next instruction PC =",pc)
-        return pc, Cache, LRU, Tag, Valid
+        return pc, Cache, LRU, Tag, Valid;
                         #pc= format(int(labelIndex[i]),'026b')
                         #pc = int(pc,2)
                         #hexstr= hex(int(hexstr[0], 2))
@@ -1319,7 +1358,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
 
 def saveJumpLabel(asm,labelIndex, labelName):
     lineCount = 0
-    ppc = 0
+    ppc= 0
     for line in asm:
         line = line.replace(" ","")
         if":" in line:
@@ -1330,7 +1369,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
         if(line.count(":")):
             labelName.append(line[0:line.index(":")]) # append the label name
             labelIndex.append(lineCount) # append the label's index
-            asm[lineCount] = line[line.index(":") + 1:]
+            asm[lineCount] = line[line.index(":")+1:]
         lineCount += 1
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
@@ -1359,11 +1398,11 @@ def cache_def():
         num_ways = 4    #Number of ways
         total_s = 2   #Number of blocks/sets
     elif(cache_type == '5'):
-        blk_size = input("Please insert a block size that is a power of 2 :)
+        blk_size = input("Please insert a block size that is a power of 2: ")
         blk_size = int(blk_size)
-        num_ways = input("Please insert how many ways:)
+        num_ways = input("Please insert how many ways: ")
         num_ways = int(num_ways)
-        total_s = input("Please insert total sets that is a power of 2 :)
+        total_s = input("Please insert total sets that is a power of 2: ")
         total_s = int(total_s)
     else:
         print("Invalid cache type, exiting program")
@@ -1383,9 +1422,9 @@ def main():
     h = open("ProgramB_Testcase2","r")
     asm = h.readlines()
     instrs = []
-    FinalDIC = 0
-    FinalPC = 0
-    TotalCycles = 0
+    FinalDIC= 0
+    FinalPC= 0
+    TotalCycles= 0
     
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
@@ -1491,3 +1530,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    
+    
+
+
+
