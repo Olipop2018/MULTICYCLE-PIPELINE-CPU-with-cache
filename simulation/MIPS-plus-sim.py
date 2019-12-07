@@ -216,7 +216,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
         mem = ft["instr"]
 
 
-    if m["type"] == "i" and m["name"] != "sw" or "lw":
+    if (m["type"] == "i") and ((m["name"] != "sw") or (m["name"] != "lw")):
         if ex["reghold"]["rs"] == m["reghold"]["rt"]:
             aluoutm1 = 1
             if diagnostic == 1:
@@ -251,12 +251,12 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
                     print("ALUOutM ‐> srcBE")
                 stats["ALUOutM ‐> srcBE"] += 1
 
-    if de["name"] == "beq" or "bne":
-        if m["type"] == "r" and m["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+    if (de["name"] == "beq") or (de["name"] == "bne"):
+        if (m["type"] == "r") and ((m["reghold"]["rd"] == de["reghold"]["rs"]) or (m["reghold"]["rd"] ==  de["reghold"]["rt"])):
             if diagnostic == 1:
                 print("ALUOutM ‐> EqualD")
             stats["ALUOutM ‐> EqualD"] += 1
-        if m["type"] == "i" and m["name"] != "sw" or "sw" and m["reghold"]["rt"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
+        if (m["type"] == "i") and ((m["name"] != "sw") or (m["name"] !="lw")) and ((m["reghold"]["rd"] == de["reghold"]["rs"]) or (m["reghold"]["rd"] ==  de["reghold"]["rt"])):
             if diagnostic == 1:
                 print("ALUOutM ‐> EqualD")
             stats["ALUOutM ‐> EqualD"] += 1
@@ -299,7 +299,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
                 if diagnostic == 1:
                     print("ResultW ‐> SrcBE")
                 stats["ResultW ‐> SrcBE"] += 1
-    if de["name"] == "beq" or "bne":
+    if (de["name"] == "beq") or (de["name"] == "bne"):
         if wb["type"] == "r" and wb["reghold"]["rd"] == de["reghold"]["rs"] or de["reghold"]["rt"]:
             if diagnostic == 1:
                 print("ResultW ‐> EqualD")
