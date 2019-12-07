@@ -338,9 +338,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
     global ex   #Block size in Bytes
     global ft   #Number of ways
     global de 
-    global wb 
-   
-    
+    global wb  
         
     LRU = [['' for j in range(num_ways)] for i in range(total_s)]
     Valid = [[0 for j in range(num_ways)] for i in range(total_s)]
@@ -909,22 +907,17 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                word = word - 4294967296
             else:
                 word= int(word,2)
-            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-			registers[("$" + str(line[0]))] = word
-	  #      Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-						#registers[("$" + str(line[0]))] = word
-
-			
-			Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 0, set_offset, word_offset)
-			#registers[("$" + str(line[0]))] = word
-
-			print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
-			pc+= 4# increments pc by 4 
+            
+            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 0, set_offset, word_offset)
+            #registers[("$" + str(line[0]))] = word
+            print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
+            pc+= 4# increments pc by 4 
 
 		   # pcprint=  hex(pc)
-			#print(registers)# print all the registers and their values (testing purposes to see what is happening)
-			#print(pc)
-			#print(pcprint)  
+            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
+            #print(pc)
+            #print(pcprint)  
+
         elif(line[0:2] == "sw"): # sw
             line = line.replace("sw","")
             line = line.replace(")","")
@@ -960,16 +953,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             word= int(word,2)
             print(" word_offset", word_offset)
             rt = "$" + str(line[0])
-
-
-            # Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-            memory[mem] = fourth
-            mem+=1
-            memory[mem] = third
-            mem+=1
-            memory[mem] = sec
-            mem+=1
-            memory[mem] = first
 
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             #memory[mem] = fourth
