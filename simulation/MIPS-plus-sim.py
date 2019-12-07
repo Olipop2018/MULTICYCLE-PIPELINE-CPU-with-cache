@@ -907,7 +907,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                word = word - 4294967296
             else:
                 word= int(word,2)
-<<<<<<< HEAD
+
             
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 0, set_offset, word_offset)
             #registers[("$" + str(line[0]))] = word
@@ -919,7 +919,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             #print(pc)
             #print(pcprint)  
 
-=======
+
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             registers[("$" + str(line[0]))] = word
 	  #      Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
@@ -934,7 +934,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
 			#print(registers)# print all the registers and their values (testing purposes to see what is happening)
 			#print(pc)
 			#print(pcprint)  
->>>>>>> b2a71c2f9a461a93da2306a17309f71b9b0564c7
+
         elif(line[0:2] == "sw"): # sw
             line = line.replace("sw","")
             line = line.replace(")","")
