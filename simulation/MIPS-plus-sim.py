@@ -10,32 +10,32 @@ registers = {"$0": 0, "$8":0,"$9": 0, "$10":0,"$11": 0,
 
 
 ft = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
-            "rs": " ", "rd": " ", "rt": " ",
-
+            "reghold": {"rs": " ", "rd": " ", "rt": " "},
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
 
 de = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
 
 ex = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
 
 m = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
 
             }
 
 wb = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
             "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
+            "fowarding": {"instr": "", "reg": " ", "regval": 0}
             }
 
 stats = {"delay" : 0,
@@ -178,11 +178,6 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                 controlSignals["RegWrite"]+=1
 
 def pathsandprint(aluoutm1,aluoutm2, diagnostic):
-    print("ft ", ft)
-    print("de ", de)
-    print("ex ", ex)
-    print("m ", m)
-    print("wb ", wb)
 
     if ft["nop"] == 1:
         fetch = "bubble stall"
@@ -222,8 +217,6 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
 
 
     if (m["type"] == "i") and ((m["name"] != "sw") or (m["name"] != "lw")):
-
-
         if ex["reghold"]["rs"] == m["reghold"]["rt"]:
             aluoutm1 = 1
             if diagnostic == 1:
@@ -317,7 +310,6 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
                 print("ResultW ‐> EqualD")
             stats["ResultW ‐> EqualD"] += 1
     if diagnostic == 1:
-        print("\n")
         print("current instruction's in each cycle and forwarding paths\n")
         print("fetch: {} , decode: {}, execution: {} , memory: {} , write back: {}".format(fetch, decode,execution,mem,writeBack), sep='|')
       #  input("press enter to continue")
@@ -366,13 +358,13 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
         ft["instr"] = l
         ft["nop"] = 0
-        if "bne" in l:
-            ft["type"] = "b"
-        elif "bne" in l:
-            ft["type"] = "b"
+        if "w" in l:
+            ft["type"] = "i"
         elif "i" in l:
             ft["type"] = "i"
-        elif "w" in l:
+        elif "bne" in l:
+            ft["type"] = "b"
+        elif "beq" in l:
             ft["type"] = "b"
         else:
             ft["type"] = "r"
@@ -386,30 +378,18 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
         tmp.pop(0)
         regs = tmp
         if (ft["name"] == "lw") or (ft["name"] == "sw"):
-            print("case 1")
-            print(ft)
             ft["reghold"]["rt"] = regs[0]
             ft["reghold"]["rs"] = regs[2]
-            print(ft)
-        elif (ft["type"] == "i"):
-            print("case 2")
-            print(ft)
+        elif (ft["type"] == "i") and ((ft["name"] != "bne") or (ft["name"] !="beq")):
             ft["reghold"]["rt"] = regs[0]
             ft["reghold"]["rs"] = regs[1]
-            print(ft)
         elif ft["type"] == "r":
-            print("case 3")
-            print(ft)
             ft["reghold"]["rd"] = regs[0]
             ft["reghold"]["rs"] = regs[1]
             ft["reghold"]["rt"] = regs[2]
-            print(ft)
         else:
-            print("case 4")
-            print(ft)
             ft["reghold"]["rs"] = regs[0]
             ft["reghold"]["rt"] = regs[1]
-            print(ft)
 
         ft["branch"] = 0
         ft["stall"] = 0
@@ -1592,7 +1572,7 @@ def main():
         stat= stat.replace(",","\n")
         #print(registers)
         print(" "+ stat)
-        print(stats, sep= '|')
+        #print(stats, sep= '|')
     #print("Hit Rate = ", Hits/(Hits/Misses))
     #print("Instruction Count: ",FinalDIC)
 
