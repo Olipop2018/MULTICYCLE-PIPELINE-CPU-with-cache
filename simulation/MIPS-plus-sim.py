@@ -640,6 +640,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     word = int32_to_uint32(word)
                 
                 registers[rt] = word
+                print(registers[rt])
                 
             elif(lworsw == 1):
                 temp = registers[rt]
@@ -670,7 +671,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 memory[memo+1] = third
                 memory[memo+2] = second
                 memory[memo+3] = first
-                print(memory[memo])
+                print(memory[memo+3],memory[memo+2], memory[memo+1], memory[memo])
                 print(Cache)
                 
             Valid[setIndex][o] = 1
@@ -685,10 +686,10 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
         else:
             if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lworsw == 0):
-                    first = Cache[wordIndex][setIndex][o]
-                    second = Cache[wordIndex+1][setIndex][o]
-                    third = Cache[wordIndex+2][setIndex][o]
-                    fourth = Cache[wordIndex+3][setIndex][o]
+                    first = Cache[setIndex][wordIndex][o]
+                    second = Cache[setIndex][wordIndex+1][o]
+                    third = Cache[setIndex][wordIndex+2][o]
+                    fourth = Cache[setIndex][wordIndex+3][o]
                     
                     fourth = format(fourth, '08b') 
                     third = format(third, '08b')
@@ -730,7 +731,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     memory[memo+1] = third
                     memory[memo+2] = second
                     memory[memo+3] = first
-                    print(memory[memo])
+                    print(memory[memo+3],memory[memo+2], memory[memo+1], memory[memo])
                     print(Cache)
                         
                 Hits += 1
@@ -816,7 +817,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             memory[memo+1] = third
             memory[memo+2] = second
             memory[memo+3] = first
-            print(memory[memo])
+            print(memory[memo+3],memory[memo+2], memory[memo+1], memory[memo])
             print(Cache)
             
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
@@ -909,7 +910,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             else:
                 word= int(word,2)
             
-            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+            Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 0, set_offset, word_offset)
             #registers[("$" + str(line[0]))] = word
             print ("result memory to Reg: ", ("$" + str(line[0])) ,"=", hex(word))
             pc+= 4# increments pc by 4 
