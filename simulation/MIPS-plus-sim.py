@@ -565,7 +565,7 @@ def pathsandprint(aluoutm1,aluoutm2):
 
         if (de["name"] == "beq") or (de["name"] == "bne"):
             if wb["type"] == "r" and ((wb["reghold"]["rd"] == de["reghold"]["rs"]) or (wb["reghold"]["rd"] == de["reghold"]["rt"])):
-<<<<<<< HEAD
+
                 if (ex["reghold"]["rt"] != de["reghold"]["rs"]) and (ex["reghold"]["rt"] != de["reghold"]["rt"]) and de["nop"] == 0:
                     jolly = 1
                     if diagnostic == 1:
@@ -583,7 +583,7 @@ def pathsandprint(aluoutm1,aluoutm2):
                         print("ResultW ‐> EqualD")
                         jolly = 1
                     stats["ResultW ‐> EqualD"] += 1
-=======
+
                 if diagnostic == 1:
                     print("ResultW ‐> EqualD")
                 stats["ResultW ‐> EqualD"] += 1
@@ -591,7 +591,7 @@ def pathsandprint(aluoutm1,aluoutm2):
                 if diagnostic == 1:
                     print("ResultW ‐> EqualD")
                 stats["ResultW ‐> EqualD"] += 1
->>>>>>> 6df888a6d99bb494c0b86ed6a19ca898c5e5a74e
+
     if diagnostic == 1:
         print("end of fowarding paths taken\n")
 
@@ -1983,11 +1983,9 @@ def main():
     global stats
     
    # f = open("mc.txt","w+")
-<<<<<<< HEAD
+
     h = open("ProgramA_Testcase1","r")
-=======
-    h = open("ProgramA_Testcase2","r")
->>>>>>> 435e8e256179cf334e8c1fcb9ce443a3060c901f
+
     asm = h.readlines()
     instrs = []
     
