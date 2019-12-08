@@ -1471,7 +1471,7 @@ def main():
        
     print("\n")
     cpu = 5
-    while cpu != "0" and cpu != "1":
+    while cpu != "0" or cpu != "1":
         print("pipe line or multi cycle?")
         print("enter 1 for multicycle")
         print("0 for pipe line")
