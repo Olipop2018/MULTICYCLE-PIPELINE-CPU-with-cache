@@ -59,11 +59,13 @@ global total_s
 global total_blk
 global Misses 
 global Hits
+global diagnosis
 cache_type = 0
 blk_size = 0    #Block size in Bytes
 num_ways = 0    #Number of ways
 total_s = 0   #Number of blocks/sets
 total_blk = 0
+diagnosis = 0
 Misses = 0
 Hits = 0
 
@@ -89,6 +91,7 @@ def multiCycle(instrs, DIC, pc, cycles, diagnosis, set_offset, word_offset):
     global total_blk
     global Misses 
     global Hits
+    global diagnosis
     print
         
     LRU = [['' for j in range(num_ways)] for i in range(total_s)]
@@ -102,8 +105,8 @@ def multiCycle(instrs, DIC, pc, cycles, diagnosis, set_offset, word_offset):
             print("Dynamic Instruction Count: ",DIC)
             return DIC, pc, cycles;
         DIC+=1
-        if DIC == 173:
-            print("pause")
+  #      if DIC == 173:
+   #         print("pause")
         #cycle1
         l = instrs[int(pc/4)]
         cycle1+=1
@@ -336,6 +339,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
     global total_blk
     global Misses 
     global Hits
+    global diagnosis
     global m
     global ex   #Block size in Bytes
     global ft   #Number of ways
@@ -589,6 +593,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     global total_blk
     global Misses 
     global Hits
+    global diagnosis
     print("In Progress")
     updated = 0
     mem = format(mem, '016b')
@@ -828,6 +833,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
         global total_blk
         global Misses 
         global Hits
+        global diagnosis
         print
         
         print("Current instruction PC =",pc)
@@ -1393,6 +1399,7 @@ def cache_def():
     global total_blk
     global Misses 
     global Hits
+    global diagnosis
     if(cache_type == '1'):
         blk_size = 16    #Block size in Bytes
         num_ways = 1    #Number of ways
@@ -1435,6 +1442,7 @@ def main():
     global total_blk
     global Misses 
     global Hits
+    global diagnosis
     
    # f = open("mc.txt","w+")
     h = open("ProgramB_Testcase2","r")
@@ -1446,6 +1454,9 @@ def main():
     
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
+        
+    print("Please enter if you want to enter diagnosis mode")
+    diagnosis = input("0 - For No, 1 - For Yes: ")
 
     print("Please enter the type of cache that you want")
     print("1. a directly-mapped cache, block size of 16 Bytes, a total of 4 blocks (b=16; N=1; S=4)")
