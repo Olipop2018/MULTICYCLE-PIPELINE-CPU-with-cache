@@ -52,6 +52,7 @@ stats = {"delay" : 0,
 
 
 controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, "c4":0, "c5":0}
+controlSignals2 = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0}
 global cache_type
 global blk_size   #Block size in Bytes
 global num_ways   #Number of ways
@@ -1587,7 +1588,7 @@ def main():
         print("Would you like to exit the program?(y/n)")
         con = input()
         if con == "y":
-            break
+            exit()
 
 
 if __name__ == "__main__":
