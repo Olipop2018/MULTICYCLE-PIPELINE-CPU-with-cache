@@ -743,7 +743,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
             aluoutm1 = 0
             aluoutm2 = 0
             pathsandprint(aluoutm1, aluoutm2)
-            #random
+           
             ft["nop"] = 3
         if (int(pc / 4) >= len(instrs)):
             cycles += 1
@@ -800,6 +800,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
             aluoutm1 = 0
             aluoutm2 = 0
             pathsandprint(aluoutm1, aluoutm2)
+
 
 def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
     print("you are in cache analysis")
