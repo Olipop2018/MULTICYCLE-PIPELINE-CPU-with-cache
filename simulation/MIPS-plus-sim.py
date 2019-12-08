@@ -1489,13 +1489,6 @@ def main():
             if cpu != "1" or cpu != "0":
                 print("\ninvalid option please enter one of the following options\n")
         print("\n")
-        diagnosis = 5
-        while diagnosis != "0" or diagnosis != "1":
-            print("press 1 to execute diagnosis mode")
-            print("enter 0 for regular")
-            diagnosis = input()
-            if diagnosis != "1" or diagnosis != "0":
-                print("\ninvalid option please enter one of the following options")
 
     if cpu == "1":
         FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
@@ -1586,8 +1579,8 @@ def main():
         print("Hit Rate = ", Hits/(Hits+Misses), "%")
         print("Would you like to exit the program?(y/n)")
         con = input()
-        if con == "y":
-            break
+        #if con == "y":
+        #    break
 
 
 if __name__ == "__main__":
