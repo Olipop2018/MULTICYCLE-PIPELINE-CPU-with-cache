@@ -630,9 +630,9 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
         ft["branch"] = 0
         ft["stall"] = 0
-        if "lw" in l:
+        if de["name"] == "lw" and (de["rt"] == ft["rs"] or de["rt"] == ft["rt"]):
             ft["stall"] = 1
-        elif "beq" in l:
+        if "beq" in l:
             if currentpc + 4 != pc:
                 ft["branch"] = 1
             else:
@@ -1171,7 +1171,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             rt = "$" + str(line[0])
 
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-            print ("result memory: ", hex(memo) ,"=", hex(word))
+            #print ("result memory: ", hex(memo) ,"=", hex(word))
             pc+= 4# increments pc by 4 
             
            
