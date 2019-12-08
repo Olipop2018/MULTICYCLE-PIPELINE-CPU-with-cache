@@ -437,7 +437,7 @@ def pathsandprint(aluoutm1,aluoutm2):
     global wb
     global stats
     global diagnosis
-    diagnostic = diagnosis
+    diagnostic = int(diagnosis)
     print("\n")
     print("the following are any fowarding paths taken")
 
@@ -933,6 +933,20 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             updated = 1;
             LRU[setIndex].remove('')
             LRU[setIndex].append(o)
+            if(diagnosis == "1"):
+                if(lworsw == 0):
+                    print("Address of load word: ", mem)
+                else:
+                    print("Address of store word ", mem)
+                print("Word offset: ", mem[16-word_offset:16])
+                print("Set Index: ", mem[16-word_offset-set_offset:16-word_offset])
+                print("Cache missed due to valid bit")
+                print("Tag: ", Tag[setIndex][o])
+                print(Cache)
+                print("--------------------------------------------------------")
+                print(Valid)
+                print("--------------------------------------------------------")
+                input("Press anykey to continue")
             
         if(updated == 1):
             break
@@ -992,6 +1006,18 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 updated = 1
                 LRU[setIndex].remove(o)
                 LRU[setIndex].append(o)
+                if(diagnosis == "1"):
+                    if(lworsw == 0):
+                        print("Address of load word: ", mem)
+                    else:
+                        print("Address of store word ", mem)
+                    print("Word offset: ", mem[16-word_offset:16])
+                    print("Set Index: ", mem[16-word_offset-set_offset:16-word_offset])
+                    print("Cache Hit")
+                    print("Tag: ", Tag[setIndex][o])
+                    print(Cache)
+                    input("Press anykey to continue")
+                    
         if(updated == 1):
             break
         
@@ -1070,6 +1096,20 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
         LRU[setIndex].append(remove_way)
+        if(diagnosis == "1"):
+            if(lworsw == 0):
+                print("Address of load word: ", mem)
+            else:
+                print("Address of store word ", mem)
+            print("Word offset: ", mem[16-word_offset:16])
+            print("Set Index: ", mem[16-word_offset-set_offset:16-word_offset])
+            print("Cache missed due to tag mismatch and way full")
+            print("Tag: ", Tag[setIndex][o])
+            print(Cache)
+            print("------------------------------------------------------------")
+            print(LRU)
+            print("------------------------------------------------------------")
+            input("Press anykey to continue")
         
     return(Cache, LRU, Tag, Valid)	
 
@@ -1749,16 +1789,14 @@ def main():
         cache_def()
         word_offset = int(math.log(blk_size,2)) 
         set_offset = int(math.log(total_s,2))   
-        print("\n")
+        #print("\n")
         cpu = 5
         while cpu != "0" and cpu != "1":
-            print("pipe line or multi cycle?")
-            print("enter 1 for multicycle")
-            print("0 for pipe line")
+            print("Would you like to run Pipeline(enter: 0) or Multi-cycle (enter: 1) CPU?")
             cpu = input()
             if cpu != "1" and cpu != "0":
                 print("\ninvalid option please enter one of the following options\n")
-        print("\n")
+        #print("\n")
 
         if cpu == "1":
             FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
@@ -1785,7 +1823,7 @@ def main():
                 print("\n")
             #print("memory", hex(mem)+": 0x"+ word )
     
-        print("all register values:")
+        print("All register values:")
         proregister= str(registers)
         proregister= proregister.replace("'","")
         proregister= proregister.replace("{","")
@@ -1846,7 +1884,7 @@ def main():
             stat= stat.replace(",","\n")
             print(" "+ stat)
             #print(stats, sep= '|')
-        print("Hit Rate = ", Hits/(Hits+Misses), "%")
+        print("Hit Rate = ", Hits/(Hits+Misses))
         print("Would you like to exit the program?(y/n)")
         con = input()
         if con == "y":
