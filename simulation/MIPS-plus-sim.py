@@ -102,7 +102,7 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
             print("Dynamic Instruction Count: ",DIC)
             return DIC, pc, cycles;
         DIC+=1
-        if DIC == 174:
+        if DIC == 173:
             print("pause")
         #cycle1
         l = instrs[int(pc/4)]
