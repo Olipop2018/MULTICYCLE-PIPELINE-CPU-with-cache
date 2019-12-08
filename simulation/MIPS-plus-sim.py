@@ -127,7 +127,7 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
         cycles= cycle1+ cycle2+ cycle3+ cycle4+ cycle5
         if (int(pc/4) >= len(instrs)):
             print("Dynamic Instruction Count: ",DIC)
-            return DIC, pc, cycles;
+            return DIC, pc, cycles, Cache;
         DIC+=1
   #      if DIC == 173:
    #         print("pause")
@@ -565,6 +565,7 @@ def pathsandprint(aluoutm1,aluoutm2):
 
         if (de["name"] == "beq") or (de["name"] == "bne"):
             if wb["type"] == "r" and ((wb["reghold"]["rd"] == de["reghold"]["rs"]) or (wb["reghold"]["rd"] == de["reghold"]["rt"])):
+<<<<<<< HEAD
                 if (ex["reghold"]["rt"] != de["reghold"]["rs"]) and (ex["reghold"]["rt"] != de["reghold"]["rt"]) and de["nop"] == 0:
                     jolly = 1
                     if diagnostic == 1:
@@ -582,6 +583,15 @@ def pathsandprint(aluoutm1,aluoutm2):
                         print("ResultW ‐> EqualD")
                         jolly = 1
                     stats["ResultW ‐> EqualD"] += 1
+=======
+                if diagnostic == 1:
+                    print("ResultW ‐> EqualD")
+                stats["ResultW ‐> EqualD"] += 1
+            if wb["type"] == "i" and wb["name"] != "sw" and ((wb["reghold"]["rt"] == de["reghold"]["rs"]) or (wb["reghold"]["rt"] ==de["reghold"]["rt"])):
+                if diagnostic == 1:
+                    print("ResultW ‐> EqualD")
+                stats["ResultW ‐> EqualD"] += 1
+>>>>>>> 6df888a6d99bb494c0b86ed6a19ca898c5e5a74e
     if diagnostic == 1:
         print("end of fowarding paths taken\n")
 
@@ -619,7 +629,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
         currentpc = pc
         if (int(pc / 4) >= len(instrs)):
             print("Dynamic Instruction Count: ", DIC)
-            return DIC, pc, cycles;
+            return DIC, pc, cycles, Cache;
         DIC += 1
         l = instrs[int(pc / 4)]
         cycles += 1
@@ -848,7 +858,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
             pathsandprint(aluoutm1, aluoutm2)
 
 def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
-    print("you are in cache analysis")
+
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -857,7 +867,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     global Misses 
     global Hits
     global diagnosis
-    print("In Progress")
+
     updated = 0
     mem = format(mem, '016b')
     mem = mem[:16]
@@ -959,7 +969,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 print("--------------------------------------------------------")
                 print(Valid)
                 print("--------------------------------------------------------")
-                input("Press anykey to continue")
+                input("Press enter to continue")
             
         if(updated == 1):
             break
@@ -1029,7 +1039,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     print("Cache Hit")
                     print("Tag: ", Tag[setIndex][o])
                     print(Cache)
-                    input("Press anykey to continue")
+                    input("Press enter to continue")
                     
         if(updated == 1):
             break
@@ -1122,7 +1132,228 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             print("------------------------------------------------------------")
             print(LRU)
             print("------------------------------------------------------------")
-            input("Press anykey to continue")
+            input("Press enter to continue")
+        
+    return(Cache, LRU, Tag, Valid)	
+    
+def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_offset):
+    global cache_type
+    global blk_size   #Block size in Bytes
+    global num_ways   #Number of ways
+    global total_s 
+    global total_blk
+    global Misses 
+    global Hits
+    global diagnosis
+    
+    updated = 0
+    mem = format(mem, '016b')
+    mem = mem[:16]
+    setIndex = mem[16-word_offset-set_offset:16-word_offset]
+    wordIndex = mem[16-word_offset:16]
+    if(setIndex == ''):
+        setIndex = '0'
+        
+    setIndex = int(setIndex,2)
+    wordIndex = int(wordIndex,2)
+    
+    for o in range(num_ways):
+        if(Valid[setIndex][o] == 0):
+            Misses += 1
+            memo = mem
+            me = mem[0:16-word_offset]
+            
+            for a in range(word_offset):
+                me = me + '0'
+            
+            memo = int(memo, 2)
+            memo = memo - int('0x2000', 16)
+            me = int(me,2)
+            me = me - int('0x2000', 16)
+            
+            for u in range(blk_size):
+                #Grab byte
+                byte = format(memory[me+u], '08b')
+                byte = int(byte,2)
+                Cache[setIndex][u][o] = byte
+            
+            #Load word or store word
+            if(lborsb == 0):
+                first = Cache[setIndex][wordIndex][o]
+                
+                first = format(first, '08b') 
+                
+                if first[0] == '1':
+                    first = int(first,2)
+                    first = first - 2^8
+                else:
+                    first = int(first,2)
+                
+                registers[rt] = first
+                
+            elif(lborsb == 1):
+                temp = registers[rt]
+                if(temp < 0):
+                    temp = int32_to_uint32(temp)
+                
+                temp = format(temp,'064b')
+                
+                fourth= temp[56:64]
+                
+                fourth= int(fourth,2)
+                
+                Cache[setIndex][wordIndex][o] = fourth
+                
+                memo = mem
+                memo = int(memo, 2)
+                memo = memo - int('0x2000', 16)
+                
+                memory[memo] = fourth
+                
+            Valid[setIndex][o] = 1
+            Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
+            updated = 1;
+            LRU[setIndex].remove('')
+            LRU[setIndex].append(o)
+            if(diagnosis == "1"):
+                if(lborsb == 0):
+                    print("Address of load byte: ", mem)
+                else:
+                    print("Address of store byte ", mem)
+                print("Word offset: ", mem[16-word_offset:16])
+                print("Set Index: ", mem[16-word_offset-set_offset:16-word_offset])
+                print("Cache missed due to valid bit")
+                print("Tag: ", Tag[setIndex][o])
+                print(Cache)
+                print("--------------------------------------------------------")
+                print(Valid)
+                print("--------------------------------------------------------")
+                input("Press enter to continue")
+            
+        if(updated == 1):
+            break
+        else:
+            if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
+                if(lborsb == 0):
+                    first = Cache[setIndex][wordIndex][o]
+                    
+                    first = format(first, '08b')
+                
+                    if first[0] == '1':
+                        first = int(first,2)
+                        first = first - 2^8
+                    else:
+                        first = int(first,2)
+                
+                    registers[rt] = first
+                elif(lborsb == 1):
+                    temp = registers[rt]
+                    if(temp < 0):
+                        temp = int32_to_uint32(temp)
+                
+                    temp = format(temp,'064b')
+                
+                    fourth= temp[56:64]
+                
+                    fourth= int(fourth,2)
+                
+                    Cache[setIndex][wordIndex][o] = fourth
+                
+                    memo = mem
+                    memo = int(memo, 2)
+                    memo = memo - int('0x2000', 16)
+                    
+                    memory[memo] = fourth
+                        
+                Hits += 1
+                updated = 1
+                LRU[setIndex].remove(o)
+                LRU[setIndex].append(o)
+                if(diagnosis == "1"):
+                    if(lborsb == 0):
+                        print("Address of load byte: ", mem)
+                    else:
+                        print("Address of store byte ", mem)
+                    print("Word offset: ", mem[16-word_offset:16])
+                    print("Set Index: ", mem[16-word_offset-set_offset:16-word_offset])
+                    print("Cache Hit")
+                    print("Tag: ", Tag[setIndex][o])
+                    print(Cache)
+                    input("Press enter to continue")
+                    
+        if(updated == 1):
+            break
+        
+    if(updated == 0):
+        Misses += 1
+        remove_way = LRU[setIndex][0]
+        
+        memo = mem
+        me = mem[0:16-word_offset]
+        
+        for a in range(word_offset):
+            me = me + '0'
+            
+        memo = int(memo, 2)
+        memo = memo - int('0x2000', 16)
+        me = int(me,2)
+        me = me - int('0x2000', 16)
+            
+        for u in range(blk_size):
+            #Grab byte
+            byte = format(memory[me+u], '08b')
+            byte = int(byte,2)
+            Cache[setIndex][u][remove_way] = byte
+        
+        if(lborsb == 0):
+            first = Cache[setIndex][wordIndex][remove_way]
+            
+            first = format(first, '08b')
+            
+            if first[0] == '1':
+                first = int(first,2)
+                first = first - 4294967296
+            else:
+                first = int(first,2)
+            
+            registers[rt] = first
+        elif(lborsb == 1):
+            temp = registers[rt]
+            
+            if(temp < 0):
+                temp = int32_to_uint32(temp)
+                
+            temp = format(temp,'064b')
+                
+            fourth= temp[56:64]
+
+            fourth= int(fourth,2)
+                
+            Cache[setIndex][wordIndex][o] = fourth
+            
+            memo = mem
+            memo = int(memo, 2)
+            memo = memo - int('0x2000', 16)
+            
+            memory[memo] = fourth
+            
+        Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
+        LRU[setIndex].remove(remove_way)
+        LRU[setIndex].append(remove_way)
+        if(diagnosis == "1"):
+            if(lborsb == 0):
+                print("Address of load byte: ", mem)
+            else:
+                print("Address of store byte ", mem)
+            print("Word offset: ", mem[16-word_offset:16])
+            print("Set Index: ", mem[16-word_offset-set_offset:16-word_offset])
+            print("Cache missed due to tag mismatch and way full")
+            print("Tag: ", Tag[setIndex][o])
+            print(Cache)
+            print("------------------------------------------------------------")
+            print(LRU)
+            print("------------------------------------------------------------")
+            input("Press enter to continue")
         
     return(Cache, LRU, Tag, Valid)	
 
@@ -1278,13 +1509,9 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             Cache, LRU, Tag, Valid = cacheAnalysisByte(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
             rt= format(rt,'08b')
             rt= int(rt,2)
-            memory[mem] = rt
+            #memory[mem] = rt
             print ("result memory:", hex(memo) ,"=", hex(rt))
             pc+= 4# increments pc by 4 
-           # pcprint=  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)  
        
         elif(line[0:2] == "lb"): # lbu
             line = line.replace("lb","")
@@ -1311,7 +1538,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             temp3 = int(memory[mem]) if (int(memory[mem]) > 0 or op == '100000') else (65536 + int(memory[mem]))
             temp3 = format(temp3, '08b')
             temp3 = int(temp3[:8],2)
-            registers[rt] = temp3
+            #registers[rt] = temp3
             print ("result:",rt ,"=", hex(temp3))
             pc += 4# increments pc by 4 
              
@@ -1812,9 +2039,9 @@ def main():
         #print("\n")
 
         if cpu == "1":
-            FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+            FinalDIC, FinalPC, TotalCycles, Cache = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
         else:
-            FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+            FinalDIC, FinalPC, TotalCycles, Cache = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
 
         print("All memory contents:")
         for k in range(0,1024):
@@ -1897,7 +2124,8 @@ def main():
             stat= stat.replace(",","\n")
             print(" "+ stat)
             #print(stats, sep= '|')
-        print("Hit Rate = ", Hits/(Hits+Misses))
+        print("Cache Hit Rate:" +  str(100*(float(Hits)/float(Hits + Misses))), "%")
+        print("Cache Data: ", Cache)
         print("Would you like to exit the program?(y/n)")
         con = input()
         if con == "y":
