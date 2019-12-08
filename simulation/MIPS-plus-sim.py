@@ -674,7 +674,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             cycles += 1
             wb = m.copy()
@@ -684,7 +684,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
         if ex["stall"] == 1:
             cycles += 1
@@ -697,7 +697,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
         if ft["branch"] == 1:
             cycles += 1
@@ -745,7 +745,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             ft["nop"] = 3
         if (int(pc / 4) >= len(instrs)):
@@ -762,7 +762,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             cycles += 1
             wb = m.copy()
@@ -775,7 +775,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             cycles += 1
             wb = m.copy()
@@ -786,7 +786,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             cycles += 1
             wb = m.copy()
@@ -795,14 +795,14 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             cycles += 1
             wb["nop"] = 2
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
 def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
     print("you are in cache analysis")
@@ -1708,10 +1708,6 @@ def main():
             print("enter 1 for multicycle")
             print("0 for pipe line")
             cpu = input()
-<<<<<<< HEAD
-=======
-            print(cpu)
->>>>>>> bae05721ca94e6fb564f514c0db0094fb89c4ea5
             if cpu != "1" and cpu != "0":
                 print("\ninvalid option please enter one of the following options\n")
         print("\n")
