@@ -77,7 +77,7 @@ def int32_to_uint32(i):
     print(i)
     return ctypes.c_uint32(i).value
 
-def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
+def multiCycle(instrs, DIC, pc, cycles, diagnosis, set_offset, word_offset):
     cycle1=0
     cycle2=0
     cycle3=0
@@ -1480,15 +1480,29 @@ def main():
         line = line.replace("zero","0") # assembly can also use both $zero and $0
         instrs.append(line)
        
-    print(pcAssign)
-    print("pipe line or multi cycle")
-    print("1 is multicycle")
-    print("anything else for pipe line")
-    cpu = input("Enter a choice: ")
+    print("\n")
+    cpu = 5
+    while cpu != "0" and cpu != "1":
+        print("pipe line or multi cycle?")
+        print("enter 1 for multicycle")
+        print("0 for pipe line")
+        cpu = input()
+        print(cpu)
+        if cpu != "1" or cpu != "0":
+            print("\ninvalid option please enter one of the following options\n")
+    print("\n")
+    diagnosis = 5
+    while diagnosis != "0" or diagnosis != "1":
+        print("press 1 to execute diagnosis mode")
+        print("enter 0 for regular")
+        diagnosis = input()
+        if diagnosis != "1" or diagnosis != "0":
+            print("\ninvalid option please enter one of the following options")
+
     if cpu == "1":
-        FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+        FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, diagnosis, set_offset, word_offset)
     else:
-        FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, 1, set_offset, word_offset)
+        FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, diagnosis, set_offset, word_offset)
 
     print("All memory contents:")
     for k in range(0,1024):
