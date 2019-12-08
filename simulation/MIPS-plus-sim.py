@@ -405,10 +405,7 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                     printSignals2= printSignals2.replace(":","=")
                     print(" "+ printSignals2)
 
-def pathsandprint(aluoutm1,aluoutm2):
-    global diagnosis
-    diagnostic = diagnosis
-
+def pathsandprint(aluoutm1,aluoutm2, diagnostic):
     print("\n")
     print("the following are any fowarding paths taken")
 
@@ -661,7 +658,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
         aluoutm1 = 0
         aluoutm2 = 0
-        pathsandprint(aluoutm1, aluoutm2)
+        pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
         if ex["stall"] == 2:
             cycles += 1
@@ -674,7 +671,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             cycles += 1
             wb = m.copy()
@@ -684,7 +681,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
         if ex["stall"] == 1:
             cycles += 1
@@ -697,7 +694,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
         if ft["branch"] == 1:
             cycles += 1
@@ -745,7 +742,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             ft["nop"] = 3
         if (int(pc / 4) >= len(instrs)):
@@ -762,7 +759,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             cycles += 1
             wb = m.copy()
@@ -775,7 +772,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             cycles += 1
             wb = m.copy()
@@ -786,7 +783,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             cycles += 1
             wb = m.copy()
@@ -795,14 +792,14 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             cycles += 1
             wb["nop"] = 2
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
 def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
     print("you are in cache analysis")
@@ -1684,12 +1681,10 @@ def main():
         line = line.replace(" ","")
         line = line.replace("zero","0") # assembly can also use both $zero and $0
         instrs.append(line)
-    while True:       
+    while True: 
+        
         print("Please enter if you want to enter diagnosis mode")
         diagnosis = input("0 - For No, 1 - For Yes: ")
-        if diagnosis == "1":
-            diagnosis = 1
-            print("you are here")
         
         print("Please enter the type of cache that you want")
         print("1. a directly-mapped cache, block size of 16 Bytes, a total of 4 blocks (b=16; N=1; S=4)")
@@ -1708,6 +1703,7 @@ def main():
             print("enter 1 for multicycle")
             print("0 for pipe line")
             cpu = input()
+            print(cpu)
             if cpu != "1" and cpu != "0":
                 print("\ninvalid option please enter one of the following options\n")
         print("\n")
