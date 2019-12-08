@@ -632,7 +632,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 third = format(third, '08b')
                 second = format(second, '08b') 
                 first = format(first, '08b')
-                word = first + second + third + fourth
+                word = fourth + third + second + first
                 
                 if word[0] == '1':
                     word= int(word,2)
@@ -695,7 +695,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     third = format(third, '08b')
                     second = format(second, '08b') 
                     first = format(first, '08b')
-                    word = first + second + third + fourth
+                    word = fourth + third + second + first
                 
                     if word[0] == '1':
                         word= int(word,2)
@@ -773,7 +773,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             third = format(third, '08b')
             second = format(second, '08b') 
             first = format(first, '08b')
-            word = first + second + third + fourth
+            word = fourth + third + second + first
             
             if word[0] == '1':
                 word= int(word,2)
@@ -947,7 +947,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             rt = "$" + str(line[0])
 
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-
             print ("result memory: ", hex(memo) ,"=", hex(word))
             pc+= 4# increments pc by 4 
             
