@@ -682,12 +682,10 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
             updated = 1;
             LRU[setIndex].remove('')
-            LRU[setIndex].append(o) 
+            LRU[setIndex].append(o)
             
         if(updated == 1):
             break
-        
-        
         else:
             if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lworsw == 0):
