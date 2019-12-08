@@ -1463,7 +1463,7 @@ def main():
     print("5. a custom cache b = ?, N = ?, S = ?")
     cache_type = input("Enter a choice: ")
     cache_def()
-    word_offset = int(math.log(blk_size,2)) 
+    word_offset = int(math.log(blk_size,2))
     set_offset = int(math.log(total_s,2))
 
 
