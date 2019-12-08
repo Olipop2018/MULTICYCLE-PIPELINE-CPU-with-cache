@@ -428,6 +428,10 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                     printSignals2= printSignals2.replace(":","=")
                     print(" "+ printSignals2)
 
+def pathsandprint(aluoutm1,aluoutm2):
+    global diagnosis
+    diagnostic = diagnosis
+
 def pathsandprint(aluoutm1,aluoutm2, diagnostic):
     global ft
     global de
@@ -655,9 +659,9 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
         ft["branch"] = 0
         ft["stall"] = 0
-        if "lw" in l:
+        if de["name"] == "lw" and (de["reghold"]["rt"] == ft["reghold"]["rs"] or de["reghold"]["rt"] == ft["reghold"]["rt"]):
             ft["stall"] = 1
-        elif "beq" in l:
+        if "beq" in l:
             if currentpc + 4 != pc:
                 ft["branch"] = 1
             else:
@@ -686,7 +690,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
         aluoutm1 = 0
         aluoutm2 = 0
-        pathsandprint(aluoutm1, aluoutm2, diagnosis)
+        pathsandprint(aluoutm1, aluoutm2)
 
         if ex["stall"] == 2:
             cycles += 1
@@ -699,7 +703,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             cycles += 1
             wb = m.copy()
@@ -709,7 +713,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
         if ex["stall"] == 1:
             cycles += 1
@@ -722,7 +726,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
         if ft["branch"] == 1:
             cycles += 1
@@ -771,7 +775,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
             aluoutm1 = 0
             aluoutm2 = 0
             pathsandprint(aluoutm1, aluoutm2)
-           
+            #random
             ft["nop"] = 3
         if (int(pc / 4) >= len(instrs)):
             cycles += 1
@@ -828,7 +832,6 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
             aluoutm1 = 0
             aluoutm2 = 0
             pathsandprint(aluoutm1, aluoutm2)
-
 
 def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
     print("you are in cache analysis")
@@ -1197,7 +1200,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             rt = "$" + str(line[0])
 
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
-            print ("result memory: ", hex(memo) ,"=", hex(word))
+            #print ("result memory: ", hex(memo) ,"=", hex(word))
             pc+= 4# increments pc by 4 
             
            
