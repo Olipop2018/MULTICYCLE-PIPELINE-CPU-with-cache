@@ -1791,12 +1791,11 @@ def main():
         print("\n")
         cpu = 5
         while cpu != "0" and cpu != "1":
-            print("pipe line or multi cycle?")
-            print("enter 1 for multicycle")
-            print("0 for pipe line")
+            print("Pipeline or Multi-Cycle")
+            print("0 for Pipeline, 1 Multi-Cycle")
             cpu = input()
             if cpu != "1" and cpu != "0":
-                print("\ninvalid option please enter one of the following options\n")
+                print("\nInvalid option please enter one of the following options\n")
         print("\n")
 
         if cpu == "1":
@@ -1824,7 +1823,7 @@ def main():
                 print("\n")
             #print("memory", hex(mem)+": 0x"+ word )
     
-        print("all register values:")
+        print("All register values:")
         proregister= str(registers)
         proregister= proregister.replace("'","")
         proregister= proregister.replace("{","")
