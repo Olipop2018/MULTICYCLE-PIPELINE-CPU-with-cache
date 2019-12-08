@@ -1181,12 +1181,7 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
                 first = Cache[setIndex][wordIndex][o]
                 
                 first = format(first, '08b') 
-                
-                if first[0] == '1':
-                    first = int(first,2)
-                    first = first - 2^8
-                else:
-                    first = int(first,2)
+                first = int(first,2)
                 
                 registers[rt] = first
                 
@@ -1194,7 +1189,6 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
                 temp = registers[rt]
                 if(temp < 0):
                     temp = int32_to_uint32(temp)
-                
                 temp = format(temp,'064b')
                 
                 fourth= temp[56:64]
@@ -1237,19 +1231,13 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
                     first = Cache[setIndex][wordIndex][o]
                     
                     first = format(first, '08b')
-                
-                    if first[0] == '1':
-                        first = int(first,2)
-                        first = first - 2^8
-                    else:
-                        first = int(first,2)
+                    first = int(first,2)
                 
                     registers[rt] = first
                 elif(lborsb == 1):
                     temp = registers[rt]
                     if(temp < 0):
                         temp = int32_to_uint32(temp)
-                
                     temp = format(temp,'064b')
                 
                     fourth= temp[56:64]
@@ -1279,6 +1267,7 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
                     print("Tag: ", Tag[setIndex][o])
                     print(Cache)
                     input("Press enter to continue")
+                    print(memory[memo])
                     
         if(updated == 1):
             break
@@ -1308,12 +1297,7 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
             first = Cache[setIndex][wordIndex][remove_way]
             
             first = format(first, '08b')
-            
-            if first[0] == '1':
-                first = int(first,2)
-                first = first - 4294967296
-            else:
-                first = int(first,2)
+            first = int(first,2)
             
             registers[rt] = first
         elif(lborsb == 1):
@@ -1321,14 +1305,13 @@ def cacheAnalysisByte(Valid, Cache, mem, rt, Tag, LRU, lborsb, set_offset, word_
             
             if(temp < 0):
                 temp = int32_to_uint32(temp)
-                
             temp = format(temp,'064b')
                 
             fourth= temp[56:64]
 
             fourth= int(fourth,2)
                 
-            Cache[setIndex][wordIndex][o] = fourth
+            Cache[setIndex][wordIndex][remove_way] = fourth
             
             memo = mem
             memo = int(memo, 2)
@@ -1480,7 +1463,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             third= int(third,2)
             fourth= int(fourth,2)
             word= int(word,2)
-            print(" word_offset", word_offset)
             rt = "$" + str(line[0])
 
             Cache, LRU, Tag, Valid = cacheAnalysis(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
@@ -1505,10 +1487,11 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             mem = imm + rs
             memo= mem
             mem = mem - int('0x2000', 16)
-            Cache, LRU, Tag, Valid = cacheAnalysisByte(Valid, Cache, memo, rt, Tag, LRU, 1, set_offset, word_offset)
+            rt_t = "$" + str(line[0])
+            Cache, LRU, Tag, Valid = cacheAnalysisByte(Valid, Cache, memo, rt_t, Tag, LRU, 1, set_offset, word_offset)
             rt= format(rt,'08b')
             rt= int(rt,2)
-            #memory[mem] = rt
+            memory[mem] = rt
             print ("result memory:", hex(memo) ,"=", hex(rt))
             pc+= 4# increments pc by 4 
        
@@ -1532,6 +1515,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             instruction = "lb" if(op == '100000') else "lbu"
             print (instruction , rt , hex(imm)+ "("+("$" + str(line[2]))+")" )
             mem = imm + rs
+            memo = mem
             mem = mem - int('0x2000', 16)
             Cache, LRU, Tag, Valid = cacheAnalysisByte(Valid, Cache, memo, rt, Tag, LRU, 0, set_offset, word_offset)
             temp3 = int(memory[mem]) if (int(memory[mem]) > 0 or op == '100000') else (65536 + int(memory[mem]))
@@ -1540,11 +1524,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             #registers[rt] = temp3
             print ("result:",rt ,"=", hex(temp3))
             pc += 4# increments pc by 4 
-             
-           # pcprint = hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)
 
         elif(line[0:3] == "bne"): # bne
             line = line.replace("bne","")
@@ -1553,7 +1532,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                     if(labelName[i] == line[2]):
                        lpos = int(labelIndex[i]-1)
                        label= labelName[i] 
-            temp2= (pcAssign[lpos])+4
+            temp2 = (pcAssign[lpos])+4
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[0]))]
             instruction = "bne" 
@@ -1563,27 +1542,28 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                 pc+=temp2
                 print ("branch to" ,label)
             else:
-                pc+= 4
+                pc += 4
                 print ("does not branch, go to next instructions" )
 
         elif(line[0:3] == "beq"): # beq
             line = line.replace("beq","")
             line = line.split(",")
+            print(len(labelName))
             for i in range(len(labelName)):
                     if(labelName[i] == line[2]):
-                       lpos = int(labelIndex[i]-1)
-                       label= labelName[i] 
-            temp2= (pcAssign[lpos])+4
+                        lpos = int(labelIndex[i]-1)
+                        label= labelName[i]
+            temp2 = (pcAssign[lpos])+4
             rs = registers[("$" + str(line[1]))]
             rt = registers[("$" + str(line[0]))]
             instruction = "bne" 
             print (instruction , ("$" + str(line[0])) ,("$" + str(line[1])), str(line[2]))
             if(rs == rt):
-                temp2= temp2-pc
-                pc+=temp2
+                temp2 = temp2-pc
+                pc += temp2
                 print ("branch to" ,label)
             else:
-                pc+= 4
+                pc += 4
                 print ("does not branch, go to next instructions" )
 
         elif(line[0:3] == "srl"): # SRL
@@ -1599,10 +1579,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             print ("result:" , rd ,"=", hex(result))
             pc+= 4# increments pc by 4 
              
-            #pcprint=  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)
         
         elif(line[0:3] == "sll"): # SLL
             line = line.replace("sll","")
@@ -1624,13 +1600,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             result = result if( u !=1) else (result-4294967296)
             registers[rd]= result
            
-            pc += 4 # increments pc by 4 
-           # pcprint =  hex(pc)
-           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)     
-            
-        
+            pc += 4 # increments pc by 4                     
 
         elif(line[0:4] == "mult"): # MULT/U
             line = line.replace("mult","")
@@ -1655,11 +1625,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             print ("result:" ,"$hi" ,"=", hex(hi))
             print ("result:" ,"$lo" ,"=", hex(lo))
             pc += 4# increments pc by 4 
-             
-            #pcprint =  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint) 
 
         elif(line[0:4] == "mflo"): #MFLO
             line = line.replace("mflo","")
@@ -1672,11 +1637,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             registers[rs] = registers["$lo"]	#Write value to register
             print ("result:" ,rs ,"=", hex(result))
             pc += 4# increments pc by 4 
-             
-           # pcprint =  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)
 
         elif(line[0:4] == "mfhi"): #MFHI
             line = line.replace("mfhi","")
@@ -1690,10 +1650,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
 
             print ("result:" ,rd ,"=", hex(result))
             pc += 4# increments pc by 4 
-             
-           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)
 
         elif(line[0:4] == "slti"): # SLTI/U
             line = line.replace("slti","")
@@ -1773,11 +1729,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             registers[rd]= result
             
             pc+= 4 # increments pc by 4 
-             
-           # pcprint =  hex(pc)
-           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
-           # print(pc)
-           # print(pcprint)
        
         elif(line[0:3] == "add"): # ADD/U
             line = line.replace("add","")
@@ -1819,10 +1770,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             registers[rd]= result
             print ("result:" ,rd ,"=", hex(result))
             pc+= 4 # increments pc by 4  
-           # pcprint =  hex(pc)
-           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
-           # print(pc)
-           # print(pcprint)
         
         elif(line[0:3] == "ori"): # ori
             line = line.replace("ori","")
@@ -1840,11 +1787,6 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             registers[rt]= result # writes the value to the register specified
             print ("result:" ,rt ,"=", hex(result))
             pc+= 4 # increments pc by 4 
-             
-            #pcprint =  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)
             
         elif(line[0:4] == "andi"): # andi
             line = line.replace("andi","")
@@ -1862,17 +1804,35 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             registers[rt]= result # writes the value to the register specified
             print ("result:" ,rt ,"=", hex(result))
             pc+= 4 # increments pc by 4 
-             
-           # pcprint =  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)
+            
+        elif(line[0:3] == "and"): # and
+            line = line.replace("and","")
+            line = line.split(",")
+            rd = "$" + str(line[0])
+            rs = registers[("$" + str(line[1]))]
+            rt = registers[("$" + str(line[2]))]
+            if ((rt < 0) or (rs < 0)):
+                u=1
+            else:
+                u=0
+            rs= int(rs) if (int(rs) >= 0 ) else (4294967296 + int(rs))
+            rt= int(rt) if (int(rt) >= 0 ) else (4294967296 + int(rt))
+            instruction = "and"
+            print (instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
+            result = rs & rt # does the addition operation
+            result = format(result,'064b')
+            result = int(result[32:],2)
+            print ("result:" ,rd ,"=", hex(result))
+            result = result if( u !=1) else (result-4294967296)
+            registers[rd]= result
+            
+            pc+= 4 # increments pc by 4 
 
         elif(line[0:1] == "j"): # JUMP
             line = line.replace("j","")
             line = line.split(",")
             instruction = "j" 
-            print (instruction , ("$" + str(line[0])))
+            print (instruction , (str(line[0])))
            
             # Since jump instruction has 2 options:
             # 1) jump to a label
@@ -1888,10 +1848,8 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
                 for i in range(len(labelName)):
                     if(labelName[i] == line[0]):
                         lpos = int(labelIndex[i]-1)
-                        
-                pc= (pcAssign[lpos])+4
-                print ("branch to" ,label)
-        print("Next instruction PC =",pc)
+
+                pc = (pcAssign[lpos])+4
         return pc, Cache, LRU, Tag, Valid;
                         #pc= format(int(labelIndex[i]),'026b')
                         #pc = int(pc,2)
@@ -1983,7 +1941,7 @@ def main():
     
    # f = open("mc.txt","w+")
 
-    h = open("ProgramA_Testcase1","r")
+    h = open("Hash_asm.txt","r")
 
     asm = h.readlines()
     instrs = []
@@ -2011,7 +1969,6 @@ def main():
         controlSignals = controls.copy()
         controlSignals2 = controls2.copy()
         ft = defaultpipe.copy()
-        #ft = defaultpipe.copy()
         de = defaultpipe.copy()
         ex = defaultpipe.copy()
         m = defaultpipe.copy()

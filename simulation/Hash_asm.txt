@@ -1,4 +1,4 @@
-addi $8, $0, 0xe3
+addi $8, $0, 0x66
 addi $9, $0, 1
 addi $18, $0, 5
 addi $21, $0, 0x100
@@ -9,16 +9,15 @@ addi $16, $0, 0
 addi $10, $8, 0
 addi $11, $9, 0
 loop_multi:
-multi:
-beq $12, $13, exit	
+beq $12, $13, exit
 and $14, $11, $15
-sll $15, $15, 1	
+sll $15, $15, 1
 beq $14, $0, odd
 add $16, $16, $10
 odd:
 sll $10, $10, 1
 addi $12, $12, 1
-j multi
+j loop_multi
 exit:
 sll $17, $16, 24
 srl $17, $17, 24
@@ -30,8 +29,8 @@ addi $15, $15, 1
 addi $16, $0, 0
 addi $17, $0, 0
 addi $18, $18, -1
-bne $18, $0, loop_multi	
-addi $18, $0, 5	
+bne $18, $0, loop_multi
+addi $18, $0, 5
 sll $20, $11, 28
 srl $20, $20, 28
 srl $11, $11, 4
@@ -39,7 +38,7 @@ xor $11, $11, $20
 sll $20, $11, 30
 srl $20, $20, 30
 srl $11, $11, 2
-xor $11, $11, $20	
+xor $11, $11, $20
 lbu $22, 0x2000($11)
 addi $22, $22, 1
 sb $22, 0x2000($11)
