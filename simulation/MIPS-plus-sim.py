@@ -127,7 +127,7 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
         cycles= cycle1+ cycle2+ cycle3+ cycle4+ cycle5
         if (int(pc/4) >= len(instrs)):
             print("Dynamic Instruction Count: ",DIC)
-            return DIC, pc, cycles;
+            return DIC, pc, cycles, Cache;
         DIC+=1
   #      if DIC == 173:
    #         print("pause")
@@ -605,7 +605,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
         currentpc = pc
         if (int(pc / 4) >= len(instrs)):
             print("Dynamic Instruction Count: ", DIC)
-            return DIC, pc, cycles;
+            return DIC, pc, cycles, Cache;
         DIC += 1
         l = instrs[int(pc / 4)]
         cycles += 1
@@ -2015,9 +2015,9 @@ def main():
         #print("\n")
 
         if cpu == "1":
-            FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+            FinalDIC, FinalPC, TotalCycles, Cache = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
         else:
-            FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+            FinalDIC, FinalPC, TotalCycles, Cache = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
 
         print("All memory contents:")
         for k in range(0,1024):
@@ -2101,6 +2101,7 @@ def main():
             print(" "+ stat)
             #print(stats, sep= '|')
         print("Cache Hit Rate:" +  str(100*(float(Hits)/float(Hits + Misses))), "%")
+        print("Cache Data: ", Cache)
         print("Would you like to exit the program?(y/n)")
         con = input()
         if con == "y":
