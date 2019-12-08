@@ -1479,16 +1479,7 @@ def main():
         word_offset = int(math.log(blk_size,2)) 
         set_offset = int(math.log(total_s,2))   
         print("\n")
-        cpu = 5
-        while cpu != "0" and cpu != "1":
-            print("pipe line or multi cycle?")
-            print("enter 1 for multicycle")
-            print("0 for pipe line")
-            cpu = input()
-            print(cpu)
-            if cpu != "1" or cpu != "0":
-                print("\ninvalid option please enter one of the following options\n")
-        print("\n")
+        cpu = "1"
 
     if cpu == "1":
         FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
@@ -1579,8 +1570,8 @@ def main():
         print("Hit Rate = ", Hits/(Hits+Misses), "%")
         print("Would you like to exit the program?(y/n)")
         con = input()
-        #if con == "y":
-        #    break
+        if con == "y":
+            break
 
 
 if __name__ == "__main__":
