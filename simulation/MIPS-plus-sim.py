@@ -570,7 +570,6 @@ def pathsandprint(aluoutm1,aluoutm2):
             if wb["type"] == "i" and wb["name"] != "sw" and ((wb["reghold"]["rt"] == de["reghold"]["rs"]) or (wb["reghold"]["rt"] ==de["reghold"]["rt"])):
                 if diagnostic == 1:
                     print("ResultW ‐> EqualD")
-                    input("press enter to continue")
                 stats["ResultW ‐> EqualD"] += 1
     if diagnostic == 1:
         print("end of fowarding paths taken\n")
@@ -2101,7 +2100,7 @@ def main():
             stat= stat.replace(",","\n")
             print(" "+ stat)
             #print(stats, sep= '|')
-        print("Hit Rate = ", Hits/(Hits+Misses))
+        print("Cache Hit Rate:" +  str(100*(float(Hits)/float(Hits + Misses))), "%")
         print("Would you like to exit the program?(y/n)")
         con = input()
         if con == "y":
