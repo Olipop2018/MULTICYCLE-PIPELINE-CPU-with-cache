@@ -630,7 +630,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
         ft["branch"] = 0
         ft["stall"] = 0
-        if de["name"] == "lw" and (de["rt"] == ft["rs"] or de["rt"] == ft["rt"]):
+        if de["name"] == "lw" and (de["reghold"]["rt"] == ft["reghold"]["rs"] or de["reghold"]["rt"] == ft["reghold"]["rt"]):
             ft["stall"] = 1
         if "beq" in l:
             if currentpc + 4 != pc:
