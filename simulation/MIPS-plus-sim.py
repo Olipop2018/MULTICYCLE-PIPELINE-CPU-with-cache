@@ -1497,7 +1497,7 @@ def main():
             print("\ninvalid option please enter one of the following options")
 
     if cpu == "1":
-        FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, diagnosis, set_offset, word_offset)
+        FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
     else:
         FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
 
