@@ -57,8 +57,7 @@ global wb
 #            "reghold": {"rs": " ", "rd": " ", "rt": " "},
 
 #            }
-
-stats = {"delay" : 0,
+defaultstats= {"delay" : 0,
         "flush" : 0,
         "ALUOutM -> srcAE" : 0,
         "ALUOutM ‐> srcBE" : 0,
@@ -68,7 +67,8 @@ stats = {"delay" : 0,
         "ResultW ‐> SrcBE" : 0,
         "ResultW ‐> WriteDataE" : 0,
         "ResultW ‐> EqualD" : 0}
-
+global stats 
+stats = defaultstats.copy()
 global controlSignals
 global controlSignals2
 controls= {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, "c4":0, "c5":0}
@@ -136,7 +136,7 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
         cycle1+=1
         controlSignals["AluScrA"]+=0
         controlSignals["AluScrB"]='01'
-        
+        controlSignals2["PC"]= pc
         controlSignals2["AluScrA"]=0
         controlSignals2["AluScrB"]='01'
         controlSignals2["RegDst"]= 3
@@ -428,16 +428,16 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                     printSignals2= printSignals2.replace(":","=")
                     print(" "+ printSignals2)
 
-def pathsandprint(aluoutm1,aluoutm2):
-    global diagnosis
-    diagnostic = diagnosis
 
-def pathsandprint(aluoutm1,aluoutm2, diagnostic):
+def pathsandprint(aluoutm1,aluoutm2):
     global ft
     global de
     global ex
     global m
     global wb
+    global stats
+    global diagnosis
+    diagnostic = diagnosis
     print("\n")
     print("the following are any fowarding paths taken")
 
@@ -594,7 +594,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
     global ft   #Number of ways
     global de 
     global wb  
-        
+    global stats    
     LRU = [['' for j in range(num_ways)] for i in range(total_s)]
     Valid = [[0 for j in range(num_ways)] for i in range(total_s)]
     Tag = [["0" for j in range(num_ways)] for i in range(total_s)]
@@ -1699,7 +1699,7 @@ def main():
     global ex
     global m
     global wb
-
+    global stats
     
    # f = open("mc.txt","w+")
     h = open("ProgramB_Testcase2","r")
@@ -1734,6 +1734,7 @@ def main():
         ex = defaultpipe.copy()
         m = defaultpipe.copy()
         wb = defaultpipe.copy()
+        stats = defaultstats.copy()
         print("Please enter if you want to enter diagnosis mode")
         diagnosis = input("0 - For No, 1 - For Yes: ")
         
