@@ -455,7 +455,7 @@ def pathsandprint(aluoutm1,aluoutm2):
                 if diagnostic == 1:
                     print("ALUOutM -> srcAE")
                 stats["ALUOutM -> srcAE"] += 1
-            if ft["reghold"]["rt"] == de["reghold"]["rt"]:
+            if ex["reghold"]["rt"] == m["reghold"]["rt"]:
                 if ex["name"] == "sw":
                     aluoutm2 = 1
                     if diagnostic == 1:
