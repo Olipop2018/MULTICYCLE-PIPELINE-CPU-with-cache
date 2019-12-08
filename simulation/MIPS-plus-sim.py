@@ -1983,7 +1983,11 @@ def main():
     global stats
     
    # f = open("mc.txt","w+")
+<<<<<<< HEAD
     h = open("ProgramA_Testcase1","r")
+=======
+    h = open("ProgramA_Testcase2","r")
+>>>>>>> 435e8e256179cf334e8c1fcb9ce443a3060c901f
     asm = h.readlines()
     instrs = []
     
@@ -2063,12 +2067,12 @@ def main():
                 print("\n")
             #print("memory", hex(mem)+": 0x"+ word )
     
-        print("All register values:")
+        print("\nAll register values:")
         proregister= str(registers)
         proregister= proregister.replace("'","")
         proregister= proregister.replace("{","")
         proregister= proregister.replace("}","")
-        proregister= proregister.replace(",",";")
+        proregister= proregister.replace(",","\n")
         #print(registers)
         print(proregister)
         print("Final PC =",FinalPC)
