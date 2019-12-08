@@ -932,6 +932,20 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             updated = 1;
             LRU[setIndex].remove('')
             LRU[setIndex].append(o)
+            if(diagnosis == "1"):
+                if(lworsw == 0):
+                    print("Address of load word: ", mem)
+                else:
+                    print("Address of store word ", mem)
+                print("Word offset: ", mem[16-word_offset:16])
+                print("Set Index: ", mem[16-word_offset-set_offset:16-word_offset])
+                print("Cache missed due to valid bit")
+                print("Tag: ", Tag[setIndex][o])
+                print(Cache)
+                print("--------------------------------------------------------")
+                print(Valid)
+                print("--------------------------------------------------------")
+                input("Press anykey to continue")
             
         if(updated == 1):
             break
@@ -991,6 +1005,18 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 updated = 1
                 LRU[setIndex].remove(o)
                 LRU[setIndex].append(o)
+                if(diagnosis == "1"):
+                    if(lworsw == 0):
+                        print("Address of load word: ", mem)
+                    else:
+                        print("Address of store word ", mem)
+                    print("Word offset: ", mem[16-word_offset:16])
+                    print("Set Index: ", mem[16-word_offset-set_offset:16-word_offset])
+                    print("Cache Hit")
+                    print("Tag: ", Tag[setIndex][o])
+                    print(Cache)
+                    input("Press anykey to continue")
+                    
         if(updated == 1):
             break
         
@@ -1069,6 +1095,20 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
         Tag[setIndex][remove_way] = mem[0:16-set_offset-word_offset]
         LRU[setIndex].remove(remove_way)
         LRU[setIndex].append(remove_way)
+        if(diagnosis == "1"):
+            if(lworsw == 0):
+                print("Address of load word: ", mem)
+            else:
+                print("Address of store word ", mem)
+            print("Word offset: ", mem[16-word_offset:16])
+            print("Set Index: ", mem[16-word_offset-set_offset:16-word_offset])
+            print("Cache missed due to tag mismatch and way full")
+            print("Tag: ", Tag[setIndex][o])
+            print(Cache)
+            print("------------------------------------------------------------")
+            print(LRU)
+            print("------------------------------------------------------------")
+            input("Press anykey to continue")
         
     return(Cache, LRU, Tag, Valid)	
 
@@ -1844,7 +1884,7 @@ def main():
             stat= stat.replace(",","\n")
             print(" "+ stat)
             #print(stats, sep= '|')
-        print("Hit Rate = ", Hits/(Hits+Misses), "%")
+        print("Hit Rate = ", Hits/(Hits+Misses))
         print("Would you like to exit the program?(y/n)")
         con = input()
         if con == "y":
