@@ -52,6 +52,7 @@ stats = {"delay" : 0,
 
 
 controlSignals = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "c3":0, "c4":0, "c5":0}
+controlSignals2 = {"AluScrA":0,"AluScrB":'01',"MemWrite":0,"RegDst":0,"MemtoReg":0,"RegWrite":0,"Branch":0, "PC": 0}
 global cache_type
 global blk_size   #Block size in Bytes
 global num_ways   #Number of ways
@@ -112,6 +113,24 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
         cycle1+=1
         controlSignals["AluScrA"]+=0
         controlSignals["AluScrB"]='01'
+        
+        controlSignals2["AluScrA"]=0
+        controlSignals2["AluScrB"]='01'
+        controlSignals2["RegDst"]= 3
+        controlSignals2["MemtoReg"]=3
+        controlSignals2["RegWrite"]=3
+        controlSignals2["Branch"]=3
+        controlSignals2["MemWrite"]=0
+        if(diagnosis==1):
+            print("instruction {} at cycle 1\n Current PC content = {}".format(l,controlSignals2["PC"]))
+            printSignals2= str(controlSignals2)
+            printSignals2= printSignals2.replace("'","")
+            printSignals2= printSignals2.replace("{","")
+            printSignals2= printSignals2.replace("}","")
+            printSignals2= printSignals2.replace(",","\n")
+            printSignals2= printSignals2.replace("3","X")
+            printSignals2= printSignals2.replace(":","=")
+            print(" "+ printSignals2)
         #controlSignals["PCSrc"]=0
         #controlSignals["IorD"]=0
        # controlSignals["AluOp"]='00'
@@ -122,36 +141,146 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
         cycle2+=1
         controlSignals["AluScrA"]+=0 
         controlSignals["AluScrB"]='11'
+        
+        controlSignals2["PC"]+=4
+        controlSignals2["AluScrA"]=0
+        controlSignals2["AluScrB"]='11'
+        controlSignals2["RegDst"]= 3
+        controlSignals2["MemtoReg"]=3
+        controlSignals2["RegWrite"]=3
+        controlSignals2["Branch"]=3
+        controlSignals2["MemWrite"]=3
+        if(diagnosis==1):
+            print("instruction {} at cycle 2\n Current PC content = {}".format(l,controlSignals2["PC"]))
+            printSignals2= str(controlSignals2)
+            printSignals2= printSignals2.replace("'","")
+            printSignals2= printSignals2.replace("{","")
+            printSignals2= printSignals2.replace("}","")
+            printSignals2= printSignals2.replace(",","\n")
+            printSignals2= printSignals2.replace("3","X")
+            printSignals2= printSignals2.replace(":","=")
+            print(" "+ printSignals2)
        # controlSignals["AluOp"]='00'
         if "w" in l[0:2]:
        #cycle3 
             cycle3+=1
             controlSignals["AluScrA"]+=1
             controlSignals["AluScrB"]='10'
+           
+            controlSignals2["AluScrA"]=0
+            controlSignals2["AluScrB"]='10'
+            controlSignals2["RegDst"]= 3
+            controlSignals2["MemtoReg"]=3
+            controlSignals2["RegWrite"]=3
+            controlSignals2["Branch"]=0
+            controlSignals2["MemWrite"]=3
+            if(diagnosis==1):
+                print("instruction {} at cycle 3\n Current PC content = {}".format(l,controlSignals2["PC"]))
+                printSignals2= str(controlSignals2)
+                printSignals2= printSignals2.replace("'","")
+                printSignals2= printSignals2.replace("{","")
+                printSignals2= printSignals2.replace("}","")
+                printSignals2= printSignals2.replace(",","\n")
+                printSignals2= printSignals2.replace("3","X")
+                printSignals2= printSignals2.replace(":","=")
+                print(" "+ printSignals2)
            # controlSignals["AluOp"]='00'
        #cycle4
             print("word_offset", word_offset)
             pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
             #controlSignals["IorD"]=0
             cycle4+=1
+            controlSignals2["AluScrA"]=3
+            controlSignals2["AluScrB"]='3'
+            controlSignals2["RegDst"]= 3
+            controlSignals2["MemtoReg"]=3
+            controlSignals2["RegWrite"]=3
+            controlSignals2["Branch"]=3
             if "sw" in l:
                 controlSignals["c4"]+=1
                 controlSignals["MemWrite"]+=1
+                controlSignals2["MemWrite"]=1
+                if(diagnosis==1):
+                    print("instruction {} at cycle 4\n Current PC content = {}".format(l,controlSignals2["PC"]))
+                    printSignals2= str(controlSignals2)
+                    printSignals2= printSignals2.replace("'","")
+                    printSignals2= printSignals2.replace("{","")
+                    printSignals2= printSignals2.replace("}","")
+                    printSignals2= printSignals2.replace(",","\n")
+                    printSignals2= printSignals2.replace("3","X")
+                    printSignals2= printSignals2.replace(":","=")
+                    print(" "+ printSignals2)
             else:
-                 cycle5+=1
-                 controlSignals["c5"]+=1
-                 controlSignals["RegDst"]+= 0
-                 controlSignals["MemtoReg"]+=1
-                 controlSignals["RegWrite"]+=1
+                controlSignals["RegDst"]+= 0
+                controlSignals["MemtoReg"]+=0
+                controlSignals["RegWrite"]+=0
+                 
+                controlSignals2["AluScrA"]=3
+                controlSignals2["AluScrB"]='3'
+                controlSignals2["RegDst"]= 3
+                controlSignals2["MemtoReg"]=3
+                controlSignals2["RegWrite"]=3
+                controlSignals2["Branch"]=3
+                controlSignals2["MemWrite"]=0
+                if(diagnosis==1):
+                    print("instruction {} at cycle 4\n Current PC content = {}".format(l,controlSignals2["PC"]))
+                    printSignals2= str(controlSignals2)
+                    printSignals2= printSignals2.replace("'","")
+                    printSignals2= printSignals2.replace("{","")
+                    printSignals2= printSignals2.replace("}","")
+                    printSignals2= printSignals2.replace(",","\n")
+                    printSignals2= printSignals2.replace("3","X")
+                    printSignals2= printSignals2.replace(":","=")
+                    print(" "+ printSignals2)
+
+                cycle5+=1
+                controlSignals["c5"]+=1
+                controlSignals["RegDst"]+= 0
+                controlSignals["MemtoReg"]+=1
+                controlSignals["RegWrite"]+=1
+                 
+                controlSignals2["AluScrA"]=3
+                controlSignals2["AluScrB"]='3'
+                controlSignals2["RegDst"]= 0
+                controlSignals2["MemtoReg"]=1
+                controlSignals2["RegWrite"]=1
+                controlSignals2["Branch"]=3
+                controlSignals2["MemWrite"]=0
+                if(diagnosis==1):
+                    print("instruction {} at cycle 5\n Current PC content = {}".format(l,controlSignals2["PC"]))
+                    printSignals2= str(controlSignals2)
+                    printSignals2= printSignals2.replace("'","")
+                    printSignals2= printSignals2.replace("{","")
+                    printSignals2= printSignals2.replace("}","")
+                    printSignals2= printSignals2.replace(",","\n")
+                    printSignals2= printSignals2.replace("3","X")
+                    printSignals2= printSignals2.replace(":","=")
+                    print(" "+ printSignals2)
         elif "bne" in l:
       #cycle3 
             cycle3+=1
             controlSignals["c3"]+=1
             controlSignals["AluScrA"]+= 1
             controlSignals["AluScrB"]='10'
-          # controlSignals["AluOp"]='01'
-           # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
+            
+            controlSignals2["AluScrA"]=1
+            controlSignals2["AluScrB"]='00'
+            controlSignals2["RegDst"]= 3
+            controlSignals2["MemtoReg"]=3
+            controlSignals2["RegWrite"]=3
+            controlSignals2["Branch"]=1
+            controlSignals2["MemWrite"]=3
+            if(diagnosis==1):
+                print("instruction {} at cycle 3\n Current PC content = {}".format(l,controlSignals2["PC"]))
+                printSignals2= str(controlSignals2)
+                printSignals2= printSignals2.replace("'","")
+                printSignals2= printSignals2.replace("{","")
+                printSignals2= printSignals2.replace("}","")
+                printSignals2= printSignals2.replace(",","\n")
+                printSignals2= printSignals2.replace("3","X")
+                printSignals2= printSignals2.replace(":","=")
+                print(" "+ printSignals2)
             pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
         elif "beq" in l:
       #cycle3 
@@ -159,9 +288,25 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
             controlSignals["c3"]+=1
             controlSignals["AluScrA"]+= 1
             controlSignals["AluScrB"]='10'
-          # controlSignals["AluOp"]='01'
-           # controlSignals["PCSrc"]=1
             controlSignals["Branch"]+=1
+            
+            controlSignals2["AluScrA"]=1
+            controlSignals2["AluScrB"]='00'
+            controlSignals2["RegDst"]= 3
+            controlSignals2["MemtoReg"]=3
+            controlSignals2["RegWrite"]=3
+            controlSignals2["Branch"]=1
+            controlSignals2["MemWrite"]=3
+            if(diagnosis==1):
+                print("instruction {} at cycle 3\n Current PC content = {}".format(l,controlSignals2["PC"]))
+                printSignals2= str(controlSignals2)
+                printSignals2= printSignals2.replace("'","")
+                printSignals2= printSignals2.replace("{","")
+                printSignals2= printSignals2.replace("}","")
+                printSignals2= printSignals2.replace(",","\n")
+                printSignals2= printSignals2.replace("3","X")
+                printSignals2= printSignals2.replace(":","=")
+                print(" "+ printSignals2)
             pc, Cache, LRU, Tag, Valid = instrExecution(l, pc, set_offset, word_offset, Cache, LRU, Tag, Valid)
         else:
             controlSignals["c4"]+=1
@@ -170,6 +315,24 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                 cycle3+=1
                 controlSignals["AluScrA"]+= 1
                 controlSignals["AluScrB"]='10'
+                
+                controlSignals2["AluScrA"]=1
+                controlSignals2["AluScrB"]='10'
+                controlSignals2["RegDst"]= 3
+                controlSignals2["MemtoReg"]=3
+                controlSignals2["RegWrite"]=3
+                controlSignals2["Branch"]=0
+                controlSignals2["MemWrite"]=3
+                if(diagnosis==1):
+                    print("instruction {} at cycle 3\n Current PC content = {}".format(l,controlSignals2["PC"]))
+                    printSignals2= str(controlSignals2)
+                    printSignals2= printSignals2.replace("'","")
+                    printSignals2= printSignals2.replace("{","")
+                    printSignals2= printSignals2.replace("}","")
+                    printSignals2= printSignals2.replace(",","\n")
+                    printSignals2= printSignals2.replace("3","X")
+                    printSignals2= printSignals2.replace(":","=")
+                    print(" "+ printSignals2)
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
@@ -177,9 +340,45 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                 controlSignals["RegDst"]+= 0
                 controlSignals["MemtoReg"]+=0
                 controlSignals["RegWrite"]+=1
+
+                controlSignals2["AluScrA"]=3
+                controlSignals2["AluScrB"]='3'
+                controlSignals2["RegDst"]= 0
+                controlSignals2["MemtoReg"]=0
+                controlSignals2["RegWrite"]=1
+                controlSignals2["Branch"]=3
+                controlSignals2["MemWrite"]=3
+                if(diagnosis==1):
+                    print("instruction {} at cycle 4\n Current PC content = {}".format(l,controlSignals2["PC"]))
+                    printSignals2= str(controlSignals2)
+                    printSignals2= printSignals2.replace("'","")
+                    printSignals2= printSignals2.replace("{","")
+                    printSignals2= printSignals2.replace("}","")
+                    printSignals2= printSignals2.replace(",","\n")
+                    printSignals2= printSignals2.replace("3","X")
+                    printSignals2= printSignals2.replace(":","=")
+                    print(" "+ printSignals2)
             else:
                 controlSignals["AluScrA"]+=1 
                 controlSignals["AluScrB"]='00'
+               
+                controlSignals2["AluScrA"]=1
+                controlSignals2["AluScrB"]='00'
+                controlSignals2["RegDst"]= 3
+                controlSignals2["MemtoReg"]=3
+                controlSignals2["RegWrite"]=3
+                controlSignals2["Branch"]=0
+                controlSignals2["MemWrite"]=3
+                if(diagnosis==1):
+                    print("instruction {} at cycle 3\n Current PC content = {}".format(l,controlSignals2["PC"]))
+                    printSignals2= str(controlSignals2)
+                    printSignals2= printSignals2.replace("'","")
+                    printSignals2= printSignals2.replace("{","")
+                    printSignals2= printSignals2.replace("}","")
+                    printSignals2= printSignals2.replace(",","\n")
+                    printSignals2= printSignals2.replace("3","X")
+                    printSignals2= printSignals2.replace(":","=")
+                    print(" "+ printSignals2)
               #  controlSignals["AluOp"]='10'
                 #cycle4
                 cycle4+=1
@@ -187,6 +386,24 @@ def multiCycle(instrs, DIC, pc, cycles, set_offset, word_offset):
                 controlSignals["RegDst"]+= 1
                 controlSignals["MemtoReg"]+=0
                 controlSignals["RegWrite"]+=1
+                
+                controlSignals2["AluScrA"]=3
+                controlSignals2["AluScrB"]='3'
+                controlSignals2["RegDst"]= 1
+                controlSignals2["MemtoReg"]=0
+                controlSignals2["RegWrite"]=1
+                controlSignals2["Branch"]=3
+                controlSignals2["MemWrite"]=3
+                if(diagnosis==1):
+                    print("instruction {} at cycle 4\n Current PC content = {}".format(l,controlSignals2["PC"]))
+                    printSignals2= str(controlSignals2)
+                    printSignals2= printSignals2.replace("'","")
+                    printSignals2= printSignals2.replace("{","")
+                    printSignals2= printSignals2.replace("}","")
+                    printSignals2= printSignals2.replace(",","\n")
+                    printSignals2= printSignals2.replace("3","X")
+                    printSignals2= printSignals2.replace(":","=")
+                    print(" "+ printSignals2)
 
 def pathsandprint(aluoutm1,aluoutm2, diagnostic):
     print("\n")
@@ -525,8 +742,8 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
-
+            pathsandprint(aluoutm1, aluoutm2)
+           
             ft["nop"] = 3
         if (int(pc / 4) >= len(instrs)):
             cycles += 1
@@ -542,7 +759,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             cycles += 1
             wb = m.copy()
@@ -555,7 +772,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             cycles += 1
             wb = m.copy()
@@ -566,7 +783,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             cycles += 1
             wb = m.copy()
@@ -575,14 +792,15 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
 
             cycles += 1
             wb["nop"] = 2
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnosis)
+            pathsandprint(aluoutm1, aluoutm2)
+
 
 def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
     print("you are in cache analysis")
@@ -1464,7 +1682,8 @@ def main():
         line = line.replace(" ","")
         line = line.replace("zero","0") # assembly can also use both $zero and $0
         instrs.append(line)
-    while True:       
+    while True: 
+        
         print("Please enter if you want to enter diagnosis mode")
         diagnosis = input("0 - For No, 1 - For Yes: ")
         
@@ -1479,99 +1698,108 @@ def main():
         word_offset = int(math.log(blk_size,2)) 
         set_offset = int(math.log(total_s,2))   
         print("\n")
-        cpu = "1"
+        
+        cpu = 5
+        while cpu != "0" and cpu != "1":
+            print("pipe line or multi cycle?")
+            print("enter 1 for multicycle")
+            print("0 for pipe line")
+            cpu = input()
+            if cpu != "1" and cpu != "0":
+                print("\ninvalid option please enter one of the following options\n")
+        print("\n")
 
-    if cpu == "1":
-        FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
-    else:
-        FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
-
-        print("All memory contents:")
-        for k in range(0,1024):
-            mem= 8192+ (k*4)
-            memlo= mem- 8192
-            first = format(memory[memlo],"08b")
-            memlo+=1
-            second = format(memory[memlo],"08b")
-            memlo+=1
-            third = format(memory[memlo],"08b")
-            memlo+=1
-            fourth = format(memory[memlo],"08b")
-            memlo+=1
-            word =  fourth+ third + second+first
-            word= int(word,2)
-            word = format(word,"08x")
-            print("memory","{}: {}".format(hex(mem),word), end='| ')
-            if(k%7 == 0 and k > 0):
-                print("\n")
-            #print("memory", hex(mem)+": 0x"+ word )
-    
-        print("all register values:")
-        proregister= str(registers)
-        proregister= proregister.replace("'","")
-        proregister= proregister.replace("{","")
-        proregister= proregister.replace("}","")
-        proregister= proregister.replace(",",";")
-        #print(registers)
-        print(proregister)
-        print("Final PC =",FinalPC)
-        print("memory contents from 0x2000 - 0x2050:")
-        for l in range(0,21):
-            mem= 8192+ (l*4)
-            memlo= mem- 8192
-            first = format(memory[memlo],"08b")
-            memlo+=1
-            second = format(memory[memlo],"08b")
-            memlo+=1
-            third = format(memory[memlo],"08b")
-            memlo+=1
-            fourth = format(memory[memlo],"08b")
-            memlo+=1
-            word =  fourth+ third + second+first
-            word= int(word,2)
-            word = format(word,"08x")
-            print("memory", hex(mem)+": 0x"+ word )
-   
-        if(cpu=="1"):
-            print("Final Multicycle Statistics ")
-            per5 = (controlSignals["c5"]/FinalDIC)*100
-            per4 = (controlSignals["c4"]/FinalDIC)*100
-            per3 = (controlSignals["c3"]/FinalDIC)*100
-            print("Dynamic Instruction Count: ",FinalDIC)
-            print("Total Cycle Count: ",TotalCycles)
-            print("Instruction Count with 3 Cycles: \n{} was executed\n {}%".format(controlSignals["c3"], per3))
-            print("Instruction Count with 4 Cycles:  \n{} was executed\n {}%".format(controlSignals["c4"], per4))
-            print("Instruction Count with 5 Cycles: \n{} was executed\n {}%".format(controlSignals["c5"], per5))
-            cpi= (controlSignals["c5"]*5+controlSignals["c4"]*4+controlSignals["c3"]*3)/FinalDIC
-            print("CPI: ({}*5+{}*4+{}*3)/{} = {}".format(controlSignals["c5"],controlSignals["c4"],controlSignals["c3"], FinalDIC, cpi))
-            per5 = (controlSignals["MemtoReg"]/TotalCycles)*100
-            per4 = (controlSignals["MemWrite"]/TotalCycles)*100
-            per3 = (controlSignals["Branch"]/TotalCycles)*100
-            per2 = (controlSignals["AluScrA"]/TotalCycles)*100
-            per1 = (controlSignals["RegDst"]/TotalCycles)*100
-            per0 = (controlSignals["RegWrite"]/TotalCycles)*100
-            print("MemtoReg:{}% was 1".format(per5))
-            print("MemWrite: {}% was 1".format(per4))
-            print("Branch: {}% was 1".format(per3))
-            print("ALUSrc: {}% was 1".format(per2))
-            print("RegDst: {}% was 1".format(per1))
-            print("RegWrite: {}% was 1".format(per0))
+        if cpu == "1":
+            FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
         else:
-            print("Final Pipeline Statistics ")
-            print("Dynamic Instruction Count: ",FinalDIC)
-            print("Total Cycle Count: ",TotalCycles)
-            stat= str(stats)
-            stat= stat.replace("'","")
-            stat= stat.replace("{","")
-            stat= stat.replace("}","")
-            stat= stat.replace(",","\n")
-            print(" "+ stat)
-            #print(stats, sep= '|')
-        print("Hit Rate = ", Hits/(Hits+Misses), "%")
-        print("Would you like to exit the program?(y/n)")
-        con = input()
-        if con == "y":
-            break
+            FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+
+            print("All memory contents:")
+            for k in range(0,1024):
+                mem= 8192+ (k*4)
+                memlo= mem- 8192
+                first = format(memory[memlo],"08b")
+                memlo+=1
+                second = format(memory[memlo],"08b")
+                memlo+=1
+                third = format(memory[memlo],"08b")
+                memlo+=1
+                fourth = format(memory[memlo],"08b")
+                memlo+=1
+                word =  fourth+ third + second+first
+                word= int(word,2)
+                word = format(word,"08x")
+                print("memory","{}: {}".format(hex(mem),word), end='| ')
+                if(k%7 == 0 and k > 0):
+                    print("\n")
+                #print("memory", hex(mem)+": 0x"+ word )
+    
+            print("all register values:")
+            proregister= str(registers)
+            proregister= proregister.replace("'","")
+            proregister= proregister.replace("{","")
+            proregister= proregister.replace("}","")
+            proregister= proregister.replace(",",";")
+            #print(registers)
+            print(proregister)
+            print("Final PC =",FinalPC)
+            print("memory contents from 0x2000 - 0x2050:")
+            for l in range(0,21):
+                mem= 8192+ (l*4)
+                memlo= mem- 8192
+                first = format(memory[memlo],"08b")
+                memlo+=1
+                second = format(memory[memlo],"08b")
+                memlo+=1
+                third = format(memory[memlo],"08b")
+                memlo+=1
+                fourth = format(memory[memlo],"08b")
+                memlo+=1
+                word =  fourth+ third + second+first
+                word= int(word,2)
+                word = format(word,"08x")
+                print("memory", hex(mem)+": 0x"+ word )
+   
+            if(cpu=="1"):
+                print("Final Multicycle Statistics ")
+                per5 = (controlSignals["c5"]/FinalDIC)*100
+                per4 = (controlSignals["c4"]/FinalDIC)*100
+                per3 = (controlSignals["c3"]/FinalDIC)*100
+                print("Dynamic Instruction Count: ",FinalDIC)
+                print("Total Cycle Count: ",TotalCycles)
+                print("Instruction Count with 3 Cycles: \n{} was executed\n {}%".format(controlSignals["c3"], per3))
+                print("Instruction Count with 4 Cycles:  \n{} was executed\n {}%".format(controlSignals["c4"], per4))
+                print("Instruction Count with 5 Cycles: \n{} was executed\n {}%".format(controlSignals["c5"], per5))
+                cpi= (controlSignals["c5"]*5+controlSignals["c4"]*4+controlSignals["c3"]*3)/FinalDIC
+                print("CPI: ({}*5+{}*4+{}*3)/{} = {}".format(controlSignals["c5"],controlSignals["c4"],controlSignals["c3"], FinalDIC, cpi))
+                per5 = (controlSignals["MemtoReg"]/TotalCycles)*100
+                per4 = (controlSignals["MemWrite"]/TotalCycles)*100
+                per3 = (controlSignals["Branch"]/TotalCycles)*100
+                per2 = (controlSignals["AluScrA"]/TotalCycles)*100
+                per1 = (controlSignals["RegDst"]/TotalCycles)*100
+                per0 = (controlSignals["RegWrite"]/TotalCycles)*100
+                print("MemtoReg:{}% was 1".format(per5))
+                print("MemWrite: {}% was 1".format(per4))
+                print("Branch: {}% was 1".format(per3))
+                print("ALUSrc: {}% was 1".format(per2))
+                print("RegDst: {}% was 1".format(per1))
+                print("RegWrite: {}% was 1".format(per0))
+            else:
+                print("Final Pipeline Statistics ")
+                print("Dynamic Instruction Count: ",FinalDIC)
+                print("Total Cycle Count: ",TotalCycles)
+                stat= str(stats)
+                stat= stat.replace("'","")
+                stat= stat.replace("{","")
+                stat= stat.replace("}","")
+                stat= stat.replace(",","\n")
+                print(" "+ stat)
+                #print(stats, sep= '|')
+            print("Hit Rate = ", Hits/(Hits+Misses), "%")
+            print("Would you like to exit the program?(y/n)")
+            con = input()
+            if con == "y":
+                exit()
 
 
 if __name__ == "__main__":
