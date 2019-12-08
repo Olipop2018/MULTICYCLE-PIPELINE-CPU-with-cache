@@ -563,42 +563,42 @@ def pathsandprint(aluoutm1,aluoutm2):
                         print("ResultW ‐> SrcBE")
                     stats["ResultW ‐> SrcBE"] += 1
 
-		if (de["name"] == "beq") or (de["name"] == "bne"):
-			if wb["type"] == "r" and ((wb["reghold"]["rd"] == de["reghold"]["rs"]) or (wb["reghold"]["rd"] == de["reghold"]["rt"])):
+        if (de["name"] == "beq") or (de["name"] == "bne"):
+            if wb["type"] == "r" and ((wb["reghold"]["rd"] == de["reghold"]["rs"]) or (wb["reghold"]["rd"] == de["reghold"]["rt"])):
                 if (ex["reghold"]["rt"] != de["reghold"]["rs"]) and (ex["reghold"]["rt"] != de["reghold"]["rt"]) and de["nop"] == 0:
-					jolly = 1
-					if diagnostic == 1:
-						print("ResultW ‐> EqualD")
-					stats["ResultW ‐> EqualD"] += 1
-			if wb["type"] == "i" and wb["name"] != "sw" and ((wb["reghold"]["rt"] == de["reghold"]["rs"]) or (wb["reghold"]["rt"] == de["reghold"]["rt"])) :
-				if (ex["reghold"]["rt"] != de["reghold"]["rs"]) and (ex["reghold"]["rt"] != de["reghold"]["rt"]) and de["nop"] == 0:
-					print(ft)
-					print(de)
-					print(ex)
-					print(m)
-					print(wb)
+                    jolly = 1
+                    if diagnostic == 1:
+                        print("ResultW ‐> EqualD")
+                    stats["ResultW ‐> EqualD"] += 1
+            if wb["type"] == "i" and wb["name"] != "sw" and ((wb["reghold"]["rt"] == de["reghold"]["rs"]) or (wb["reghold"]["rt"] == de["reghold"]["rt"])) :
+                if (ex["reghold"]["rt"] != de["reghold"]["rs"]) and (ex["reghold"]["rt"] != de["reghold"]["rt"]) and de["nop"] == 0:
+                    print(ft)
+                    print(de)
+                    print(ex)
+                    print(m)
+                    print(wb)
 
-					if diagnostic == 1:
-						print("ResultW ‐> EqualD")
-						jolly = 1
-					stats["ResultW ‐> EqualD"] += 1
+                    if diagnostic == 1:
+                        print("ResultW ‐> EqualD")
+                        jolly = 1
+                    stats["ResultW ‐> EqualD"] += 1
 
-				if diagnostic == 1:
-					print("ResultW ‐> EqualD")
-				stats["ResultW ‐> EqualD"] += 1
-			if wb["type"] == "i" and wb["name"] != "sw" and ((wb["reghold"]["rt"] == de["reghold"]["rs"]) or (wb["reghold"]["rt"] ==de["reghold"]["rt"])):
-				if diagnostic == 1:
-					print("ResultW ‐> EqualD")
-				stats["ResultW ‐> EqualD"] += 1
+                if diagnostic == 1:
+                    print("ResultW ‐> EqualD")
+                stats["ResultW ‐> EqualD"] += 1
+            if wb["type"] == "i" and wb["name"] != "sw" and ((wb["reghold"]["rt"] == de["reghold"]["rs"]) or (wb["reghold"]["rt"] ==de["reghold"]["rt"])):
+                if diagnostic == 1:
+                    print("ResultW ‐> EqualD")
+                stats["ResultW ‐> EqualD"] += 1
 
-	if diagnostic == 1:
-		print("end of fowarding paths taken\n")
+    if diagnostic == 1:
+        print("end of fowarding paths taken\n")
 
 
-		print("current instruction's in each cycle")
-		print("fetch: {} , decode: {}, execution: {} , memory: {} , write back: {}\n".format(fetch, decode,execution,mem,writeBack), sep='|')
-		if jolly == 1:
-			input()
+        print("current instruction's in each cycle")
+        print("fetch: {} , decode: {}, execution: {} , memory: {} , write back: {}\n".format(fetch, decode,execution,mem,writeBack), sep='|')
+        if jolly == 1:
+            input()
       #  input("press enter to continue")
 
 
