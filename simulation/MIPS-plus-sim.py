@@ -834,7 +834,7 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
             pathsandprint(aluoutm1, aluoutm2)
 
 def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
-    print("you are in cache analysis")
+    #print("you are in cache analysis")
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -843,7 +843,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
     global Misses 
     global Hits
     global diagnosis
-    print("In Progress")
+   
     updated = 0
     mem = format(mem, '016b')
     mem = mem[:16]
@@ -945,7 +945,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                 print("--------------------------------------------------------")
                 print(Valid)
                 print("--------------------------------------------------------")
-                input("Press anykey to continue")
+                #input("Press anykey to continue")
             
         if(updated == 1):
             break
@@ -1015,7 +1015,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
                     print("Cache Hit")
                     print("Tag: ", Tag[setIndex][o])
                     print(Cache)
-                    input("Press anykey to continue")
+                    #input("Press anykey to continue")
                     
         if(updated == 1):
             break
@@ -1108,7 +1108,7 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             print("------------------------------------------------------------")
             print(LRU)
             print("------------------------------------------------------------")
-            input("Press anykey to continue")
+            #input("Press anykey to continue")
         
     return(Cache, LRU, Tag, Valid)	
 
@@ -1742,7 +1742,7 @@ def main():
     global stats
     
    # f = open("mc.txt","w+")
-    h = open("ProgramB_Testcase2","r")
+    h = open("ProgramA_Testcase2","r")
     asm = h.readlines()
     instrs = []
     
@@ -1822,12 +1822,12 @@ def main():
                 print("\n")
             #print("memory", hex(mem)+": 0x"+ word )
     
-        print("All register values:")
+        print("\nAll register values:")
         proregister= str(registers)
         proregister= proregister.replace("'","")
         proregister= proregister.replace("{","")
         proregister= proregister.replace("}","")
-        proregister= proregister.replace(",",";")
+        proregister= proregister.replace(",","\n")
         #print(registers)
         print(proregister)
         print("Final PC =",FinalPC)
