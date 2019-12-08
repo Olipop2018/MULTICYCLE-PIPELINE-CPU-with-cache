@@ -331,7 +331,7 @@ def pathsandprint(aluoutm1,aluoutm2, diagnostic):
 
 
     
-def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
+def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
     global cache_type
     global blk_size   #Block size in Bytes
     global num_ways   #Number of ways
@@ -441,7 +441,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
         aluoutm1 = 0
         aluoutm2 = 0
-        pathsandprint(aluoutm1, aluoutm2, diagnostic)
+        pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
         if ex["stall"] == 2:
             cycles += 1
@@ -454,7 +454,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             cycles += 1
             wb = m.copy()
@@ -464,7 +464,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
         if ex["stall"] == 1:
             cycles += 1
@@ -477,7 +477,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
         if ft["branch"] == 1:
             cycles += 1
@@ -525,7 +525,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             ft["nop"] = 3
         if (int(pc / 4) >= len(instrs)):
@@ -542,7 +542,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             cycles += 1
             wb = m.copy()
@@ -555,7 +555,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             cycles += 1
             wb = m.copy()
@@ -566,7 +566,7 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             cycles += 1
             wb = m.copy()
@@ -575,14 +575,14 @@ def pipeline(instrs, DIC, pc, cycles, diagnostic,set_offset, word_offset):
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
             cycles += 1
             wb["nop"] = 2
 
             aluoutm1 = 0
             aluoutm2 = 0
-            pathsandprint(aluoutm1, aluoutm2, diagnostic)
+            pathsandprint(aluoutm1, aluoutm2, diagnosis)
 
 def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offset):
     print("you are in cache analysis")
@@ -682,12 +682,10 @@ def cacheAnalysis(Valid, Cache, mem, rt, Tag, LRU, lworsw, set_offset, word_offs
             Tag[setIndex][o] = mem[0:16-set_offset-word_offset]
             updated = 1;
             LRU[setIndex].remove('')
-            LRU[setIndex].append(o) 
+            LRU[setIndex].append(o)
             
         if(updated == 1):
             break
-        
-        
         else:
             if(Tag[setIndex][o] == mem[0:16-set_offset-word_offset]):
                 if(lworsw == 0):
@@ -1499,10 +1497,10 @@ def main():
             if diagnosis != "1" or diagnosis != "0":
                 print("\ninvalid option please enter one of the following options")
 
-        if cpu == "1":
-            FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, diagnosis, set_offset, word_offset)
-        else:
-            FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, diagnosis, set_offset, word_offset)
+    if cpu == "1":
+        FinalDIC, FinalPC, TotalCycles = multiCycle(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
+    else:
+        FinalDIC, FinalPC, TotalCycles = pipeline(instrs, FinalDIC, FinalPC, TotalCycles, set_offset, word_offset)
 
         print("All memory contents:")
         for k in range(0,1024):
