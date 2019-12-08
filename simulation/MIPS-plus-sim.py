@@ -1491,7 +1491,7 @@ def instrExecution(line, pc, set_offset, word_offset, Cache, LRU, Tag, Valid):
             Cache, LRU, Tag, Valid = cacheAnalysisByte(Valid, Cache, memo, rt_t, Tag, LRU, 1, set_offset, word_offset)
             rt= format(rt,'08b')
             rt= int(rt,2)
-            memory[mem] = rt
+            #memory[mem] = rt
             print ("result memory:", hex(memo) ,"=", hex(rt))
             pc+= 4# increments pc by 4 
        
