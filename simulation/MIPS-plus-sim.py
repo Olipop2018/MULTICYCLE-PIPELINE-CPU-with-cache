@@ -21,42 +21,7 @@ global de
 global ex
 global m
 global wb
-#ft = defaultpipe.copy()
-##ft = defaultpipe.copy()
-#de = defaultpipe.copy()
-#ex = defaultpipe.copy()
-#m = defaultpipe.copy()
-#wb = defaultpipe.copy()
 
-
-#ft = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
-#            "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
-
-#            }
-
-#de = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
-#            "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
-
-#            }
-
-#ex = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
-#            "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
-
-#            }
-
-#m = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
-#            "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
-
-#            }
-
-#wb = {"instr": " ", "type": " ", "stall": 0, "name": " ", "nop": 2, "branch": 0,
-#            "reghold": {"rs": " ", "rd": " ", "rt": " "},
-
-#            }
 defaultstats= {"delay" : 0,
         "flush" : 0,
         "ALUOutM -> srcAE" : 0,
