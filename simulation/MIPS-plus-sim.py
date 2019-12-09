@@ -655,10 +655,11 @@ def pipeline(instrs, DIC, pc, cycles,set_offset, word_offset):
         else:
             ft["type"] = "r"
 
-
+        
         tmp = l
         tmp = re.split('(\d+)',tmp)
-        tmp.pop(2)
+        
+        tmp.pop(2) 
         tmp.pop(3)
         ft["name"] = tmp[0]
         tmp.pop(0)
